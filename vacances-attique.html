@@ -880,6 +880,20 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
 });
 
+/* Appli installée sur l'écran d'accueil : sur iOS, un lien target="_blank" est
+   avalé sans rien faire — pas de nouvel onglet à ouvrir. On force la navigation,
+   que le système confie à Safari puisque Google Maps est un autre domaine. */
+const estInstallee = () =>
+  navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+if (estInstallee()){
+  document.addEventListener("click", e => {
+    const a = e.target.closest('a[target="_blank"][href]');
+    if (!a) return;
+    e.preventDefault();
+    location.href = a.href;
+  });
+}
+
 document.addEventListener("keydown", e => {
   if (e.target.matches("input")) return;
   if (e.key === "ArrowRight") goToDay(state.day + 1);
