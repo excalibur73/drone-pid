@@ -2,7 +2,7 @@
 <style>
 /* ─────────────────────────────  TOKENS  ───────────────────────────── */
 :root{
-  /* light — sel de mer, marbre, eau claire */
+  /* clair — sel de mer, marbre, eau claire */
   --ground:#E9EFEF;
   --surface:#FDFEFE;
   --surface-2:#F1F6F6;
@@ -20,7 +20,6 @@
   --ochre-soft:#F8E7D8;
 
   --shadow:0 1px 2px rgba(17,38,44,.05), 0 8px 24px -12px rgba(17,38,44,.18);
-  --shadow-lift:0 2px 4px rgba(17,38,44,.06), 0 18px 40px -16px rgba(17,38,44,.28);
 
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Hoefler Text","Book Antiqua",Georgia,serif;
   --sans:"Avenir Next",Avenir,"Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
@@ -31,39 +30,23 @@
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --ground:#081519;
-    --surface:#0E252C;
-    --surface-2:#123039;
-    --line:#1F4550;
-    --line-soft:#173741;
-    --ink:#DEEAEA;
-    --ink-2:#A5BEC1;
-    --ink-3:#76959A;
-
+    --ground:#081519; --surface:#0E252C; --surface-2:#123039;
+    --line:#1F4550; --line-soft:#173741;
+    --ink:#DEEAEA; --ink-2:#A5BEC1; --ink-3:#76959A;
     --sea:#54CFC2; --sea-soft:#0F3A3B;
     --stone:#BCA2EC; --stone-soft:#2B2444;
     --ochre:#E9A45F; --ochre-soft:#3A2617;
-
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
-    --shadow-lift:0 2px 6px rgba(0,0,0,.45), 0 20px 46px -18px rgba(0,0,0,.8);
   }
 }
 :root[data-theme="dark"]{
-  --ground:#081519;
-  --surface:#0E252C;
-  --surface-2:#123039;
-  --line:#1F4550;
-  --line-soft:#173741;
-  --ink:#DEEAEA;
-  --ink-2:#A5BEC1;
-  --ink-3:#76959A;
-
+  --ground:#081519; --surface:#0E252C; --surface-2:#123039;
+  --line:#1F4550; --line-soft:#173741;
+  --ink:#DEEAEA; --ink-2:#A5BEC1; --ink-3:#76959A;
   --sea:#54CFC2; --sea-soft:#0F3A3B;
   --stone:#BCA2EC; --stone-soft:#2B2444;
   --ochre:#E9A45F; --ochre-soft:#3A2617;
-
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
-  --shadow-lift:0 2px 6px rgba(0,0,0,.45), 0 20px 46px -18px rgba(0,0,0,.8);
 }
 
 /* ─────────────────────────────  BASE  ───────────────────────────── */
@@ -72,41 +55,29 @@ html{-webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--ground); color:var(--ink);
   font-family:var(--sans); font-size:16px; line-height:1.55;
-  overflow-x:hidden;
+  overflow-x:hidden; overscroll-behavior-y:none;
 }
-h1,h2,h3{margin:0; text-wrap:balance; font-weight:600}
+h1,h2,h3,h4{margin:0; text-wrap:balance; font-weight:600}
 p{margin:0}
 a{color:inherit}
 button{font:inherit; color:inherit; background:none; border:none; cursor:pointer}
 :focus-visible{outline:2px solid var(--sea); outline-offset:2px; border-radius:4px}
-.wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+.wrap{max-width:var(--maxw); margin:0 auto; padding-left:20px; padding-right:20px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ─────────────────────────────  HORIZON  ───────────────────────────── */
-.horizon{
-  position:relative; overflow:hidden;
-  border-bottom:1px solid var(--line);
-  background:var(--surface);
-}
+.horizon{position:relative; overflow:hidden; border-bottom:1px solid var(--line); background:var(--surface)}
 .horizon::before{
-  content:""; position:absolute; inset:0;
+  content:""; position:absolute; inset:0; pointer-events:none;
   background:
     radial-gradient(120% 90% at 78% 118%, color-mix(in oklab, var(--ochre) 26%, transparent) 0%, transparent 58%),
     radial-gradient(120% 100% at 12% 118%, color-mix(in oklab, var(--sea) 22%, transparent) 0%, transparent 62%);
-  pointer-events:none;
 }
-/* padding-block seulement : le padding horizontal vient de .wrap */
 .horizon-inner{position:relative; padding-top:30px; padding-bottom:22px}
 
 .masthead{display:flex; align-items:flex-start; gap:18px; flex-wrap:wrap}
-.eyebrow{
-  font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
-  color:var(--ink-3);
-}
-h1{
-  font-family:var(--serif); font-weight:400; letter-spacing:-.01em;
-  font-size:clamp(1.85rem,4.4vw,2.9rem); line-height:1.08; margin:6px 0 0;
-}
+.eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
+h1{font-family:var(--serif); font-weight:400; letter-spacing:-.01em; font-size:clamp(1.85rem,4.4vw,2.9rem); line-height:1.08; margin-top:6px}
 h1 em{font-style:italic; color:var(--sea)}
 .sub{margin-top:8px; color:var(--ink-2); font-size:.95rem; max-width:56ch}
 .masthead-side{margin-left:auto; display:flex; gap:8px; align-items:center}
@@ -118,31 +89,22 @@ h1 em{font-style:italic; color:var(--sea)}
 }
 .iconbtn:hover{color:var(--sea); border-color:var(--sea); transform:translateY(-1px)}
 
-/* status bar */
 .status{
   margin-top:22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
   padding:12px 14px; border:1px solid var(--line); border-radius:var(--r);
-  background:color-mix(in oklab, var(--surface) 76%, transparent);
-  backdrop-filter:blur(6px);
+  background:color-mix(in oklab, var(--surface) 76%, transparent); backdrop-filter:blur(6px);
 }
-.status-key{
-  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--ink-3);
-}
+.status-key{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
 .status-val{font-size:1.02rem; font-weight:600}
 .status-val b{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--sea)}
-.track{
-  flex:1 1 190px; min-width:140px; height:5px; border-radius:99px;
-  background:var(--line-soft); overflow:hidden;
-}
+.track{flex:1 1 190px; min-width:140px; height:5px; border-radius:99px; background:var(--line-soft); overflow:hidden}
 .track > i{display:block; height:100%; background:linear-gradient(90deg,var(--sea),var(--ochre)); border-radius:99px; transition:width .6s ease}
 
 /* ─────────────────────────────  RAIL  ───────────────────────────── */
 .railbar{
   position:sticky; top:0; z-index:30;
   background:color-mix(in oklab, var(--ground) 90%, transparent);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
 }
 .rail{display:flex; gap:8px; overflow-x:auto; padding:11px 20px; scrollbar-width:thin; scroll-behavior:smooth}
 .rail::-webkit-scrollbar{height:5px}
@@ -152,7 +114,7 @@ h1 em{font-style:italic; color:var(--sea)}
   flex:0 0 auto; position:relative; text-align:left;
   padding:8px 13px 9px; border-radius:var(--r-sm);
   border:1px solid var(--line); background:var(--surface);
-  transition:border-color .18s, transform .18s, background .18s;
+  transition:border-color .18s, transform .18s, background .18s, opacity .18s;
 }
 .chip:hover{transform:translateY(-2px); border-color:var(--ink-3)}
 .chip .d{display:block; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
@@ -163,16 +125,14 @@ h1 em{font-style:italic; color:var(--sea)}
 .chip[aria-selected="true"]{background:var(--ink); border-color:var(--ink); color:var(--ground)}
 .chip[aria-selected="true"] .d{color:color-mix(in oklab, var(--ground) 72%, transparent)}
 .chip[aria-selected="true"] .bar{background:color-mix(in oklab, var(--ground) 30%, transparent)}
+.chip.faded{opacity:.34}
 .chip.today::after{
   content:""; position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%;
   background:var(--ochre); box-shadow:0 0 0 3px color-mix(in oklab, var(--ochre) 25%, transparent);
 }
 
 /* ─────────────────────────────  TOOLBAR  ───────────────────────────── */
-.toolbar{
-  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-  padding:16px 0 4px;
-}
+.toolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:16px 0 4px}
 .seg{display:flex; border:1px solid var(--line); border-radius:99px; overflow:hidden; background:var(--surface)}
 .seg button{padding:7px 15px; font-size:.86rem; font-weight:600; color:var(--ink-2); transition:background .18s,color .18s}
 .seg button[aria-pressed="true"]{background:var(--ink); color:var(--ground)}
@@ -187,72 +147,60 @@ h1 em{font-style:italic; color:var(--sea)}
 .f[aria-pressed="true"][data-k="site"]{color:var(--stone); border-color:var(--stone); background:var(--stone-soft)}
 .f[aria-pressed="true"][data-k="swim"]{color:var(--sea); border-color:var(--sea); background:var(--sea-soft)}
 .f[aria-pressed="true"][data-k="depart"]{color:var(--ochre); border-color:var(--ochre); background:var(--ochre-soft)}
-.search{
-  margin-left:auto; display:flex; align-items:center; gap:8px;
-  border:1px solid var(--line); border-radius:99px; background:var(--surface); padding:6px 14px;
-}
+.search{margin-left:auto; display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:99px; background:var(--surface); padding:6px 14px}
 .search svg{width:15px; height:15px; color:var(--ink-3); flex:0 0 auto}
-.search input{
-  border:none; background:none; outline:none; color:var(--ink);
-  font:inherit; font-size:.88rem; width:160px;
-}
+.search input{border:none; background:none; outline:none; color:var(--ink); font:inherit; font-size:.88rem; width:200px}
 .search input::placeholder{color:var(--ink-3)}
 
-/* ─────────────────────────────  DAY VIEW  ───────────────────────────── */
+/* ─────────────────────────────  VUE JOUR  ───────────────────────────── */
 main{padding-bottom:64px}
 .dayhead{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin:22px 0 4px}
 .dayhead h2{font-family:var(--serif); font-weight:400; font-size:clamp(1.5rem,3.4vw,2.05rem)}
-.tag{
-  font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
-  padding:4px 9px; border-radius:99px; border:1px solid currentColor;
-}
+.tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; padding:4px 9px; border-radius:99px; border:1px solid currentColor}
 .tag.p1{color:var(--sea)} .tag.p2{color:var(--ochre)}
 .basis{color:var(--ink-3); font-size:.88rem}
+.suntimes{
+  display:inline-flex; align-items:center; gap:7px; margin-left:auto;
+  font-family:var(--mono); font-size:.78rem; color:var(--ink-3);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.suntimes svg{width:13px; height:13px}
+.suntimes b{color:var(--ink-2); font-weight:600}
 
 .alarm{
   display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   margin:16px 0 22px; padding:13px 16px;
   border:1px solid color-mix(in oklab, var(--ochre) 42%, var(--line));
-  border-left:4px solid var(--ochre);
-  border-radius:var(--r); background:var(--ochre-soft);
+  border-left:4px solid var(--ochre); border-radius:var(--r); background:var(--ochre-soft);
 }
 .alarm svg{width:19px; height:19px; color:var(--ochre); flex:0 0 auto}
 .alarm .t{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:600; font-size:1.05rem; color:var(--ochre)}
 .alarm .l{font-size:.9rem; color:var(--ink-2)}
 .alarm .l b{color:var(--ink)}
+.alarm.imminent{animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--ochre) 30%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
 
 .slots{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(288px,1fr)); align-items:start}
-.slot{
-  border:1px solid var(--line); border-radius:var(--r); background:var(--surface);
-  box-shadow:var(--shadow); overflow:hidden;
-}
-.slot > header{
-  display:flex; align-items:center; gap:9px;
-  padding:12px 16px; border-bottom:1px solid var(--line-soft); background:var(--surface-2);
-}
+.slot{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow); overflow:hidden}
+.slot.current{border-color:color-mix(in oklab,var(--ochre) 50%,var(--line))}
+.slot > header{display:flex; align-items:center; gap:9px; padding:12px 16px; border-bottom:1px solid var(--line-soft); background:var(--surface-2)}
 .slot > header .sun{width:16px; height:16px; color:var(--ink-3)}
-.slot > header h3{
-  font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2);
-}
+.slot > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
 .slot > header .cnt{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--ink-3)}
+.nowpill{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ochre); border:1px solid currentColor; border-radius:99px; padding:2px 7px;
+}
 .items{display:flex; flex-direction:column}
 .empty{padding:20px 16px; color:var(--ink-3); font-size:.88rem; font-style:italic}
 
-.item{
-  display:grid; grid-template-columns:26px 1fr; gap:11px;
-  padding:14px 16px; border-top:1px solid var(--line-soft);
-  transition:background .18s, opacity .25s;
-}
+.item{display:grid; grid-template-columns:26px 1fr; gap:11px; padding:14px 16px; border-top:1px solid var(--line-soft); transition:background .18s, opacity .25s}
 .items > .item:first-child{border-top:none}
 .item:hover{background:var(--surface-2)}
 .item.dim{opacity:.24}
 .item.done .body .ttl{text-decoration:line-through; color:var(--ink-3)}
 
-.mark{
-  width:26px; height:26px; border-radius:50%; display:grid; place-items:center;
-  border:1px solid var(--line); background:var(--surface); flex:0 0 auto;
-  transition:border-color .18s, background .18s;
-}
+.mark{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; border:1px solid var(--line); background:var(--surface); flex:0 0 auto}
 .mark svg{width:14px; height:14px}
 .item[data-t="site"] .mark{color:var(--stone); border-color:color-mix(in oklab,var(--stone) 34%,var(--line)); background:var(--stone-soft)}
 .item[data-t="swim"] .mark{color:var(--sea); border-color:color-mix(in oklab,var(--sea) 34%,var(--line)); background:var(--sea-soft)}
@@ -261,62 +209,66 @@ main{padding-bottom:64px}
 
 .body{min-width:0}
 .ttl{font-weight:600; font-size:.98rem; letter-spacing:-.005em}
+/* sur .ttl comme sur .det : sans quoi le <mark> retombe sur le jaune du navigateur */
+mark{background:color-mix(in oklab,var(--sea) 26%,transparent); color:inherit; border-radius:3px; padding:0 2px}
 .when{
   display:inline-block; margin-left:8px;
   font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.8rem; font-weight:600;
-  color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line-soft);
-  padding:1px 7px; border-radius:5px;
+  color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line-soft); padding:1px 7px; border-radius:5px;
 }
 .item[data-t="depart"] .when{color:var(--ochre); background:var(--ochre-soft); border-color:color-mix(in oklab,var(--ochre) 30%,var(--line))}
 .det{margin-top:3px; color:var(--ink-2); font-size:.88rem}
-.note{
-  margin-top:6px; display:inline-flex; align-items:center; gap:6px;
-  font-size:.79rem; color:var(--ink-3); font-family:var(--mono);
-}
+.note{margin-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:.79rem; color:var(--ink-3); font-family:var(--mono)}
 .note svg{width:12px;height:12px}
 .acts{display:flex; gap:8px; align-items:center; margin-top:9px; flex-wrap:wrap}
 .maplink{
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:.79rem; font-weight:600; text-decoration:none;
-  padding:4px 10px; border-radius:99px;
-  border:1px solid var(--line); color:var(--ink-2); background:var(--surface);
+  display:inline-flex; align-items:center; gap:6px; font-size:.79rem; font-weight:600; text-decoration:none;
+  padding:4px 10px; border-radius:99px; border:1px solid var(--line); color:var(--ink-2); background:var(--surface);
   transition:color .18s, border-color .18s;
 }
 .maplink:hover{color:var(--sea); border-color:var(--sea)}
 .maplink svg{width:12px; height:12px}
 .tick{
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:.79rem; font-weight:600; padding:4px 10px; border-radius:99px;
-  border:1px dashed var(--line); color:var(--ink-3);
+  display:inline-flex; align-items:center; gap:6px; font-size:.79rem; font-weight:600;
+  padding:4px 10px; border-radius:99px; border:1px dashed var(--line); color:var(--ink-3);
   transition:color .18s, border-color .18s, background .18s;
 }
 .tick:hover{color:var(--sea); border-color:var(--sea)}
 .item.done .tick{color:var(--sea); border-style:solid; border-color:var(--sea); background:var(--sea-soft)}
 .tick svg{width:12px; height:12px}
 
-/* ─────────────────────────────  GRID VIEW  ───────────────────────────── */
-.phaseblock{margin-top:26px}
-.phaseblock > h3{
-  font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
-  color:var(--ink-3); margin-bottom:10px;
+/* à prendre */
+.pack{
+  margin-top:16px; padding:13px 16px; border:1px dashed var(--line); border-radius:var(--r);
+  background:var(--surface); display:flex; gap:11px; align-items:flex-start; flex-wrap:wrap;
 }
+.pack .lbl{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); padding-top:3px}
+.pack ul{margin:0; padding:0; list-style:none; display:flex; gap:7px; flex-wrap:wrap}
+.pack li{font-size:.82rem; color:var(--ink-2); border:1px solid var(--line-soft); background:var(--surface-2); border-radius:99px; padding:3px 10px}
+
+/* ─────────────────────────────  RECHERCHE  ───────────────────────────── */
+.results{margin-top:20px; display:flex; flex-direction:column; gap:10px}
+.rhead{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.rday{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); overflow:hidden; box-shadow:var(--shadow)}
+.rday > button{display:flex; width:100%; align-items:center; gap:10px; padding:11px 15px; background:var(--surface-2); text-align:left}
+.rday > button:hover{color:var(--sea)}
+.rday > button .rn{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.rday > button .rt{font-weight:600; font-size:.92rem}
+.rday > button .go{margin-left:auto; font-size:.79rem; color:var(--ink-3)}
+.rday .item{grid-template-columns:26px 1fr}
+.noresult{padding:26px 16px; text-align:center; color:var(--ink-3); font-size:.9rem; border:1px dashed var(--line); border-radius:var(--r)}
+
+/* ─────────────────────────────  VUE PARALLÈLE  ───────────────────────────── */
+.phaseblock{margin-top:26px}
+.phaseblock > h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3); margin-bottom:10px}
 .phaseblock > h3 b{color:var(--ink)}
 .scroller{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow)}
 table{border-collapse:collapse; width:100%; min-width:940px}
-th,td{
-  border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);
-  padding:11px 13px; vertical-align:top; text-align:left; font-size:.83rem;
-}
+th,td{border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); padding:11px 13px; vertical-align:top; text-align:left; font-size:.83rem}
 th:last-child,td:last-child{border-right:none}
-thead th{
-  position:sticky; top:0; background:var(--surface-2); z-index:2;
-  font-weight:600; white-space:nowrap;
-}
+thead th{position:sticky; top:0; background:var(--surface-2); z-index:2; font-weight:600; white-space:nowrap}
 thead th .d{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); display:block}
-tbody th{
-  width:98px; background:var(--surface-2); white-space:nowrap;
-  font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-2);
-}
+tbody th{width:98px; background:var(--surface-2); white-space:nowrap; font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-2)}
 td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .cell{display:flex; flex-direction:column; gap:7px}
 .ci{display:flex; gap:7px; align-items:flex-start; line-height:1.4}
@@ -328,94 +280,75 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .ci em{font-style:normal; color:var(--ink-3)}
 .ci.dim{opacity:.2}
 
-/* ─────────────────────────────  LEGEND / FOOT  ───────────────────────────── */
-.legend{
-  margin-top:30px; display:grid; gap:14px;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-}
-.lg{
-  display:flex; gap:11px; padding:14px 15px; border-radius:var(--r);
-  border:1px solid var(--line); background:var(--surface);
-}
+/* ─────────────────────────────  BAS DE PAGE  ───────────────────────────── */
+.legend{margin-top:30px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.lg{display:flex; gap:11px; padding:14px 15px; border-radius:var(--r); border:1px solid var(--line); background:var(--surface)}
 .lg .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}
 .lg .ic svg{width:14px;height:14px}
 .lg.site .ic{color:var(--stone); background:var(--stone-soft)}
 .lg.swim .ic{color:var(--sea); background:var(--sea-soft)}
 .lg.depart .ic{color:var(--ochre); background:var(--ochre-soft)}
-.lg h4{margin:0 0 2px; font-size:.9rem; font-weight:600}
+.lg h4{margin-bottom:2px; font-size:.9rem}
 .lg p{font-size:.83rem; color:var(--ink-2)}
 
-.booked{
-  margin-top:16px; padding:14px 16px; border-radius:var(--r);
-  border:1px solid var(--line); border-left:4px solid var(--sea);
-  background:var(--sea-soft); font-size:.87rem; color:var(--ink-2);
-}
+.booked{margin-top:16px; padding:14px 16px; border-radius:var(--r); border:1px solid var(--line); border-left:4px solid var(--sea); background:var(--sea-soft); font-size:.87rem; color:var(--ink-2)}
 .booked b{color:var(--ink)}
-footer{
-  margin-top:34px; padding-top:16px; border-top:1px solid var(--line);
-  display:flex; gap:12px; flex-wrap:wrap; align-items:center;
-  font-size:.79rem; color:var(--ink-3); font-family:var(--mono);
-}
-footer .reset{text-decoration:underline; text-underline-offset:3px}
+footer{margin-top:34px; padding-top:16px; border-top:1px solid var(--line); display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:.79rem; color:var(--ink-3); font-family:var(--mono)}
+footer button{text-decoration:underline; text-underline-offset:3px; color:inherit}
+footer .off{display:inline-flex; align-items:center; gap:6px}
+footer .off svg{width:12px; height:12px; color:var(--sea)}
+.hint{margin-left:auto}
 
-@media (max-width:640px){
+@media (max-width:720px){
   .search{margin-left:0; width:100%}
   .search input{width:100%}
   .masthead-side{margin-left:0}
+  .suntimes{margin-left:0; width:100%}
+  .hint{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  *{transition-duration:.01ms !important; animation-duration:.01ms !important; scroll-behavior:auto !important}
+  *{transition-duration:.01ms !important; animation:none !important; scroll-behavior:auto !important}
 }
 @media print{
-  .railbar,.toolbar,.iconbtn,.tick,footer{display:none}
+  .railbar,.toolbar,.iconbtn,.tick,.acts,footer,.alarm,.pack{display:none}
   body{background:#fff}
-  .slot,.scroller{box-shadow:none}
+  .slot,.scroller{box-shadow:none; break-inside:avoid}
+  .printday{break-before:page}
+  .printday:first-of-type{break-before:auto}
 }
 </style>
 
 <svg class="sr" aria-hidden="true"><defs>
   <symbol id="i-site" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <path d="M3 21h18M4 21V9m4 12V9m8 12V9m4 12V9M2 9h20L12 3 2 9Z"/>
-  </symbol>
+    <path d="M3 21h18M4 21V9m4 12V9m8 12V9m4 12V9M2 9h20L12 3 2 9Z"/></symbol>
   <symbol id="i-swim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <path d="M2 9c2.5-2.2 4.5-2.2 7 0s4.5 2.2 7 0 4.5-2.2 6 0M2 15c2.5-2.2 4.5-2.2 7 0s4.5 2.2 7 0 4.5-2.2 6 0"/>
-  </symbol>
+    <path d="M2 9c2.5-2.2 4.5-2.2 7 0s4.5 2.2 7 0 4.5-2.2 6 0M2 15c2.5-2.2 4.5-2.2 7 0s4.5 2.2 7 0 4.5-2.2 6 0"/></symbol>
   <symbol id="i-depart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M5 3 2.5 5.5M19 3l2.5 2.5"/>
-  </symbol>
+    <circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M5 3 2.5 5.5M19 3l2.5 2.5"/></symbol>
   <symbol id="i-travel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M21 15.5 3 9.8l2-2 5.4 1.1L14.6 5 17 5.8l-2.6 4.6 4.4 1 1.8-2.4 1.4.6-1 3.4Z"/><path d="M4 19h16"/>
-  </symbol>
+    <path d="M21 15.5 3 9.8l2-2 5.4 1.1L14.6 5 17 5.8l-2.6 4.6 4.4 1 1.8-2.4 1.4.6-1 3.4Z"/><path d="M4 19h16"/></symbol>
   <symbol id="i-food" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <path d="M5 3v7a2 2 0 0 0 4 0V3M7 10v11M17 3c-1.6 1.2-2.4 3-2.4 5.2 0 1.6.8 2.6 2.4 2.8V21"/>
-  </symbol>
+    <path d="M5 3v7a2 2 0 0 0 4 0V3M7 10v11M17 3c-1.6 1.2-2.4 3-2.4 5.2 0 1.6.8 2.6 2.4 2.8V21"/></symbol>
   <symbol id="i-plain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <circle cx="12" cy="12" r="3.4"/><path d="M12 4.5v-2M12 21.5v-2M4.5 12h-2M21.5 12h-2"/>
-  </symbol>
+    <circle cx="12" cy="12" r="3.4"/><path d="M12 4.5v-2M12 21.5v-2M4.5 12h-2M21.5 12h-2"/></symbol>
   <symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/>
-  </symbol>
+    <path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m4 12.5 5 5L20 6.5"/>
-  </symbol>
+    <path d="m4 12.5 5 5L20 6.5"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-    <circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/>
-  </symbol>
+    <circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></symbol>
   <symbol id="i-sunrise" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <path d="M3 17h18M6.5 17a5.5 5.5 0 0 1 11 0M12 3v4M5 8l2 2M19 8l-2 2"/>
-  </symbol>
+    <path d="M3 17h18M6.5 17a5.5 5.5 0 0 1 11 0M12 3v4M5 8l2 2M19 8l-2 2"/></symbol>
   <symbol id="i-noon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/>
-  </symbol>
+    <circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></symbol>
   <symbol id="i-sunset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <path d="M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0M12 10V3M8.5 6.5 12 10l3.5-3.5"/>
-  </symbol>
+    <path d="M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0M12 10V3M8.5 6.5 12 10l3.5-3.5"/></symbol>
   <symbol id="i-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-    <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2Z"/>
-  </symbol>
+    <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2Z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-    <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/>
-  </symbol>
+    <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 17.5a4 4 0 0 1 .8-7.9 6 6 0 0 1 11.6-1.4A3.9 3.9 0 0 1 20 15.9"/><path d="m9 20 3-3 3 3M12 17v5"/></symbol>
 </defs></svg>
 
 <div class="horizon">
@@ -432,8 +365,7 @@ footer .reset{text-decoration:underline; text-underline-offset:3px}
         </button>
       </div>
     </div>
-
-    <div class="status" id="status">
+    <div class="status">
       <div>
         <div class="status-key" id="statusKey">Compte à rebours</div>
         <div class="status-val" id="statusVal">—</div>
@@ -461,13 +393,14 @@ footer .reset{text-decoration:underline; text-underline-offset:3px}
     </div>
     <label class="search">
       <svg><use href="#i-search"/></svg>
-      <span class="sr">Rechercher dans le programme</span>
-      <input id="q" type="search" placeholder="Chercher un lieu…" autocomplete="off">
+      <span class="sr">Rechercher dans tout le programme</span>
+      <input id="q" type="search" placeholder="Chercher dans les 11 jours…" enterkeyhint="search" autocomplete="off">
     </label>
   </div>
 
   <main>
     <section id="dayView"></section>
+    <section id="searchView" hidden></section>
     <section id="gridView" hidden></section>
 
     <div class="legend">
@@ -489,25 +422,30 @@ footer .reset{text-decoration:underline; text-underline-offset:3px}
 
     <footer>
       <span id="doneCount">0 étape cochée</span>
-      <button class="reset" id="resetBtn">tout décocher</button>
-      <span style="margin-left:auto">← → pour changer de jour</span>
+      <button id="resetBtn">tout décocher</button>
+      <button id="printBtn">imprimer les 11 jours</button>
+      <span class="off" id="offlineFlag" hidden><svg><use href="#i-offline"/></svg>disponible hors connexion</span>
+      <span class="hint">← → changer de jour · glisser du doigt sur mobile</span>
     </footer>
   </main>
 </div>
 
 <script>
-/* ────────────────────────────  DONNÉES  ──────────────────────────── */
+/* ════════════════════════════  DONNÉES  ════════════════════════════ */
 const ALIMOS = "37.906,23.712", SARONIDA = "37.744,23.905";
 const dir = (from, to, walk) => `https://www.google.com/maps/dir/${from}/${to}` + (walk ? "/data=!4m2!4m1!3e3" : "");
 
+/* Coordonnées utilisées pour le soleil : là où se passe la fin de journée. */
+const ATHENES = [37.9838, 23.7275], SARO = [37.744, 23.905], SOUNION = [37.6503, 24.0247];
+
 const DAYS = [
-  { n:1, date:"2026-08-17", dow:"Lun", dm:"17 août", phase:1, title:"Arrivée à Athènes", base:"Alimos",
+  { n:1, date:"2026-08-17", dow:"Lun", dm:"17 août", phase:1, title:"Arrivée à Athènes", sun:ATHENES,
     matin:[ {t:"travel", ttl:"Voyage", det:"Vol vers Athènes"} ],
     aprem:[ {t:"travel", ttl:"Atterrissage", when:"18 h 30"} ],
     soir:[ {t:"plain", ttl:"Transfert & installation"},
            {t:"food", ttl:"Dîner à la marina d'Alimos"} ] },
 
-  { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", base:"Alimos",
+  { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS,"37.9747,23.7218",true)},
             {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale"},
             {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides", note:"Arriver 10 h 45 — guichet jeunes"} ],
@@ -515,68 +453,68 @@ const DAYS = [
             {t:"swim", ttl:"Plage d'Alimos"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"16 h 40", map:dir(ALIMOS,"37.9715,23.7257",true)},
            {t:"site", ttl:"Acropole & Parthénon", when:"17 h – 18 h", note:"Créneau réservé"},
-           {t:"site", ttl:"Colline de Philopappos", det:"Puis descente au couchant", note:"Coucher du soleil 20 h 10"} ] },
+           {t:"site", ttl:"Colline de Philopappos", det:"Le point de vue sur le Parthénon au couchant", sunset:true} ] },
 
-  { n:3, date:"2026-08-19", dow:"Mer", dm:"19 août", phase:1, title:"Zeus olympien & Lycabette", base:"Alimos",
+  { n:3, date:"2026-08-19", dow:"Mer", dm:"19 août", phase:1, title:"Zeus olympien & Lycabette", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS,"37.9693,23.7331",true)},
             {t:"site", ttl:"Temple de Zeus olympien", when:"8 h – 9 h", det:"Porte d'Hadrien"},
             {t:"site", ttl:"Agora romaine", when:"10 h – 11 h", det:"Tour des Vents"} ],
     aprem:[ {t:"site", ttl:"Psiri", det:"Quartier street art"},
             {t:"swim", ttl:"Plage d'Alimos"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"17 h 45", map:dir(ALIMOS,"37.9819,23.744",true)},
-           {t:"site", ttl:"Colline du Lycabette", when:"19 h", det:"Vue à 360°, montée en funiculaire"},
+           {t:"site", ttl:"Colline du Lycabette", when:"19 h", det:"Vue à 360°, montée en funiculaire", sunset:true},
            {t:"food", ttl:"Dîner à Kolonaki"} ] },
 
-  { n:4, date:"2026-08-20", dow:"Jeu", dm:"20 août", phase:1, title:"Stade panathénaïque & croisière", base:"Alimos",
+  { n:4, date:"2026-08-20", dow:"Jeu", dm:"20 août", phase:1, title:"Stade panathénaïque & croisière", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(ALIMOS,"37.9683,23.741",true)},
             {t:"site", ttl:"Stade panathénaïque", det:"Les premiers JO modernes, 1896"},
             {t:"site", ttl:"Relève des evzones", det:"Place Syntagma"} ],
     aprem:[ {t:"swim", ttl:"Plage d'Alimos"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"16 h 15", map:dir(ALIMOS,"37.938196,23.6852153",true)},
-           {t:"site", ttl:"Croisière au couchant", note:"Réservée"},
+           {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true},
            {t:"swim", ttl:"Baignade Hydrousa + Varkiza"} ] },
 
-  { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", base:"Alimos",
+  { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
     matin:[ {t:"plain", ttl:"Matinée libre", det:"Plage, ou les puces de Monastiraki"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"17 h", map:dir(ALIMOS,"37.9403,23.6929",true)},
-            {t:"site", ttl:"SNFCC", det:"Fondation Niarchos — toit-belvédère et jardins"} ],
+            {t:"site", ttl:"SNFCC", det:"Fondation Niarchos — toit-belvédère et jardins", sunset:true} ],
     soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
 
-  { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", base:"Saronida",
+  { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"9 h 45", map:dir(ALIMOS,"37.9611,23.7228")},
             {t:"plain", ttl:"Récupération de la voiture", det:"Puis route vers Saronida et installation"} ],
     aprem:[ {t:"swim", ttl:"Plage de Saronida"} ],
     soir:[ {t:"food", ttl:"Dîner au Lavraki", det:"Front de mer — ou terrasse du penthouse"} ] },
 
-  { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Criques de Limanakia", base:"Saronida",
+  { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Criques de Limanakia", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"8 h", map:dir(SARONIDA,"37.8065,23.7785")},
-            {t:"swim", ttl:"Snorkeling tôt", det:"Criques de Limanakia — fonds rocheux"} ],
-    aprem:[ {t:"swim", ttl:"Suite des criques", det:"Limanakia, ou les pointes ouest de Varkiza"} ],
+            {t:"swim", ttl:"Snorkeling tôt", det:"Criques de Limanakia — fonds rocheux", gear:true} ],
+    aprem:[ {t:"swim", ttl:"Suite des criques", det:"Limanakia, ou les pointes ouest de Varkiza", gear:true} ],
     soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
-  { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", base:"Saronida",
+  { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(SARONIDA,"37.8868674,24.0143872")},
             {t:"site", ttl:"Croisière de Porto Rafti", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu", note:"Réservée"} ],
-    aprem:[ {t:"site", ttl:"Erotospilia ou Avlaki", det:"Criques et grotte-abri — pique-nique, sans précipitation"} ],
+    aprem:[ {t:"site", ttl:"Erotospilia ou Avlaki", det:"Criques et grotte-abri — pique-nique, sans précipitation", gear:true} ],
     soir:[ {t:"depart", ttl:"Départ", when:"~18 h", map:dir("37.8868674,24.0143872",SARONIDA)},
            {t:"plain", ttl:"Retour à Saronida en fin de journée"},
            {t:"food", ttl:"Dîner Stou Stavrou"} ] },
 
-  { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", base:"Saronida",
+  { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", sun:SOUNION,
     matin:[ {t:"swim", ttl:"Plage de Saronida"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
-            {t:"swim", ttl:"Criques du KAPE", det:"Fonds rocheux — masque et tuba"} ],
+            {t:"swim", ttl:"Criques du KAPE", det:"Fonds rocheux — masque et tuba", gear:true} ],
     soir:[ {t:"depart", ttl:"Départ", when:"17 h 15", map:dir("37.672,23.988","37.6503,24.0247")},
-           {t:"site", ttl:"Temple de Poséidon", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", note:"Coucher du soleil 20 h"} ] },
+           {t:"site", ttl:"Temple de Poséidon", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true} ] },
 
-  { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Palea Fokea", base:"Saronida",
+  { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Palea Fokea", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(SARONIDA,"37.718,23.945")},
             {t:"site", ttl:"Palea Fokea", det:"Chapelle Agios Nikolaos"},
-            {t:"swim", ttl:"Rochers & faune"} ],
+            {t:"swim", ttl:"Rochers & faune", gear:true} ],
     aprem:[ {t:"swim", ttl:"Plage d'Anavyssos", det:"Détente, sable — ou Lavrio, ou Glyfada"} ],
     soir:[ {t:"food", ttl:"Dîner Porto ou Galene", det:"Grill de poisson — ou terrasse"} ] },
 
-  { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"Dernier bain, puis l'aéroport", base:"Saronida",
+  { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"Dernier bain, puis l'aéroport", sun:SARO,
     matin:[ {t:"swim", ttl:"Plage de Saronida", det:"Jusqu'à 12 h"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"13 h", map:dir(SARONIDA,"37.9364,23.9445")},
             {t:"plain", ttl:"Restitution de la voiture", when:"13 h 30"},
@@ -585,64 +523,98 @@ const DAYS = [
 ];
 
 const PHASES = {
-  1:{ name:"Phase 1 — Alimos", mode:"transports en commun", range:"17 → 21 août" },
-  2:{ name:"Phase 2 — Saronida", mode:"voiture", range:"22 → 27 août" }
+  1:{ name:"Phase 1 — Alimos", short:"Alimos", mode:"transports en commun", range:"17 → 21 août", home:"l'hôtel" },
+  2:{ name:"Phase 2 — Saronida", short:"Saronida", mode:"voiture", range:"22 → 27 août", home:"le penthouse" }
 };
 const SLOTS = [
-  { k:"matin", label:"Matin", icon:"i-sunrise" },
-  { k:"aprem", label:"Après-midi", icon:"i-noon" },
-  { k:"soir",  label:"Soir", icon:"i-sunset" }
+  { k:"matin", label:"Matin", icon:"i-sunrise", from:0,    to:12*60 },
+  { k:"aprem", label:"Après-midi", icon:"i-noon", from:12*60, to:17*60 },
+  { k:"soir",  label:"Soir", icon:"i-sunset", from:17*60, to:24*60 }
 ];
 const ICON = { site:"i-site", swim:"i-swim", depart:"i-depart", travel:"i-travel", food:"i-food", plain:"i-plain" };
 const DOW_FULL = { Lun:"Lundi", Mar:"Mardi", Mer:"Mercredi", Jeu:"Jeudi", Ven:"Vendredi", Sam:"Samedi", Dim:"Dimanche" };
 
-/* ────────────────────────────  ÉTAT  ──────────────────────────── */
+/* ════════════════════════════  SOLEIL  ════════════════════════════
+   Lever et coucher calculés sur place (algorithme NOAA), sans réseau.
+   Vérifié à la minute près sur des repères connus pour Athènes.        */
+const RAD = Math.PI / 180;
+function sunTimes(dateISO, [lat, lon]){
+  const d = new Date(dateISO + "T12:00:00Z");
+  const n = Math.round((d.getTime() / 86400000 + 2440587.5) - 2451545.0 + 0.0008);
+  const Js = n - lon / 360;
+  const M = (357.5291 + 0.98560028 * Js) % 360;
+  const C = 1.9148 * Math.sin(M * RAD) + 0.0200 * Math.sin(2 * M * RAD) + 0.0003 * Math.sin(3 * M * RAD);
+  const lam = (M + C + 180 + 102.9372) % 360;
+  const Jt = 2451545.0 + Js + 0.0053 * Math.sin(M * RAD) - 0.0069 * Math.sin(2 * lam * RAD);
+  const sinDec = Math.sin(lam * RAD) * Math.sin(23.44 * RAD);
+  const cosDec = Math.cos(Math.asin(sinDec));
+  const w = Math.acos((Math.sin(-0.833 * RAD) - Math.sin(lat * RAD) * sinDec) / (Math.cos(lat * RAD) * cosDec)) / RAD;
+  const hm = J => {                                   // jour julien → heure locale grecque (UTC+3 en août)
+    const t = new Date((J - 2440587.5) * 86400000 + 3 * 3600000);
+    return t.getUTCHours() * 60 + t.getUTCMinutes();
+  };
+  return { rise: hm(Jt - w / 360), set: hm(Jt + w / 360) };
+}
+const hhmm = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
+DAYS.forEach(d => { d.sunT = sunTimes(d.date, d.sun); });
+
+/* ════════════════════════════  ÉTAT  ════════════════════════════ */
 const STORE = "attique2026:v1";
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state.done)); } catch {} };
 
-const state = {
-  day: 0,
-  view: "day",
-  filters: new Set(),
-  query: "",
-  done: load()
-};
+const state = { day:0, view:"day", filters:new Set(), query:"", done:load() };
 
-const keyOf = (d, slot, i) => `${d}.${slot}.${i}`;
+const keyOf = (n, slot, i) => `${n}.${slot}.${i}`;
 const itemsOf = (day, slot) => day[slot] || [];
 const allItems = day => SLOTS.flatMap(s => itemsOf(day, s.k).map((it, i) => ({ it, slot:s.k, i })));
 
+const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function textOf(it){ return [it.ttl, it.det, it.note, it.when].filter(Boolean).join(" "); }
 function matches(it){
   if (state.filters.size && !state.filters.has(it.t)) return false;
-  const q = state.query.trim().toLowerCase();
-  if (!q) return true;
-  return [it.ttl, it.det, it.note, it.when].filter(Boolean).join(" ").toLowerCase().includes(q);
+  const q = state.query.trim();
+  return !q || norm(textOf(it)).includes(norm(q));
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
-
-/* minutes depuis minuit, à partir de « 17 h 45 » / « ~18 h » */
+function highlight(s){
+  const q = state.query.trim();
+  if (!q) return esc(s);
+  const i = norm(s).indexOf(norm(q));
+  if (i < 0) return esc(s);
+  return esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length));
+}
 function toMinutes(when){
   if (!when) return null;
-  const m = when.match(/(\d{1,2})\s*h(?:\s*(\d{1,2}))?/);
+  const m = String(when).match(/(\d{1,2})\s*h(?:\s*(\d{1,2}))?/);
   return m ? (+m[1]) * 60 + (+(m[2] || 0)) : null;
 }
-const fmtMin = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
-/* ────────────────────────────  TEMPS  ──────────────────────────── */
-/* Heure locale d'Athènes (UTC+3 en août) quel que soit le fuseau du téléphone */
+/* À prendre — déduit des étapes du jour, ce sont des suggestions. */
+function packFor(day){
+  const items = allItems(day).map(x => x.it);
+  const out = [];
+  if (items.some(i => i.gear)) out.push("Masque & tuba", "Chaussons de roche");
+  if (items.some(i => i.t === "swim")) out.push("Maillot & serviette");
+  if (items.some(i => i.t === "site")) out.push("Billets", "Eau, chapeau, crème");
+  if (items.some(i => /colline|acropole|stade|philopappos|lycabette/i.test(i.ttl))) out.push("Chaussures qui tiennent");
+  if (items.some(i => i.sunset)) out.push("De quoi couvrir les épaules au couchant");
+  if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
+  if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
+  return [...new Set(out)];
+}
+
+/* ════════════════════════════  TEMPS  ════════════════════════════ */
+/* Heure d'Athènes (UTC+3 en août) quel que soit le fuseau du téléphone. */
 function athensNow(){
   const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utc + 3 * 3600000);
+  return new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 3 * 3600000);
 }
-const dayIndexToday = () => {
-  const iso = athensNow().toISOString().slice(0, 10);
-  return DAYS.findIndex(d => d.date === iso);
-};
+const nowMin = () => { const a = athensNow(); return a.getHours() * 60 + a.getMinutes(); };
+const dayIndexToday = () => DAYS.findIndex(d => d.date === athensNow().toISOString().slice(0, 10));
+const currentSlot = () => { const m = nowMin(); return (SLOTS.find(s => m >= s.from && m < s.to) || SLOTS[2]).k; };
 
 function renderStatus(){
-  const now = athensNow();
   const today = dayIndexToday();
   const key = document.getElementById("statusKey");
   const val = document.getElementById("statusVal");
@@ -650,20 +622,18 @@ function renderStatus(){
   const fill = document.getElementById("trackFill");
 
   if (today >= 0){
-    const d = DAYS[today];
+    const d = DAYS[today], m = nowMin();
     key.textContent = "Aujourd'hui à Athènes";
-    const mins = now.getHours() * 60 + now.getMinutes();
-    const next = allItems(d)
-      .filter(x => x.it.t === "depart" && toMinutes(x.it.when) !== null && toMinutes(x.it.when) > mins)
-      .map(x => x.it)[0];
+    const next = allItems(d).map(x => x.it)
+      .find(it => it.t === "depart" && toMinutes(it.when) !== null && toMinutes(it.when) > m);
     val.innerHTML = next
       ? `Jour ${d.n} · prochain départ <b>${esc(next.when)}</b>`
       : `Jour ${d.n} — ${esc(d.title)}`;
-    right.textContent = `${DAYS.length - today - 1} jour${DAYS.length - today - 1 > 1 ? "s" : ""} restant${DAYS.length - today - 1 > 1 ? "s" : ""}`;
+    const left = DAYS.length - today - 1;
+    right.textContent = left ? `${left} jour${left > 1 ? "s" : ""} restant${left > 1 ? "s" : ""}` : "dernier jour";
     fill.style.width = `${((today + 1) / DAYS.length) * 100}%`;
   } else {
-    const start = new Date("2026-08-17T00:00:00+03:00");
-    const diff = Math.ceil((start - now) / 86400000);
+    const diff = Math.ceil((new Date("2026-08-17T00:00:00+03:00") - new Date()) / 86400000);
     if (diff > 0){
       key.textContent = "Compte à rebours";
       val.innerHTML = diff === 1 ? "Départ <b>demain</b>" : `Départ dans <b>${diff}</b> jours`;
@@ -678,7 +648,7 @@ function renderStatus(){
   }
 }
 
-/* ────────────────────────────  RAIL  ──────────────────────────── */
+/* ════════════════════════════  RAIL  ════════════════════════════ */
 function renderRail(){
   const rail = document.getElementById("rail");
   const today = dayIndexToday();
@@ -686,8 +656,9 @@ function renderRail(){
     const items = allItems(d);
     const done = items.filter(x => state.done[keyOf(d.n, x.slot, x.i)]).length;
     const pct = items.length ? (done / items.length) * 100 : 0;
-    return `<button class="chip${i === today ? " today" : ""}" role="tab" data-i="${i}" data-phase="${d.phase}"
-              aria-selected="${i === state.day}" title="${esc(d.title)}">
+    const hits = items.some(x => matches(x.it));
+    return `<button class="chip${i === today ? " today" : ""}${hits ? "" : " faded"}" role="tab"
+              data-i="${i}" data-phase="${d.phase}" aria-selected="${i === state.day}" title="${esc(d.title)}">
         <span class="d">Jour ${d.n}</span>
         <span class="n">${d.dow} ${d.dm.split(" ")[0]}</span>
         <span class="bar"><i style="width:${pct}%"></i></span>
@@ -697,64 +668,68 @@ function renderRail(){
   if (sel) sel.scrollIntoView({ block:"nearest", inline:"center" });
 }
 
-/* ────────────────────────────  VUE JOUR  ──────────────────────────── */
+/* ════════════════════════════  VUE JOUR  ════════════════════════════ */
 function itemHTML(day, slot, it, i){
   const k = keyOf(day.n, slot, i);
   const done = !!state.done[k];
-  const hit = matches(it);
-  return `<div class="item${done ? " done" : ""}${hit ? "" : " dim"}" data-t="${it.t}">
+  return `<div class="item${done ? " done" : ""}${matches(it) ? "" : " dim"}" data-t="${it.t}">
     <span class="mark"><svg><use href="#${ICON[it.t]}"/></svg></span>
     <div class="body">
-      <div class="ttl">${esc(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}</div>
-      ${it.det ? `<p class="det">${esc(it.det)}</p>` : ""}
+      <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}</div>
+      ${it.det ? `<p class="det">${highlight(it.det)}</p>` : ""}
+      ${it.sunset ? `<span class="note"><svg><use href="#i-sunset"/></svg>Coucher du soleil ${hhmm(day.sunT.set)}</span>` : ""}
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       <div class="acts">
         ${it.map ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
-        <button class="tick" data-k="${k}" aria-pressed="${done}">
-          <svg><use href="#i-check"/></svg>${done ? "Fait" : "Cocher"}
-        </button>
+        <button class="tick" data-k="${k}" aria-pressed="${done}"><svg><use href="#i-check"/></svg>${done ? "Fait" : "Cocher"}</button>
       </div>
     </div>
   </div>`;
 }
 
-function renderDay(){
-  const d = DAYS[state.day];
+function dayHTML(d, { live }){
   const ph = PHASES[d.phase];
-  const today = dayIndexToday() === state.day;
-  const mins = athensNow().getHours() * 60 + athensNow().getMinutes();
-  const departs = allItems(d).filter(x => x.it.t === "depart" && toMinutes(x.it.when) !== null);
-  const next = today ? departs.find(x => toMinutes(x.it.when) > mins) : departs[0];
+  const cur = live ? currentSlot() : null;
+  const m = nowMin();
+  const departs = allItems(d).map(x => x.it).filter(it => it.t === "depart" && toMinutes(it.when) !== null);
+  const next = live ? departs.find(it => toMinutes(it.when) > m) : departs[0];
 
   let alarm = "";
   if (next){
-    const label = today
-      ? (toMinutes(next.it.when) - mins <= 90
-          ? `Dans ${toMinutes(next.it.when) - mins} minutes — <b>préparez-vous</b>`
-          : `Prochain départ de la journée`)
-      : `Premier départ de la journée`;
-    alarm = `<div class="alarm">
+    const delta = toMinutes(next.when) - m;
+    const soon = live && delta <= 90;
+    const label = live
+      ? (soon ? `Dans <b>${delta} minute${delta > 1 ? "s" : ""}</b> — préparez-vous` : "Prochain départ de la journée")
+      : "Premier départ de la journée";
+    alarm = `<div class="alarm${soon ? " imminent" : ""}">
       <svg><use href="#i-depart"/></svg>
-      <span class="t">${esc(next.it.when)}</span>
-      <span class="l">${label} · on quitte ${d.phase === 1 ? "l'hôtel" : "le penthouse"}</span>
+      <span class="t">${esc(next.when)}</span>
+      <span class="l">${label} · on quitte ${ph.home}</span>
     </div>`;
   }
 
-  document.getElementById("dayView").innerHTML = `
+  const pack = packFor(d);
+  return `<div class="printday">
     <div class="dayhead">
       <h2>${esc(d.title)}</h2>
-      <span class="tag p${d.phase}">${esc(ph.name.split(" — ")[1])} · ${esc(ph.mode)}</span>
+      <span class="tag p${d.phase}">${esc(ph.short)} · ${esc(ph.mode)}</span>
       <span class="basis">${DOW_FULL[d.dow]} ${esc(d.dm)} — jour ${d.n} sur 11</span>
+      <span class="suntimes" title="Calculé pour ${d.sun === SOUNION ? "le cap Sounion" : d.phase === 1 ? "Athènes" : "Saronida"}">
+        <svg><use href="#i-sunrise"/></svg><b>${hhmm(d.sunT.rise)}</b>
+        <svg><use href="#i-sunset"/></svg><b>${hhmm(d.sunT.set)}</b>
+      </span>
     </div>
     ${alarm}
     <div class="slots">
       ${SLOTS.map(s => {
         const items = itemsOf(d, s.k);
         const shown = items.filter(matches).length;
-        return `<article class="slot">
+        const isCur = live && s.k === cur;
+        return `<article class="slot${isCur ? " current" : ""}">
           <header>
             <svg class="sun"><use href="#${s.icon}"/></svg>
             <h3>${s.label}</h3>
+            ${isCur ? `<span class="nowpill">en cours</span>` : ""}
             <span class="cnt">${items.length ? `${shown}/${items.length}` : "—"}</span>
           </header>
           <div class="items">
@@ -764,25 +739,52 @@ function renderDay(){
           </div>
         </article>`;
       }).join("")}
-    </div>`;
+    </div>
+    ${pack.length ? `<div class="pack">
+      <span class="lbl">À prendre</span>
+      <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
+    </div>` : ""}
+  </div>`;
 }
 
-/* ────────────────────────────  VUE PARALLÈLE  ──────────────────────────── */
+const renderDay = () => {
+  document.getElementById("dayView").innerHTML =
+    dayHTML(DAYS[state.day], { live: dayIndexToday() === state.day });
+};
+
+/* ════════════════════════════  RECHERCHE GLOBALE  ════════════════════════════ */
+function renderSearch(){
+  const hits = DAYS.map(d => ({ d, found: allItems(d).filter(x => matches(x.it)) })).filter(h => h.found.length);
+  const total = hits.reduce((n, h) => n + h.found.length, 0);
+  document.getElementById("searchView").innerHTML = !total
+    ? `<p class="noresult">Rien qui corresponde à « ${esc(state.query)} » dans les onze jours.</p>`
+    : `<div class="results">
+        <p class="rhead">${total} étape${total > 1 ? "s" : ""} sur ${hits.length} jour${hits.length > 1 ? "s" : ""}</p>
+        ${hits.map(h => `<div class="rday">
+          <button data-i="${DAYS.indexOf(h.d)}">
+            <span class="rn">Jour ${h.d.n} · ${h.d.dow} ${esc(h.d.dm)}</span>
+            <span class="rt">${esc(h.d.title)}</span>
+            <span class="go">ouvrir →</span>
+          </button>
+          <div class="items">${h.found.map(x => itemHTML(h.d, x.slot, x.it, x.i)).join("")}</div>
+        </div>`).join("")}
+      </div>`;
+}
+
+/* ════════════════════════════  VUE PARALLÈLE  ════════════════════════════ */
 function cellHTML(day, slot){
   const items = itemsOf(day, slot);
   if (!items.length) return "—";
   return `<div class="cell">${items.map(it => `
     <span class="ci${matches(it) ? "" : " dim"}" data-t="${it.t}">
       <svg><use href="#${ICON[it.t]}"/></svg>
-      <span>${it.when ? `<span class="k">${esc(it.when)}</span> ` : ""}${esc(it.ttl)}${it.det ? ` <em>— ${esc(it.det)}</em>` : ""}</span>
+      <span>${it.when ? `<span class="k">${esc(it.when)}</span> ` : ""}${highlight(it.ttl)}${it.det ? ` <em>— ${highlight(it.det)}</em>` : ""}</span>
     </span>`).join("")}</div>`;
 }
-
 function renderGrid(){
   const today = dayIndexToday();
   const block = phase => {
-    const days = DAYS.filter(d => d.phase === phase);
-    const ph = PHASES[phase];
+    const days = DAYS.filter(d => d.phase === phase), ph = PHASES[phase];
     return `<div class="phaseblock">
       <h3><b>${esc(ph.name)}</b> · ${esc(ph.range)} · ${esc(ph.mode)}</h3>
       <div class="scroller"><table>
@@ -798,36 +800,42 @@ function renderGrid(){
   document.getElementById("gridView").innerHTML = block(1) + block(2);
 }
 
-/* ────────────────────────────  RENDU  ──────────────────────────── */
+/* ════════════════════════════  RENDU  ════════════════════════════ */
 function renderFoot(){
   const n = Object.values(state.done).filter(Boolean).length;
   document.getElementById("doneCount").textContent =
     n === 0 ? "0 étape cochée" : `${n} étape${n > 1 ? "s" : ""} cochée${n > 1 ? "s" : ""}`;
 }
-
 function render(){
-  document.getElementById("dayView").hidden = state.view !== "day";
-  document.getElementById("gridView").hidden = state.view !== "grid";
-  if (state.view === "day") renderDay(); else renderGrid();
-  renderRail();
-  renderStatus();
-  renderFoot();
+  const searching = state.view === "day" && state.query.trim().length > 0;
+  document.getElementById("dayView").hidden   = state.view !== "day" || searching;
+  document.getElementById("searchView").hidden = !searching;
+  document.getElementById("gridView").hidden  = state.view !== "grid";
+  if (searching) renderSearch();
+  else if (state.view === "day") renderDay();
+  else renderGrid();
+  renderRail(); renderStatus(); renderFoot();
+  const h = state.view === "grid" ? "#tableau" : `#j${DAYS[state.day].n}`;
+  if (location.hash !== h) history.replaceState(null, "", h);
 }
-
-/* ────────────────────────────  ÉVÉNEMENTS  ──────────────────────────── */
-document.getElementById("rail").addEventListener("click", e => {
-  const b = e.target.closest(".chip");
-  if (!b) return;
-  state.day = +b.dataset.i;
+function goToDay(i){
+  state.day = Math.max(0, Math.min(DAYS.length - 1, i));
   if (state.view !== "day"){ state.view = "day"; syncSeg(); }
   render();
-});
+  document.getElementById("dayView").scrollIntoView({ block:"nearest" });
+}
 
+/* ════════════════════════════  ÉVÉNEMENTS  ════════════════════════════ */
+document.getElementById("rail").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (b) goToDay(+b.dataset.i);
+});
+document.getElementById("searchView").addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]");
+  if (b){ document.getElementById("q").value = ""; state.query = ""; goToDay(+b.dataset.i); }
+});
 document.addEventListener("click", e => {
-  const t = e.target.closest(".tick");
-  if (!t) return;
-  const k = t.dataset.k;
-  state.done[k] ? delete state.done[k] : state.done[k] = true;
+  const t = e.target.closest(".tick"); if (!t) return;
+  state.done[t.dataset.k] ? delete state.done[t.dataset.k] : state.done[t.dataset.k] = true;
   save(); render();
 });
 
@@ -839,8 +847,7 @@ document.getElementById("viewDay").addEventListener("click", () => { state.view 
 document.getElementById("viewGrid").addEventListener("click", () => { state.view = "grid"; syncSeg(); render(); });
 
 document.getElementById("filters").addEventListener("click", e => {
-  const b = e.target.closest(".f");
-  if (!b) return;
+  const b = e.target.closest(".f"); if (!b) return;
   const k = b.dataset.k;
   state.filters.has(k) ? state.filters.delete(k) : state.filters.add(k);
   b.setAttribute("aria-pressed", state.filters.has(k));
@@ -852,27 +859,73 @@ document.getElementById("q").addEventListener("input", e => {
   clearTimeout(qt);
   qt = setTimeout(() => { state.query = e.target.value; render(); }, 120);
 });
-
-document.getElementById("resetBtn").addEventListener("click", () => {
-  state.done = {}; save(); render();
+document.getElementById("resetBtn").addEventListener("click", () => { state.done = {}; save(); render(); });
+document.getElementById("printBtn").addEventListener("click", () => {
+  const prev = state.view, keep = document.getElementById("dayView").innerHTML;
+  document.getElementById("dayView").innerHTML = DAYS.map(d => dayHTML(d, { live:false })).join("");
+  document.getElementById("dayView").hidden = false;
+  document.getElementById("searchView").hidden = true;
+  document.getElementById("gridView").hidden = true;
+  const restore = () => {
+    document.getElementById("dayView").innerHTML = keep;
+    state.view = prev; render();
+    window.removeEventListener("afterprint", restore);
+  };
+  window.addEventListener("afterprint", restore);
+  print();
 });
-
 document.getElementById("themeBtn").addEventListener("click", () => {
   const root = document.documentElement;
-  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
-  const cur = root.getAttribute("data-theme") || (dark ? "dark" : "light");
+  const cur = root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
 });
 
 document.addEventListener("keydown", e => {
   if (e.target.matches("input")) return;
-  if (e.key === "ArrowRight" && state.day < DAYS.length - 1){ state.day++; render(); }
-  if (e.key === "ArrowLeft" && state.day > 0){ state.day--; render(); }
+  if (e.key === "ArrowRight") goToDay(state.day + 1);
+  if (e.key === "ArrowLeft") goToDay(state.day - 1);
 });
 
-/* démarre sur aujourd'hui si on est dans le séjour */
-const t0 = dayIndexToday();
-if (t0 >= 0) state.day = t0;
+/* Balayage horizontal sur mobile — sans gêner le défilement vertical. */
+let sx = 0, sy = 0, tracking = false;
+addEventListener("touchstart", e => {
+  if (e.touches.length !== 1 || e.target.closest(".rail,.scroller")) return;
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true;
+}, { passive:true });
+addEventListener("touchend", e => {
+  if (!tracking || state.view !== "day" || state.query) return;
+  tracking = false;
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.8) goToDay(state.day + (dx < 0 ? 1 : -1));
+}, { passive:true });
+
+/* Liens profonds : #j3, #tableau */
+function fromHash(){
+  const h = location.hash;
+  if (h === "#tableau"){ state.view = "grid"; syncSeg(); return true; }
+  const m = h.match(/^#j(\d{1,2})$/);
+  if (m){
+    const i = DAYS.findIndex(d => d.n === +m[1]);
+    if (i >= 0){ state.day = i; state.view = "day"; syncSeg(); return true; }
+  }
+  return false;
+}
+addEventListener("hashchange", () => { if (fromHash()) render(); });
+
+/* Hors connexion — le service worker n'existe que sur le site déployé. */
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
+  addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => { document.getElementById("offlineFlag").hidden = false; })
+      .catch(() => {});
+  });
+}
+
+/* Démarrage : le lien partagé gagne, sinon le jour du séjour en cours. */
+if (!fromHash()){
+  const t0 = dayIndexToday();
+  if (t0 >= 0) state.day = t0;
+}
 render();
-setInterval(renderStatus, 30000);
+setInterval(() => { renderStatus(); if (state.view === "day" && !state.query) renderDay(); }, 30000);
 </script>
