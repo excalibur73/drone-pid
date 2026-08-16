@@ -280,6 +280,66 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .ci em{font-style:normal; color:var(--ink-3)}
 .ci.dim{opacity:.2}
 
+/* ─────────────────────────────  MÉTÉO  ───────────────────────────── */
+.wx{
+  display:inline-flex; align-items:center; gap:8px; padding:4px 11px;
+  border:1px solid var(--line); border-radius:99px; background:var(--surface);
+  font-size:.8rem; color:var(--ink-2); white-space:nowrap;
+}
+.wx svg{width:14px; height:14px; color:var(--ink-3)}
+.wx b{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:600; color:var(--ink)}
+.wx .sep{color:var(--line)}
+.wx.venteux{border-color:color-mix(in oklab,var(--ochre) 45%,var(--line)); background:var(--ochre-soft); color:var(--ink-2)}
+.wx.venteux svg{color:var(--ochre)}
+.wxwarn{
+  margin-top:10px; padding:11px 14px; border-radius:var(--r);
+  border:1px solid color-mix(in oklab,var(--ochre) 40%,var(--line)); border-left:4px solid var(--ochre);
+  background:var(--ochre-soft); font-size:.86rem; color:var(--ink-2);
+}
+.wxwarn b{color:var(--ink)}
+
+/* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
+.notes{margin-top:16px}
+.notes label{
+  display:block; margin-bottom:6px;
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
+}
+.notes textarea{
+  width:100%; min-height:74px; resize:vertical; padding:12px 14px;
+  border:1px dashed var(--line); border-radius:var(--r); background:var(--surface);
+  color:var(--ink); font:inherit; font-size:.9rem; line-height:1.5;
+}
+.notes textarea::placeholder{color:var(--ink-3); font-style:italic}
+.notes textarea:focus{outline:none; border-style:solid; border-color:var(--sea)}
+
+/* ─────────────────────────────  CARNET  ───────────────────────────── */
+.carnet{margin-top:22px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); align-items:start}
+.card{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow); overflow:hidden}
+.card > header{padding:12px 16px; border-bottom:1px solid var(--line-soft); background:var(--surface-2)}
+.card > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
+.card > header p{margin-top:4px; font-size:.8rem; color:var(--ink-3)}
+.card .inner{padding:14px 16px; display:flex; flex-direction:column; gap:12px}
+.fld{display:flex; flex-direction:column; gap:4px}
+.fld span{font-size:.78rem; color:var(--ink-3)}
+.fld input{
+  border:1px dashed var(--line); border-radius:var(--r-sm); background:var(--surface-2);
+  padding:8px 11px; color:var(--ink); font:inherit; font-size:.9rem;
+}
+.fld input::placeholder{color:var(--ink-3); font-style:italic}
+.fld input:focus{outline:none; border-style:solid; border-color:var(--sea); background:var(--surface)}
+.fixe{display:flex; justify-content:space-between; gap:12px; align-items:baseline; font-size:.88rem; padding:2px 0}
+.fixe span{color:var(--ink-3)}
+.fixe b{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.fixe a{color:var(--sea); text-decoration:none; font-weight:600}
+.bigbtn{
+  display:inline-flex; align-items:center; gap:9px; align-self:flex-start;
+  padding:10px 16px; border-radius:99px; border:1px solid var(--sea); background:var(--sea-soft);
+  color:var(--sea); font-weight:600; font-size:.88rem;
+}
+.bigbtn svg{width:15px; height:15px}
+.bigbtn:hover{background:var(--sea); color:var(--surface)}
+.saved{font-size:.78rem; color:var(--sea); font-family:var(--mono)}
+
 /* ─────────────────────────────  BAS DE PAGE  ───────────────────────────── */
 .legend{margin-top:30px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .lg{display:flex; gap:11px; padding:14px 15px; border-radius:var(--r); border:1px solid var(--line); background:var(--surface)}
@@ -349,6 +409,14 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></symbol>
   <symbol id="i-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5 17.5a4 4 0 0 1 .8-7.9 6 6 0 0 1 11.6-1.4A3.9 3.9 0 0 1 20 15.9"/><path d="m9 20 3-3 3 3M12 17v5"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+    <path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8a2.6 2.6 0 1 1-2.6 2.6"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+    <path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4.5 4.5 0 1 1-4 0Z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+    <rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v15H5.5A1.5 1.5 0 0 0 4 19.5Z"/><path d="M4 19.5A1.5 1.5 0 0 1 5.5 21H20"/></symbol>
 </defs></svg>
 
 <div class="horizon">
@@ -385,6 +453,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <div class="seg" role="group" aria-label="Mode d'affichage">
       <button id="viewDay" aria-pressed="true">Jour par jour</button>
       <button id="viewGrid" aria-pressed="false">Vue parallèle</button>
+      <button id="viewCarnet" aria-pressed="false">Carnet</button>
     </div>
     <div class="filters" id="filters">
       <button class="f" data-k="site" aria-pressed="false"><svg><use href="#i-site"/></svg>Sites</button>
@@ -402,6 +471,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <section id="dayView"></section>
     <section id="searchView" hidden></section>
     <section id="gridView" hidden></section>
+    <section id="carnetView" hidden></section>
 
     <div class="legend">
       <div class="lg site">
@@ -424,6 +494,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       <span id="doneCount">0 étape cochée</span>
       <button id="resetBtn">tout décocher</button>
       <button id="printBtn">imprimer les 11 jours</button>
+      <button id="icsBtn">calendrier des départs</button>
       <span class="off" id="offlineFlag" hidden><svg><use href="#i-offline"/></svg>disponible hors connexion</span>
       <span class="hint">← → changer de jour · glisser du doigt sur mobile</span>
     </footer>
@@ -604,6 +675,161 @@ function packFor(day){
   return [...new Set(out)];
 }
 
+/* ════════════════════════════  CALENDRIER .ics  ════════════════════════════
+   Un fichier importable dans l'app Calendrier : chaque départ devient un
+   événement avec une alarme dix minutes avant, et porte son lien d'itinéraire.
+   Les heures sont écrites en UTC (la Grèce est à UTC+3 en août), ce qui évite
+   d'embarquer une définition de fuseau.                                       */
+function icsStamp(dateISO, minutes){
+  const [y, mo, d] = dateISO.split("-").map(Number);
+  const t = new Date(Date.UTC(y, mo - 1, d, 0, minutes) - 3 * 3600000);
+  return t.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+const icsEsc = s => String(s).replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
+function icsFold(line){                      // 75 octets par ligne, repli normalisé
+  const out = [];
+  let cur = "";
+  for (const ch of line){
+    if (new Blob([cur + ch]).size > 73){ out.push(cur); cur = " " + ch; }
+    else cur += ch;
+  }
+  out.push(cur);
+  return out.join("\r\n");
+}
+/* « 17 h 30 – 18 h 30 » → début et fin ; « 8 h » → une heure par défaut. */
+function whenRange(when, fallback){
+  const parts = String(when).split(/\s*[–—]\s*/);
+  const a = toMinutes(parts[0]);
+  if (a === null) return null;
+  return { start:a, end: parts[1] !== undefined ? toMinutes(parts[1]) : a + fallback };
+}
+function buildICS(){
+  const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const ev = [];
+  const push = (uid, start, end, summary, desc, url, alarm) => {
+    ev.push(
+      "BEGIN:VEVENT",
+      `UID:${uid}@athenes-2026`,
+      `DTSTAMP:${now}`,
+      `DTSTART:${start}`,
+      `DTEND:${end}`,
+      icsFold(`SUMMARY:${icsEsc(summary)}`),
+      desc ? icsFold(`DESCRIPTION:${icsEsc(desc)}`) : null,
+      url ? icsFold(`URL:${url}`) : null,
+      ...(alarm ? ["BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER:-PT10M",
+                   icsFold(`DESCRIPTION:${icsEsc(alarm)}`), "END:VALARM"] : []),
+      "END:VEVENT"
+    );
+  };
+  DAYS.forEach(d => {
+    const maison = PHASES[d.phase].home;
+    allItems(d).forEach(({ it, slot, i }) => {
+      const uid = `${d.n}-${slot}-${i}`;
+      if (it.t === "depart"){
+        const m = toMinutes(it.when);
+        if (m === null) return;
+        push(uid, icsStamp(d.date, m), icsStamp(d.date, m + 15),
+          `Départ — ${d.title}`,
+          `On quitte ${maison}.` + (it.map ? `\nItinéraire : ${it.map}` : ""),
+          it.map, `Départ dans 10 minutes — on quitte ${maison}`);
+      } else if (it.when){
+        const r = whenRange(it.when, 60);
+        if (!r) return;
+        push(uid, icsStamp(d.date, r.start), icsStamp(d.date, r.end),
+          it.ttl, [it.det, it.note].filter(Boolean).join("\n"), null, null);
+      }
+    });
+  });
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Onze jours en Attique//FR",
+          "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+          "X-WR-CALNAME:Attique 17–27 août 2026", ...ev.filter(Boolean),
+          "END:VCALENDAR", ""].join("\r\n");
+}
+function telechargerICS(){
+  const blob = new Blob([buildICS()], { type:"text/calendar;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "attique-2026.ics";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ════════════════════════════  MÉTÉO & VENT  ════════════════════════════
+   Service ouvert, sans clé. Le résultat est gardé en mémoire locale : hors
+   connexion on réaffiche la dernière prévision connue, et rien ne casse.     */
+const METEO_STORE = "attique2026:meteo";
+const LIEUX = { 1:{ lat:37.98, lon:23.73 }, 2:{ lat:37.744, lon:23.905 } };
+const CIEL = {
+  0:"ciel dégagé", 1:"peu nuageux", 2:"nuages épars", 3:"couvert",
+  45:"brouillard", 48:"brouillard givrant", 51:"bruine", 53:"bruine", 55:"bruine",
+  61:"pluie faible", 63:"pluie", 65:"forte pluie", 80:"averses", 81:"averses", 82:"fortes averses",
+  95:"orage", 96:"orage", 99:"orage"
+};
+let METEO = (() => { try { return JSON.parse(localStorage.getItem(METEO_STORE)) || {}; } catch { return {}; } })();
+
+async function chargerMeteo(){
+  try {
+    const res = await Promise.all([1, 2].map(ph => {
+      const { lat, lon } = LIEUX[ph];
+      return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+        `&daily=weather_code,temperature_2m_max,wind_speed_10m_max&timezone=Europe%2FAthens` +
+        `&start_date=2026-08-17&end_date=2026-08-27`).then(r => r.ok ? r.json() : Promise.reject());
+    }));
+    const out = {};
+    [1, 2].forEach((ph, k) => {
+      const j = res[k].daily;
+      j.time.forEach((date, n) => {
+        out[`${ph}:${date}`] = { c:j.weather_code[n], t:Math.round(j.temperature_2m_max[n]), v:Math.round(j.wind_speed_10m_max[n]) };
+      });
+    });
+    METEO = out;
+    try { localStorage.setItem(METEO_STORE, JSON.stringify(out)); } catch {}
+    render();
+  } catch { /* pas de réseau : on garde la dernière prévision connue */ }
+}
+const meteoDe = d => METEO[`${d.phase}:${d.date}`] || null;
+function meteoHTML(d){
+  const w = meteoDe(d);
+  if (!w) return "";
+  const fort = w.v >= 30;
+  return `<span class="wx${fort ? " venteux" : ""}" title="${esc(CIEL[w.c] || "")}">
+    <svg><use href="#i-temp"/></svg><b>${w.t}°</b>
+    <span class="sep">·</span>
+    <svg><use href="#i-wind"/></svg><b>${w.v}</b> km/h
+  </span>`;
+}
+/* Avertissement seulement les jours où le vent gêne vraiment : mer et bateau. */
+function meteoAlerte(d){
+  const w = meteoDe(d);
+  if (!w || w.v < 30) return "";
+  const items = allItems(d).map(x => x.it);
+  const mer = items.some(i => i.t === "swim" || /croisi/i.test(i.ttl));
+  if (!mer) return "";
+  return `<p class="wxwarn"><b>Vent annoncé à ${w.v} km/h.</b> Au-delà de 30, l'eau se trouble sur
+    les fonds rocheux et le bateau secoue. Les plages de sable abritées — Saronida, Anavyssos —
+    restent agréables ; le snorkeling, beaucoup moins.</p>`;
+}
+
+/* ════════════════════════════  NOTES & CARNET  ════════════════════════════ */
+const NOTES_STORE = "attique2026:notes", CARNET_STORE = "attique2026:carnet";
+const lire = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } };
+const NOTES = lire(NOTES_STORE);
+const CARNET = lire(CARNET_STORE);
+const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+const CHAMPS = [
+  { k:"hotel",    l:"Hôtel à Alimos — nom et adresse", ph:"à compléter" },
+  { k:"hoteltel", l:"Téléphone de l'hôtel", ph:"+30 …" },
+  { k:"penthouse",l:"Penthouse à Saronida — adresse", ph:"à compléter" },
+  { k:"proprio",  l:"Propriétaire / contact sur place", ph:"+30 …" },
+  { k:"loueur",   l:"Loueur de voiture — agence et téléphone", ph:"récupération le 22, restitution le 27 à 13 h 30" },
+  { k:"plaque",   l:"Plaque d'immatriculation", ph:"à noter le jour J" },
+  { k:"croisiere1",l:"Croisière du 20 août — référence", ph:"n° de réservation" },
+  { k:"croisiere2",l:"Croisière de Porto Rafti, 24 août — référence", ph:"n° de réservation" },
+  { k:"vols",     l:"Vols — références", ph:"aller 17/08, retour 27/08 à 16 h 20" },
+  { k:"assurance",l:"Assurance / carte européenne", ph:"numéros utiles" }
+];
+
 /* ════════════════════════════  TEMPS  ════════════════════════════ */
 /* Heure d'Athènes (UTC+3 en août) quel que soit le fuseau du téléphone. */
 function athensNow(){
@@ -717,8 +943,10 @@ function dayHTML(d, { live }){
       <span class="suntimes" title="Calculé pour ${d.sun === SOUNION ? "le cap Sounion" : d.phase === 1 ? "Athènes" : "Saronida"}">
         <svg><use href="#i-sunrise"/></svg><b>${hhmm(d.sunT.rise)}</b>
         <svg><use href="#i-sunset"/></svg><b>${hhmm(d.sunT.set)}</b>
+        ${meteoHTML(d)}
       </span>
     </div>
+    ${meteoAlerte(d)}
     ${alarm}
     <div class="slots">
       ${SLOTS.map(s => {
@@ -744,6 +972,10 @@ function dayHTML(d, { live }){
       <span class="lbl">À prendre</span>
       <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
     </div>` : ""}
+    <div class="notes">
+      <label for="note-${d.n}">Notes du jour</label>
+      <textarea id="note-${d.n}" data-note="${d.n}" placeholder="La taverne à retenir, où on s'est garés, ce qu'il faudra refaire…">${esc(NOTES[d.n] || "")}</textarea>
+    </div>
   </div>`;
 }
 
@@ -800,6 +1032,63 @@ function renderGrid(){
   document.getElementById("gridView").innerHTML = block(1) + block(2);
 }
 
+/* ════════════════════════════  CARNET  ════════════════════════════ */
+function renderCarnet(){
+  const notees = Object.entries(NOTES).filter(([, v]) => v && v.trim());
+  document.getElementById("carnetView").innerHTML = `
+    <div class="carnet">
+      <article class="card">
+        <header>
+          <h3>Alarmes sur le téléphone</h3>
+          <p>Les quinze départs et les créneaux réservés, à importer dans l'app Calendrier.</p>
+        </header>
+        <div class="inner">
+          <p style="font-size:.87rem;color:var(--ink-2)">Chaque départ sonne <b>dix minutes avant</b>, et l'événement porte son lien d'itinéraire. Une fois importé, ça fonctionne même appli fermée et sans réseau.</p>
+          <button class="bigbtn" id="icsBtn"><svg><use href="#i-cal"/></svg>Télécharger le calendrier</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <header>
+          <h3>Numéros qui ne changent pas</h3>
+          <p>Valables partout en Grèce.</p>
+        </header>
+        <div class="inner">
+          <p class="fixe"><span>Urgences, toutes (européen)</span><a href="tel:112"><b>112</b></a></p>
+          <p class="fixe"><span>Indicatif de la Grèce</span><b>+30</b></p>
+          <p class="fixe"><span>Base phase 1</span><b>Alimos</b></p>
+          <p class="fixe"><span>Base phase 2</span><b>Saronida</b></p>
+          <p class="fixe"><span>Restitution de la voiture</span><b>27/08, 13 h 30</b></p>
+          <p class="fixe"><span>Décollage</span><b>27/08, 16 h 20</b></p>
+        </div>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <header>
+          <h3>À remplir vous-même</h3>
+          <p>Ces informations ne figurent pas dans le programme — je ne les invente pas. Tout est gardé sur ce téléphone, rien n'est envoyé nulle part.</p>
+        </header>
+        <div class="inner" style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+          ${CHAMPS.map(c => `<label class="fld">
+            <span>${esc(c.l)}</span>
+            <input type="text" data-carnet="${c.k}" value="${esc(CARNET[c.k] || "")}" placeholder="${esc(c.ph)}">
+          </label>`).join("")}
+        </div>
+      </article>
+
+      ${notees.length ? `<article class="card" style="grid-column:1/-1">
+        <header><h3>Vos notes</h3><p>Reprises des journées où vous avez écrit quelque chose.</p></header>
+        <div class="inner">
+          ${notees.map(([n, v]) => {
+            const d = DAYS.find(x => x.n === +n);
+            return `<div class="fld"><span>Jour ${n} · ${d ? esc(d.dow + " " + d.dm) : ""}</span>
+              <p style="font-size:.9rem">${esc(v)}</p></div>`;
+          }).join("")}
+        </div>
+      </article>` : ""}
+    </div>`;
+}
+
 /* ════════════════════════════  RENDU  ════════════════════════════ */
 function renderFoot(){
   const n = Object.values(state.done).filter(Boolean).length;
@@ -808,14 +1097,16 @@ function renderFoot(){
 }
 function render(){
   const searching = state.view === "day" && state.query.trim().length > 0;
-  document.getElementById("dayView").hidden   = state.view !== "day" || searching;
+  document.getElementById("dayView").hidden    = state.view !== "day" || searching;
   document.getElementById("searchView").hidden = !searching;
-  document.getElementById("gridView").hidden  = state.view !== "grid";
+  document.getElementById("gridView").hidden   = state.view !== "grid";
+  document.getElementById("carnetView").hidden = state.view !== "carnet";
   if (searching) renderSearch();
   else if (state.view === "day") renderDay();
-  else renderGrid();
+  else if (state.view === "grid") renderGrid();
+  else renderCarnet();
   renderRail(); renderStatus(); renderFoot();
-  const h = state.view === "grid" ? "#tableau" : `#j${DAYS[state.day].n}`;
+  const h = state.view === "grid" ? "#tableau" : state.view === "carnet" ? "#carnet" : `#j${DAYS[state.day].n}`;
   if (location.hash !== h) history.replaceState(null, "", h);
 }
 function goToDay(i){
@@ -842,9 +1133,29 @@ document.addEventListener("click", e => {
 function syncSeg(){
   document.getElementById("viewDay").setAttribute("aria-pressed", state.view === "day");
   document.getElementById("viewGrid").setAttribute("aria-pressed", state.view === "grid");
+  document.getElementById("viewCarnet").setAttribute("aria-pressed", state.view === "carnet");
 }
 document.getElementById("viewDay").addEventListener("click", () => { state.view = "day"; syncSeg(); render(); });
 document.getElementById("viewGrid").addEventListener("click", () => { state.view = "grid"; syncSeg(); render(); });
+document.getElementById("viewCarnet").addEventListener("click", () => { state.view = "carnet"; syncSeg(); render(); });
+
+/* Saisies : on enregistre au fil de la frappe, sans redessiner — un rendu
+   ferait perdre le curseur au milieu d'une phrase. */
+let saveT;
+document.addEventListener("input", e => {
+  const note = e.target.closest("textarea[data-note]");
+  const champ = e.target.closest("input[data-carnet]");
+  if (!note && !champ) return;
+  if (note) NOTES[note.dataset.note] = note.value;
+  if (champ) CARNET[champ.dataset.carnet] = champ.value;
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    ecrire(NOTES_STORE, NOTES); ecrire(CARNET_STORE, CARNET);
+  }, 400);
+});
+document.addEventListener("click", e => {
+  if (e.target.closest("#icsBtn")) telechargerICS();
+});
 
 document.getElementById("filters").addEventListener("click", e => {
   const b = e.target.closest(".f"); if (!b) return;
@@ -917,6 +1228,7 @@ addEventListener("touchend", e => {
 function fromHash(){
   const h = location.hash;
   if (h === "#tableau"){ state.view = "grid"; syncSeg(); return true; }
+  if (h === "#carnet"){ state.view = "carnet"; syncSeg(); return true; }
   const m = h.match(/^#j(\d{1,2})$/);
   if (m){
     const i = DAYS.findIndex(d => d.n === +m[1]);
@@ -941,5 +1253,10 @@ if (!fromHash()){
   if (t0 >= 0) state.day = t0;
 }
 render();
-setInterval(() => { renderStatus(); if (state.view === "day" && !state.query) renderDay(); }, 30000);
+chargerMeteo();
+setInterval(() => {
+  renderStatus();
+  const enSaisie = document.activeElement && document.activeElement.closest("textarea,input");
+  if (state.view === "day" && !state.query && !enSaisie) renderDay();
+}, 30000);
 </script>
