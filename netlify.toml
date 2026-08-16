@@ -1,0 +1,30 @@
+# Déploiement Netlify — site statique, aucune dépendance à installer.
+# Le build assemble le dossier « site » à partir des fichiers du dépôt,
+# de façon à ne pas les dupliquer dans git.
+#
+#   /            → vacances-attique.html  (Onze jours en Attique)
+#   /pid-drone   → index.html             (cours de régulation PID)
+
+[build]
+  command = "bash build.sh"
+  publish = "site"
+
+# Anciennes adresses / liens partagés : on ne casse rien.
+[[redirects]]
+  from = "/vacances-attique.html"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/pid-drone.html"
+  to = "/pid-drone"
+  status = 301
+
+# Une seule page HTML, pas de nom de fichier versionné : on revalide à chaque
+# visite pour que les corrections du programme arrivent tout de suite.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
