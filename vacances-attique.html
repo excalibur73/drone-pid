@@ -298,6 +298,32 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 }
 .wxwarn b{color:var(--ink)}
 
+/* ─────────────────────────────  ÉTAT DE LA MER  ───────────────────────────── */
+.mer{
+  margin:0 0 22px; border:1px solid var(--line); border-left:4px solid var(--sea);
+  border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow); overflow:hidden;
+}
+.mer.moy{border-left-color:var(--ochre)}
+.mer.fort{border-left-color:var(--ochre); background:var(--ochre-soft)}
+.mer > header{display:flex; align-items:center; gap:9px; padding:11px 16px; border-bottom:1px solid var(--line-soft)}
+.mer > header svg{width:16px; height:16px; color:var(--sea)}
+.mer.moy > header svg,.mer.fort > header svg{color:var(--ochre)}
+.mer > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2)}
+.mer > header .zone{margin-left:auto; font-size:.78rem; color:var(--ink-3)}
+.mer .grille{
+  display:grid; gap:1px; background:var(--line-soft);
+  grid-template-columns:repeat(auto-fit,minmax(112px,1fr));
+}
+.mer .grille > div{background:var(--surface); padding:11px 14px; display:flex; flex-direction:column; gap:1px}
+.mer.fort .grille > div{background:var(--ochre-soft)}
+.mer .grille span{font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
+.mer .grille b{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.12rem; font-weight:600}
+.mer .grille i{font-style:normal; font-size:.76rem; color:var(--ink-3)}
+.mer .verdict{padding:11px 16px; font-size:.86rem; color:var(--ink-2); border-top:1px solid var(--line-soft)}
+
+.note.rdv{color:var(--sea)}
+.note.corr{color:var(--ochre)}
+
 /* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
 .notes{margin-top:16px}
 .notes label{
@@ -541,8 +567,11 @@ const DAYS = [
             {t:"site", ttl:"Stade panathénaïque", det:"Les premiers JO modernes, 1896"},
             {t:"site", ttl:"Relève des evzones", det:"Place Syntagma"} ],
     aprem:[ {t:"swim", ttl:"Plage d'Alimos"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"16 h 15", map:dir(ALIMOS,"37.938196,23.6852153",true)},
-           {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true},
+    soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS,"37.938196,23.6852153",true),
+            corrige:"Le PDF indiquait 16 h 15 — impossible : l'embarquement est à 15 h 45."},
+           {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true,
+            rdv:"Marina Delta, Le Pirée — présentation à 15 h 45",
+            det:"Accueil par Michalis, t-shirt blanc au logo de la compagnie"},
            {t:"swim", ttl:"Baignade Hydrousa + Varkiza"} ] },
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
@@ -552,8 +581,11 @@ const DAYS = [
     soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
 
   { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", sun:SARO,
-    matin:[ {t:"depart", ttl:"Départ", when:"9 h 45", map:dir(ALIMOS,"37.9611,23.7228")},
-            {t:"plain", ttl:"Récupération de la voiture", det:"Puis route vers Saronida et installation"} ],
+    matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(ALIMOS,"37.9611,23.7228"),
+             corrige:"Le PDF indiquait 9 h 45 — trop juste pour un retrait à 10 h."},
+            {t:"plain", ttl:"Récupération de la voiture", when:"10 h",
+             det:"Puis route vers Saronida et installation",
+             rdv:"Sixt — Syngrou Avenue 11 / Lempesi, Athina-Neos Kosmos"} ],
     aprem:[ {t:"swim", ttl:"Plage de Saronida"} ],
     soir:[ {t:"food", ttl:"Dîner au Lavraki", det:"Front de mer — ou terrasse du penthouse"} ] },
 
@@ -564,8 +596,10 @@ const DAYS = [
     soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
-    matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(SARONIDA,"37.8868674,24.0143872")},
-            {t:"site", ttl:"Croisière de Porto Rafti", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu", note:"Réservée"} ],
+    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
+             corrige:"Le PDF indiquait 8 h 15 — trop tard : environ 35 min de route pour 8 h 30."},
+            {t:"site", ttl:"Croisière de Porto Rafti", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
+             note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"site", ttl:"Erotospilia ou Avlaki", det:"Criques et grotte-abri — pique-nique, sans précipitation", gear:true} ],
     soir:[ {t:"depart", ttl:"Départ", when:"~18 h", map:dir("37.8868674,24.0143872",SARONIDA)},
            {t:"plain", ttl:"Retour à Saronida en fin de journée"},
@@ -730,13 +764,17 @@ function buildICS(){
         if (m === null) return;
         push(uid, icsStamp(d.date, m), icsStamp(d.date, m + 15),
           `Départ — ${d.title}`,
-          `On quitte ${maison}.` + (it.map ? `\nItinéraire : ${it.map}` : ""),
+          [`On quitte ${maison}.`,
+           it.corrige,
+           /* le point de rendez-vous du jour voyage avec l'alarme du départ */
+           (allItems(d).map(x => x.it).find(x => x.rdv) || {}).rdv,
+           it.map ? `Itinéraire : ${it.map}` : null].filter(Boolean).join("\n"),
           it.map, `Départ dans 10 minutes — on quitte ${maison}`);
       } else if (it.when){
         const r = whenRange(it.when, 60);
         if (!r) return;
         push(uid, icsStamp(d.date, r.start), icsStamp(d.date, r.end),
-          it.ttl, [it.det, it.note].filter(Boolean).join("\n"), null, null);
+          it.ttl, [it.rdv, it.det, it.note].filter(Boolean).join("\n"), null, null);
       }
     });
   });
@@ -808,6 +846,86 @@ function meteoAlerte(d){
   return `<p class="wxwarn"><b>Vent annoncé à ${w.v} km/h.</b> Au-delà de 30, l'eau se trouble sur
     les fonds rocheux et le bateau secoue. Les plages de sable abritées — Saronida, Anavyssos —
     restent agréables ; le snorkeling, beaucoup moins.</p>`;
+}
+
+/* ════════════════════════════  MÉTÉO MARINE  ════════════════════════════
+   Trois plans d'eau distincts, et ça change tout : le golfe Saronique est
+   abrité, la côte est fait face à l'Égée et prend le meltémi de plein fouet.
+   Points relevés au large, sinon la grille du modèle tombe sur la terre.    */
+const MER_STORE = "attique2026:mer";
+const PLANS = {
+  "saronique-nord":{ nom:"Golfe Saronique, nord", lat:37.87, lon:23.70 },  // Alimos, Faliro, Varkiza
+  "saronique-sud": { nom:"Golfe Saronique, sud",  lat:37.68, lon:23.93 },  // Saronida, KAPE, Sounion
+  "egee-est":      { nom:"Mer d'Égée, côte est",  lat:37.88, lon:24.07 }   // Porto Rafti, Avlaki
+};
+const PLAN_DU_JOUR = { 2:"saronique-nord", 3:"saronique-nord", 4:"saronique-nord", 5:"saronique-nord",
+  6:"saronique-sud", 7:"saronique-nord", 8:"egee-est", 9:"saronique-sud", 10:"saronique-sud", 11:"saronique-sud" };
+
+let MER = (() => { try { return JSON.parse(localStorage.getItem(MER_STORE)) || {}; } catch { return {}; } })();
+
+async function chargerMer(){
+  const cles = Object.keys(PLANS);
+  try {
+    const res = await Promise.all(cles.map(k => {
+      const { lat, lon } = PLANS[k];
+      return fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}` +
+        `&daily=wave_height_max,wave_period_max,wave_direction_dominant,swell_wave_height_max` +
+        `&hourly=sea_surface_temperature&timezone=Europe%2FAthens` +
+        `&start_date=2026-08-17&end_date=2026-08-27`).then(r => r.ok ? r.json() : Promise.reject());
+    }));
+    const out = {};
+    cles.forEach((k, n) => {
+      const j = res[n];
+      j.daily.time.forEach((date, i) => {
+        const midi = j.hourly ? j.hourly.sea_surface_temperature[i * 24 + 13] : null;
+        out[`${k}:${date}`] = {
+          h: j.daily.wave_height_max[i],
+          p: j.daily.wave_period_max[i],
+          d: j.daily.wave_direction_dominant[i],
+          s: j.daily.swell_wave_height_max[i],
+          t: midi
+        };
+      });
+    });
+    MER = out;
+    try { localStorage.setItem(MER_STORE, JSON.stringify(out)); } catch {}
+    render();
+  } catch { /* pas de réseau : on garde le dernier relevé */ }
+}
+const merDe = d => (PLAN_DU_JOUR[d.n] ? MER[`${PLAN_DU_JOUR[d.n]}:${d.date}`] : null);
+
+/* Échelle de Douglas, ramenée à ce qui se ressent à bord et sous le masque. */
+function etatMer(h){
+  if (h == null) return null;
+  if (h < 0.10) return { m:"calme",        c:"ok",   d:"miroir" };
+  if (h < 0.50) return { m:"belle",        c:"ok",   d:"petites rides, eau claire" };
+  if (h < 1.25) return { m:"peu agitée",   c:"moy",  d:"clapot, visibilité qui baisse sur les rochers" };
+  if (h < 2.50) return { m:"agitée",       c:"fort", d:"bateau qui tape, snorkeling déconseillé" };
+  return { m:"forte", c:"fort", d:"sorties en mer compromises" };
+}
+const CARDINAL = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO","O","ONO","NO","NNO"];
+const cap = deg => deg == null ? "—" : CARDINAL[Math.round(deg / 22.5) % 16];
+
+function merHTML(d){
+  const m = merDe(d);
+  if (!m || m.h == null) return "";
+  const e = etatMer(m.h), w = meteoDe(d);
+  const bateau = allItems(d).map(x => x.it).some(i => /croisi/i.test(i.ttl));
+  return `<article class="mer ${e.c}">
+    <header>
+      <svg><use href="#i-swim"/></svg>
+      <h3>${bateau ? "La mer le jour de la croisière" : "État de la mer"}</h3>
+      <span class="zone">${esc(PLANS[PLAN_DU_JOUR[d.n]].nom)}</span>
+    </header>
+    <div class="grille">
+      <div><span>Vagues</span><b>${m.h.toFixed(1)} m</b><i>mer ${e.m}</i></div>
+      <div><span>Houle</span><b>${m.s == null ? "—" : m.s.toFixed(1) + " m"}</b><i>période ${m.p == null ? "—" : Math.round(m.p) + " s"}</i></div>
+      <div><span>Direction</span><b>${cap(m.d)}</b><i>${m.d == null ? "" : Math.round(m.d) + "°"}</i></div>
+      <div><span>Eau</span><b>${m.t == null ? "—" : Math.round(m.t) + "°"}</b><i>en surface</i></div>
+      ${w ? `<div><span>Vent</span><b>${w.v} km/h</b><i>rafales max</i></div>` : ""}
+    </div>
+    <p class="verdict">${esc(e.d)}${bateau && e.c !== "ok" ? " — prévoyez de quoi vous tenir, et le ventre plein plutôt que vide." : ""}</p>
+  </article>`;
 }
 
 /* ════════════════════════════  NOTES & CARNET  ════════════════════════════ */
@@ -907,6 +1025,8 @@ function itemHTML(day, slot, it, i){
     <div class="body">
       <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}</div>
       ${it.det ? `<p class="det">${highlight(it.det)}</p>` : ""}
+      ${it.rdv ? `<span class="note rdv"><svg><use href="#i-map"/></svg>${esc(it.rdv)}</span>` : ""}
+      ${it.corrige ? `<span class="note corr"><svg><use href="#i-info"/></svg>${esc(it.corrige)}</span>` : ""}
       ${it.sunset ? `<span class="note"><svg><use href="#i-sunset"/></svg>Coucher du soleil ${hhmm(day.sunT.set)}</span>` : ""}
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       <div class="acts">
@@ -952,6 +1072,7 @@ function dayHTML(d, { live }){
     </div>
     ${meteoAlerte(d)}
     ${alarm}
+    ${merHTML(d)}
     <div class="slots">
       ${SLOTS.map(s => {
         const items = itemsOf(d, s.k);
@@ -1262,6 +1383,7 @@ if (!fromHash()){
 }
 render();
 chargerMeteo();
+chargerMer();
 setInterval(() => {
   renderStatus();
   const enSaisie = document.activeElement && document.activeElement.closest("textarea,input");
