@@ -494,7 +494,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       <span id="doneCount">0 étape cochée</span>
       <button id="resetBtn">tout décocher</button>
       <button id="printBtn">imprimer les 11 jours</button>
-      <button id="icsBtn">calendrier des départs</button>
+      <button id="icsFoot" hidden>calendrier des départs</button>
       <span class="off" id="offlineFlag" hidden><svg><use href="#i-offline"/></svg>disponible hors connexion</span>
       <span class="hint">← → changer de jour · glisser du doigt sur mobile</span>
     </footer>
@@ -811,6 +811,10 @@ function meteoAlerte(d){
 }
 
 /* ════════════════════════════  NOTES & CARNET  ════════════════════════════ */
+/* Page affichée dans un cadre isolé (aperçu artifact) : les téléchargements y
+   sont interdits — inutile de proposer un bouton qui ne ferait rien. */
+const dansCadre = (() => { try { return window.self !== window.top; } catch { return true; } })();
+
 const NOTES_STORE = "attique2026:notes", CARNET_STORE = "attique2026:carnet";
 const lire = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } };
 const NOTES = lire(NOTES_STORE);
@@ -1044,7 +1048,10 @@ function renderCarnet(){
         </header>
         <div class="inner">
           <p style="font-size:.87rem;color:var(--ink-2)">Chaque départ sonne <b>dix minutes avant</b>, et l'événement porte son lien d'itinéraire. Une fois importé, ça fonctionne même appli fermée et sans réseau.</p>
-          <button class="bigbtn" id="icsBtn"><svg><use href="#i-cal"/></svg>Télécharger le calendrier</button>
+          ${dansCadre
+            ? `<p class="wxwarn">Le téléchargement est bloqué dans cet aperçu.
+                 Ouvrez <b>athenes-2026.netlify.app</b> puis revenez ici : le bouton y fonctionne.</p>`
+            : `<button class="bigbtn" id="icsBtn"><svg><use href="#i-cal"/></svg>Télécharger le calendrier</button>`}
         </div>
       </article>
 
@@ -1154,8 +1161,9 @@ document.addEventListener("input", e => {
   }, 400);
 });
 document.addEventListener("click", e => {
-  if (e.target.closest("#icsBtn")) telechargerICS();
+  if (e.target.closest("#icsBtn, #icsFoot")) telechargerICS();
 });
+if (!dansCadre) document.getElementById("icsFoot").hidden = false;
 
 document.getElementById("filters").addEventListener("click", e => {
   const b = e.target.closest(".f"); if (!b) return;
