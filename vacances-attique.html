@@ -1000,10 +1000,11 @@ const DAYS = [
             note:"À 500 m de l'hôtel, à pied le long de la mer"} ] },
 
   { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
-    /* Décalé d'une demi-heure après l'arrivée retardée du 17. La limite n'est
-       pas le départ mais le portail de l'Agora, à franchir avant 9 h. */
-    matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(ALIMOS, "37.9747,23.7218"),
-},
+    /* Taxi commandé pour 8 h précises : c'est désormais l'heure qui commande,
+       et non plus l'estimation de la veille. Le portail de l'Agora reste à
+       franchir avant 9 h — on y sera avec une large avance. */
+    matin:[ {t:"depart", ttl:"Taxi réservé", when:"8 h", map:dir(ALIMOS, "37.9747,23.7218"),
+             note:"Rendez-vous fixé à 8 h précises : soyez devant l'hôtel à 7 h 55. Un taxi commandé n'attend que quelques minutes"},
             {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale",
              note:"8 h – 9 h est l'heure d'entrée, pas la durée : franchissez le portail avant 9 h et restez ensuite le temps que vous voulez. Pièces d'identité sur vous — les entrées gratuites des moins de 25 ans se justifient au contrôle"},
             {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides", note:"Arriver 10 h 45 — guichet jeunes"} ],
@@ -1177,7 +1178,7 @@ function petitDejeuner(d){
        signale que si le créneau est effectivement court. */
     det = hotel
       ? (de <= SERVICE_HOTEL.de
-          ? (a - de <= 50 ? "Au 1er étage, dès l'ouverture — vous n'avez pas de marge."
+          ? (a - de < 50 ? "Au 1er étage, dès l'ouverture — vous n'avez pas de marge."
                           : "Au 1er étage, dès l'ouverture, vue mer.")
           : "Au 1er étage, vue mer.")
       : "Sur la terrasse, avec les provisions du 22.";
