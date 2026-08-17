@@ -589,6 +589,75 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .bigbtn:hover{background:var(--sea); color:var(--surface)}
 .saved{font-size:.78rem; color:var(--sea); font-family:var(--mono)}
 
+/* ─────────────────────────────  CHRONOLOGIE  ───────────────────────────── */
+.chrono{margin-top:22px; max-width:720px}
+.chrono-intro{font-size:.95rem; color:var(--ink-2); max-width:62ch}
+
+.frise{margin:22px 0 26px}
+.frise-barre{
+  position:relative; height:10px; border-radius:99px;
+  background:var(--line-soft); margin-bottom:26px;
+}
+.frise-barre .or{position:absolute; top:0; bottom:0; background:var(--ochre); border-radius:99px; min-width:3px}
+.frise-barre .tic{position:absolute; top:0; transform:translateX(-50%)}
+.frise-barre .tic.debut{transform:none}
+.frise-barre .tic.debut i{margin:0}
+.frise-barre .tic.fin{transform:translateX(-100%)}
+.frise-barre .tic.fin i{margin:0 0 0 auto}
+.frise-barre .tic i{display:block; width:1px; height:16px; background:var(--line); margin:0 auto}
+.frise-barre .tic b{
+  display:block; margin-top:3px; font-family:var(--mono); font-size:9px;
+  color:var(--ink-3); white-space:nowrap; font-weight:400;
+}
+.frise-leg{margin-top:8px; font-size:.83rem; color:var(--ink-2)}
+
+.perspective{
+  margin-top:10px; padding:13px 16px; border-radius:var(--r-sm);
+  border-left:3px solid var(--stone); background:var(--stone-soft);
+  font-family:var(--serif); font-size:1rem; font-style:italic; line-height:1.5;
+}
+
+.ere{margin-top:34px}
+.ere > h3{
+  font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink-2); padding-bottom:9px; border-bottom:1px solid var(--line);
+}
+.faits{list-style:none; margin:0; padding:0}
+.fait{
+  display:grid; grid-template-columns:118px 1fr; gap:14px;
+  padding:14px 0; border-bottom:1px solid var(--line-soft);
+}
+.fait .an{
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.78rem;
+  color:var(--ink-3); padding-top:3px; text-align:right; white-space:nowrap;
+}
+.fait .ft{min-width:0; position:relative; padding-left:18px}
+.fait .ft::before{
+  content:""; position:absolute; left:0; top:7px; width:8px; height:8px; border-radius:50%;
+  background:var(--surface); border:2px solid var(--ink-3);
+}
+.fait.grece .ft::before{border-color:var(--sea)}
+.fait.visite .ft::before{background:var(--stone); border-color:var(--stone)}
+.fait .ft b{font-size:.97rem}
+/* Le type est aussi écrit, jamais porté par la seule couleur. */
+.fait .q{
+  display:inline-block; margin-left:9px; font-family:var(--mono); font-size:9px;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3);
+}
+.fait.grece .q{color:var(--sea)}
+.fait .ft p{margin-top:4px; font-size:.87rem; color:var(--ink-2)}
+.versjour{
+  margin-top:7px; font-size:.8rem; font-weight:600; color:var(--stone);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.versjour:hover{filter:brightness(1.15)}
+
+@media (max-width:600px){
+  .fait{grid-template-columns:1fr; gap:2px}
+  .fait .an{text-align:left; padding-left:18px}
+  .fait .ft::before{top:-14px}
+}
+
 /* ─────────────────────────────  BAS DE PAGE  ───────────────────────────── */
 .legend{margin-top:30px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .lg{display:flex; gap:11px; padding:14px 15px; border-radius:var(--r); border:1px solid var(--line); background:var(--surface)}
@@ -720,6 +789,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       <button id="viewDay" aria-pressed="true">Jour par jour</button>
       <button id="viewGrid" aria-pressed="false">Vue parallèle</button>
       <button id="viewCarnet" aria-pressed="false">Carnet</button>
+      <button id="viewChrono" aria-pressed="false">Chronologie</button>
     </div>
     <div class="filters" id="filters">
       <button class="f" data-k="site" aria-pressed="false"><svg><use href="#i-site"/></svg>Sites</button>
@@ -738,6 +808,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <section id="searchView" hidden></section>
     <section id="gridView" hidden></section>
     <section id="carnetView" hidden></section>
+    <section id="chronoView" hidden></section>
 
     <div class="legend">
       <div class="lg site">
@@ -1019,6 +1090,120 @@ function packFor(day){
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
   if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
   return [...new Set(out)];
+}
+
+/* ════════════════════════════  CHRONOLOGIE  ════════════════════════════
+   Deux fils tressés : la Grèce, et le reste du monde aux mêmes dates. Les
+   étapes du séjour y sont pointées, pour qu'on sache enfin dans quel ordre
+   on visite. Année négative = avant notre ère.                              */
+const CHRONO = [
+  { e:"Avant la Grèce", de:-3300, a:-1100, faits:[
+    { an:-3300, q:"monde", t:"L'écriture naît deux fois", d:"Cunéiforme à Sumer, hiéroglyphes en Égypte. L'histoire commence — le reste est préhistoire." },
+    { an:-3200, q:"grece", t:"Civilisation des Cyclades", d:"Idoles de marbre blanc aux visages lisses, que Brancusi et Modigliani copieront quatre mille ans plus tard." },
+    { an:-2560, q:"monde", t:"Pyramide de Khéops", d:"Elle sera déjà vieille de deux mille ans quand on posera la première pierre du Parthénon." },
+    { an:-2000, q:"grece", t:"Palais crétois, les Minoens", d:"Cnossos, les fresques, le labyrinthe. La première civilisation d'Europe." },
+    { an:-1750, q:"monde", t:"Code de Hammurabi", d:"Le premier corpus de lois gravé dans la pierre." },
+    { an:-1600, q:"grece", t:"Les Mycéniens", d:"Citadelles à murs cyclopéens, masques d'or. C'est leur monde qu'Homère chantera." },
+    { an:-1323, q:"monde", t:"Mort de Toutânkhamon", d:"Mycènes est alors à son apogée." },
+    { an:-1200, q:"monde", t:"Effondrement de l'âge du bronze", d:"Tout l'Orient s'écroule en une génération. Les palais brûlent, l'écriture se perd." }
+  ]},
+  { e:"Le long silence, puis le réveil", de:-1100, a:-508, faits:[
+    { an:-1100, q:"grece", t:"Siècles obscurs", d:"Trois cents ans sans écriture, sans pierre, sans trace. La Grèce repart de zéro." },
+    { an:-776, q:"grece", t:"Premiers Jeux d'Olympie", d:"Date traditionnelle. Les Grecs commenceront à compter le temps à partir de là." },
+    { an:-753, q:"monde", t:"Fondation légendaire de Rome", d:"Un village de bergers, quand Athènes a déjà des lois." },
+    { an:-750, q:"grece", t:"Homère mis par écrit", d:"L'Iliade et l'Odyssée fixent une mémoire vieille de cinq siècles." },
+    { an:-563, q:"monde", t:"Naissance du Bouddha", d:"À vingt ans près, celle de Confucius. Le siècle où l'humanité se met à penser autrement, partout à la fois." },
+    { an:-560, q:"grece", t:"Pisistrate lance le temple de Zeus", d:"Le chantier durera près de sept cents ans.", jour:3 },
+    { an:-508, q:"grece", t:"Clisthène invente la démocratie", d:"Le pouvoir au dèmos. Une expérience qui durera moins de deux siècles." }
+  ]},
+  { e:"L'hégémonie athénienne — 142 ans", de:-490, a:-338, faits:[
+    { an:-490, q:"grece", t:"Marathon", d:"Athènes seule repousse l'Empire perse. Un messager court quarante-deux kilomètres." },
+    { an:-480, q:"grece", t:"Salamine", d:"La flotte perse détruite dans le golfe que vous longerez. Athènes devient une puissance maritime." },
+    { an:-449, q:"grece", t:"Temple d'Héphaïstos", d:"Le temple dorique le mieux conservé de Grèce.", jour:2 },
+    { an:-447, q:"grece", t:"Chantier du Parthénon", d:"Quinze ans de travaux. L'apogée tient dans une génération.", jour:2 },
+    { an:-444, q:"grece", t:"Temple de Poséidon, cap Sounion", d:"Même programme, même marbre, autre falaise.", jour:9 },
+    { an:-431, q:"grece", t:"Guerre du Péloponnèse", d:"Athènes contre Sparte, vingt-sept ans. La peste emporte Périclès dès la deuxième année." },
+    { an:-404, q:"grece", t:"Athènes capitule", d:"Les Longs Murs abattus au son des flûtes. L'hégémonie est finie." },
+    { an:-399, q:"grece", t:"Mort de Socrate", d:"Condamné par le tribunal de l'Agora, sur la place où il parlait.", jour:2 },
+    { an:-338, q:"grece", t:"Chéronée", d:"Philippe II de Macédoine soumet les cités. La Grèce des cités libres a vécu." }
+  ]},
+  { e:"Alexandre, puis Rome", de:-336, a:400, faits:[
+    { an:-336, q:"grece", t:"Alexandre le Grand", d:"En treize ans, de la Macédoine à l'Indus. Il meurt à trente-deux ans." },
+    { an:-330, q:"grece", t:"Le stade panathénaïque est creusé", d:"En terre battue ; le marbre viendra cinq siècles plus tard.", jour:4 },
+    { an:-260, q:"grece", t:"Forteresse de Koroni, Porto Rafti", d:"Guerre de Chrémonidès : Athènes tente de secouer la tutelle macédonienne. Elle échoue.", jour:8 },
+    { an:-221, q:"monde", t:"La Chine unifiée", d:"Qin Shi Huang et son armée de terre cuite. À l'autre bout du monde, un autre empire naît." },
+    { an:-150, q:"grece", t:"Stoa d'Attale", d:"Cadeau d'un roi de Pergame à une Athènes devenue ville universitaire.", jour:2 },
+    { an:-146, q:"monde", t:"Rome annexe la Grèce", d:"Corinthe rasée. La Grèce devient une province — et la Grèce conquise conquiert son vainqueur." },
+    { an:-86, q:"grece", t:"Sylla saccage Athènes", d:"Les murs abattus, le Céramique brûlé." },
+    { an:-50, q:"grece", t:"Tour des Vents", d:"Horloge, girouette, calendrier : la première station météo du monde.", jour:3 },
+    { an:-44, q:"monde", t:"Mort de César", d:"Cléopâtre est plus proche de nous que de la pyramide de Khéops." },
+    { an:79, q:"monde", t:"Pompéi ensevelie" },
+    { an:116, q:"grece", t:"Monument de Philopappos", d:"Un prince sans royaume s'offre le plus beau balcon d'Athènes.", jour:2 },
+    { an:131, q:"grece", t:"Hadrien achève le temple de Zeus", d:"Sept cents ans après Pisistrate. Il fait graver son nom sur la porte.", jour:3 },
+    { an:144, q:"grece", t:"Hérode Atticus rebâtit le stade en marbre", d:"Cinquante mille places dans une seule matière.", jour:4 },
+    { an:267, q:"grece", t:"Sac des Hérules", d:"Athènes se replie derrière un mur bâti de ses propres ruines." }
+  ]},
+  { e:"Éclipse et retour", de:529, a:2026, faits:[
+    { an:529, q:"grece", t:"Justinien ferme l'école d'Athènes", d:"Mille ans de philosophie s'arrêtent par décret." },
+    { an:622, q:"monde", t:"L'Hégire", d:"Le Parthénon est alors une église chrétienne depuis un siècle." },
+    { an:1204, q:"grece", t:"Les croisés prennent Athènes", d:"L'Acropole devient un château franc." },
+    { an:1456, q:"grece", t:"Les Ottomans entrent dans Athènes", d:"Le Parthénon devient mosquée. Il aura été temple, église et mosquée sans jamais cesser de servir." },
+    { an:1492, q:"monde", t:"Colomb atteint l'Amérique" },
+    { an:1687, q:"grece", t:"Le Parthénon explose", d:"Poudrière ottomane, obus vénitien. Vingt et un siècles intacts, détruits en une soirée.", jour:2 },
+    { an:1789, q:"monde", t:"Révolution française", d:"Elle se réclame d'Athènes et de Sparte, qu'elle connaît par les livres." },
+    { an:1810, q:"grece", t:"Byron grave son nom à Sounion", d:"Sur une colonne du portique nord. Vous pourrez la chercher.", jour:9 },
+    { an:1834, q:"grece", t:"Athènes capitale", d:"Un bourg de dix mille habitants au pied de ruines. Les maçons d'Anafi arrivent.", jour:2 },
+    { an:1896, q:"grece", t:"Premiers Jeux olympiques modernes", d:"Dans le stade d'Hérode Atticus, restauré pour l'occasion.", jour:4 },
+    { an:1953, q:"grece", t:"La stoa d'Attale reconstruite", d:"À l'identique, par l'École américaine. Vous y marcherez dans du neuf antique.", jour:2 },
+    { an:2009, q:"grece", t:"Musée de l'Acropole", d:"Bâti pour réclamer ce qui manque.", jour:2 },
+    { an:2016, q:"grece", t:"SNFCC", d:"Renzo Piano. Athènes construit encore.", jour:5 }
+  ]}
+];
+
+const PERSPECTIVES = [
+  "La pyramide de Khéops avait déjà deux mille ans quand on a posé la première pierre du Parthénon.",
+  "L'hégémonie d'Athènes — de Salamine à Chéronée — tient en 142 ans. Moins que l'écart qui nous sépare de la guerre de 1870.",
+  "Le Parthénon est plus proche de nous dans le temps qu'il ne l'était des pyramides."
+];
+
+const anneeTexte = a => a < 0 ? `${-a} av. J.-C.` : `${a}`;
+
+function renderChrono(){
+  const MIN = -3300, MAX = 2026, ETENDUE = MAX - MIN;
+  const pos = a => ((a - MIN) / ETENDUE) * 100;
+  const debutOr = pos(-480), finOr = pos(-338);
+
+  document.getElementById("chronoView").innerHTML = `
+    <div class="chrono">
+      <p class="chrono-intro">Vos onze journées traversent sept siècles de construction et vingt-cinq d'histoire. Voici où chaque site se pose — et ce qui se passait ailleurs au même moment.</p>
+
+      <div class="frise">
+        <div class="frise-barre">
+          <span class="or" style="left:${debutOr}%; width:${(finOr - debutOr).toFixed(2)}%"></span>
+          ${[-3300, -2000, -1000, 0, 1000, 2026].map((a, i, t) =>
+            `<span class="tic${i === 0 ? " debut" : i === t.length - 1 ? " fin" : ""}" style="left:${pos(a)}%"><i></i><b>${
+              a === 2026 ? "auj." : a === 0 ? "an 0" : "−" + (-a)}</b></span>`).join("")}
+        </div>
+        <p class="frise-leg">Les nombres négatifs sont des années avant notre ère. En orange, les 142 ans de l'hégémonie athénienne, sur cinq mille trois cents ans d'histoire écrite : c'est tout ce qu'elle a duré.</p>
+      </div>
+
+      ${PERSPECTIVES.map(p => `<p class="perspective">${esc(p)}</p>`).join("")}
+
+      ${CHRONO.map(bloc => `<section class="ere">
+        <h3>${esc(bloc.e)}</h3>
+        <ol class="faits">
+          ${bloc.faits.map(f => `<li class="fait ${f.q}${f.jour ? " visite" : ""}">
+            <span class="an">${anneeTexte(f.an)}</span>
+            <div class="ft">
+              <b>${esc(f.t)}</b>
+              <span class="q">${f.q === "grece" ? "Grèce" : "ailleurs dans le monde"}</span>
+              ${f.d ? `<p>${esc(f.d)}</p>` : ""}
+              ${f.jour ? `<button type="button" class="versjour" data-jour="${f.jour}">Vous y êtes le jour ${f.jour} →</button>` : ""}
+            </div>
+          </li>`).join("")}
+        </ol>
+      </section>`).join("")}
+    </div>`;
 }
 
 /* ════════════════════════════  COMPRENDRE CE QU'ON VOIT  ════════════════════════════
@@ -2177,12 +2362,15 @@ function render(){
   document.getElementById("searchView").hidden = !searching;
   document.getElementById("gridView").hidden   = state.view !== "grid";
   document.getElementById("carnetView").hidden = state.view !== "carnet";
+  document.getElementById("chronoView").hidden = state.view !== "chrono";
   if (searching) renderSearch();
   else if (state.view === "day") renderDay();
   else if (state.view === "grid") renderGrid();
-  else renderCarnet();
+  else if (state.view === "carnet") renderCarnet();
+  else renderChrono();
   renderRail(); renderStatus(); renderFoot();
-  const h = state.view === "grid" ? "#tableau" : state.view === "carnet" ? "#carnet" : `#j${DAYS[state.day].n}`;
+  const h = state.view === "grid" ? "#tableau" : state.view === "carnet" ? "#carnet"
+          : state.view === "chrono" ? "#chronologie" : `#j${DAYS[state.day].n}`;
   if (location.hash !== h) history.replaceState(null, "", h);
 }
 function goToDay(i){
@@ -2210,10 +2398,12 @@ function syncSeg(){
   document.getElementById("viewDay").setAttribute("aria-pressed", state.view === "day");
   document.getElementById("viewGrid").setAttribute("aria-pressed", state.view === "grid");
   document.getElementById("viewCarnet").setAttribute("aria-pressed", state.view === "carnet");
+  document.getElementById("viewChrono").setAttribute("aria-pressed", state.view === "chrono");
 }
 document.getElementById("viewDay").addEventListener("click", () => { state.view = "day"; syncSeg(); render(); });
 document.getElementById("viewGrid").addEventListener("click", () => { state.view = "grid"; syncSeg(); render(); });
 document.getElementById("viewCarnet").addEventListener("click", () => { state.view = "carnet"; syncSeg(); render(); });
+document.getElementById("viewChrono").addEventListener("click", () => { state.view = "chrono"; syncSeg(); render(); });
 
 /* Saisies : on enregistre au fil de la frappe, sans redessiner — un rendu
    ferait perdre le curseur au milieu d'une phrase. */
@@ -2230,6 +2420,8 @@ document.addEventListener("input", e => {
   }, 400);
 });
 document.addEventListener("click", e => {
+  const vj = e.target.closest(".versjour");
+  if (vj) goToDay(DAYS.findIndex(x => x.n === +vj.dataset.jour));
   const sv = e.target.closest(".savoir");
   if (sv) ouvrirSavoir(sv.dataset.savoir);
   if (e.target.closest("#icsBtn, #icsFoot")) telechargerICS();
@@ -2353,6 +2545,7 @@ function fromHash(){
   const h = location.hash;
   if (h === "#tableau"){ state.view = "grid"; syncSeg(); return true; }
   if (h === "#carnet"){ state.view = "carnet"; syncSeg(); return true; }
+  if (h === "#chronologie"){ state.view = "chrono"; syncSeg(); return true; }
   const m = h.match(/^#j(\d{1,2})$/);
   if (m){
     const i = DAYS.findIndex(d => d.n === +m[1]);
