@@ -215,12 +215,29 @@ main{padding-bottom:64px}
 .lex{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
 .mot{display:flex; flex-direction:column; gap:1px; padding:9px 12px; border-radius:var(--r-sm); background:var(--surface-2)}
 .mot.piege{background:var(--ochre-soft); border:1px solid color-mix(in oklab,var(--ochre) 34%,var(--line))}
-.mot .gr{font-size:1rem; font-weight:600}
+.mot .haut{display:flex; align-items:center; gap:8px}
+.mot .gr{font-size:1rem; font-weight:600; flex:1; min-width:0}
+.dire{
+  flex:0 0 auto; width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-3);
+  transition:color .18s, border-color .18s, transform .18s;
+}
+.dire svg{width:15px; height:15px}
+.dire:hover{color:var(--sea); border-color:var(--sea)}
+.dire.parle{color:var(--sea); border-color:var(--sea); animation:onde 1s ease-out infinite}
+@keyframes onde{0%{box-shadow:0 0 0 0 color-mix(in oklab,var(--sea) 45%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+.mot.piege .dire:hover,.mot.piege .dire.parle{color:var(--ochre); border-color:var(--ochre)}
+.dire-chiffre{
+  font-size:.82rem; color:var(--ink-2); background:var(--surface-2); border-radius:99px;
+  padding:7px 13px; min-height:38px; border:1px solid transparent;
+  transition:border-color .18s, color .18s;
+}
+.dire-chiffre:hover{border-color:var(--sea); color:var(--sea)}
+.dire-chiffre.parle{border-color:var(--sea); color:var(--sea)}
 .mot .ph{font-family:var(--mono); font-size:.8rem; color:var(--sea)}
 .mot.piege .ph{color:var(--ochre)}
 .mot .fr{font-size:.83rem; color:var(--ink-2)}
 .chiffres-gr{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px}
-.chiffres-gr span{font-size:.82rem; color:var(--ink-2); background:var(--surface-2); border-radius:99px; padding:5px 12px}
 .chiffres-gr b{font-family:var(--mono); color:var(--ink)}
 .chiffres-gr i{font-style:normal; font-family:var(--mono); font-size:.76rem; color:var(--sea)}
 
@@ -740,6 +757,8 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></symbol>
   <symbol id="i-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5 17.5a4 4 0 0 1 .8-7.9 6 6 0 0 1 11.6-1.4A3.9 3.9 0 0 1 20 15.9"/><path d="m9 20 3-3 3 3M12 17v5"/></symbol>
+  <symbol id="i-son" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6.5 9H3v6h3.5L11 19Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
   <symbol id="i-panier" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M4 8h16l-1.5 11.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5Z"/><path d="M9 8V5.5a3 3 0 0 1 6 0V8"/></symbol>
   <symbol id="i-partage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -1981,6 +2000,47 @@ const LEXIQUE = [
   { g:"Βοήθεια",      p:"vo-I-thia",       f:"À l'aide" },
   { g:"Καληνύχτα",    p:"kali-NIKH-ta",    f:"Bonne nuit" }
 ];
+/* ── Prononciation par la voix du téléphone ──
+   Aucun fichier audio, aucun réseau : c'est la synthèse vocale du système.
+   Encore faut-il qu'une voix grecque y soit installée — sinon l'appareil
+   lirait le grec avec l'accent français, ce qui apprendrait exactement le
+   contraire de ce qu'on cherche. On vérifie avant de parler.               */
+let VOIX_EL = null, voixCherchees = false;
+function chercherVoix(){
+  if (!("speechSynthesis" in window)) return null;
+  const dispo = speechSynthesis.getVoices() || [];
+  if (dispo.length) voixCherchees = true;
+  VOIX_EL = dispo.find(v => /^el\b|^el[-_]/i.test(v.lang)) || null;
+  return VOIX_EL;
+}
+if ("speechSynthesis" in window){
+  chercherVoix();
+  speechSynthesis.addEventListener("voiceschanged", () => {
+    chercherVoix();
+    if (state.view === "carnet") render();
+  });
+}
+function parlerGrec(texte, bouton){
+  if (!("speechSynthesis" in window)){
+    toast("Ce navigateur ne sait pas lire à voix haute"); return;
+  }
+  if (!chercherVoix() && voixCherchees){
+    toast("Aucune voix grecque sur cet appareil — voir la note sous le lexique");
+    return;
+  }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(texte);
+  u.lang = "el-GR";
+  if (VOIX_EL) u.voice = VOIX_EL;
+  u.rate = 0.8;                       // ralenti : on écoute pour répéter
+  if (bouton){
+    bouton.classList.add("parle");
+    const fin = () => bouton.classList.remove("parle");
+    u.onend = fin; u.onerror = fin;
+  }
+  speechSynthesis.speak(u);
+}
+
 const CHIFFRES = [["1","ένα","É-na"],["2","δύο","DHI-o"],["3","τρία","TRI-a"],["4","τέσσερα","TÉ-sé-ra"],
   ["5","πέντε","PÈN-dé"],["6","έξι","È-ksi"],["7","εφτά","ef-TA"],["8","οχτώ","okh-TO"],
   ["9","εννιά","é-NIA"],["10","δέκα","DHÉ-ka"]];
@@ -2279,18 +2339,29 @@ function renderCarnet(){
       <article class="card" style="grid-column:1/-1">
         <header>
           <h3>Vingt mots de grec</h3>
-          <p>Prononcez ce qui est en gras un peu plus fort — c'est là que tombe l'accent. Ça marche hors connexion, et ça change tout à la taverne.</p>
+          <p>Prononcez ce qui est en gras un peu plus fort — c'est là que tombe l'accent. Touchez le haut-parleur pour entendre le mot. Tout fonctionne hors connexion.</p>
         </header>
         <div class="inner">
           <div class="lex">
             ${LEXIQUE.map(l => `<div class="mot${l.piege ? " piege" : ""}">
-              <span class="gr">${esc(l.g)}</span>
+              <div class="haut">
+                <span class="gr">${esc(l.g)}</span>
+                <button type="button" class="dire" data-dire="${esc(l.g)}"
+                        aria-label="Écouter la prononciation de ${esc(l.f)}">
+                  <svg><use href="#i-son"/></svg>
+                </button>
+              </div>
               <span class="ph">${esc(l.p)}</span>
               <span class="fr">${esc(l.f)}</span>
             </div>`).join("")}
           </div>
+          ${(!("speechSynthesis" in window) || (voixCherchees && !VOIX_EL)) ? `<p class="areserver">
+            Pas de voix grecque sur cet appareil : le son est désactivé pour ne pas vous faire répéter un mauvais accent.
+            Sur iPhone, Réglages → Accessibilité → Contenu énoncé → Voix → Ajouter une voix → Ελληνικά.
+          </p>` : ""}
           <div class="chiffres-gr">
-            ${CHIFFRES.map(([n, g, p]) => `<span><b>${n}</b> ${esc(g)} <i>${esc(p)}</i></span>`).join("")}
+            ${CHIFFRES.map(([n, g, p]) => `<button type="button" class="dire-chiffre" data-dire="${esc(g)}"
+              aria-label="Écouter ${esc(g)}"><b>${n}</b> ${esc(g)} <i>${esc(p)}</i></button>`).join("")}
           </div>
         </div>
       </article>
@@ -2425,6 +2496,8 @@ document.addEventListener("input", e => {
   }, 400);
 });
 document.addEventListener("click", e => {
+  const dire = e.target.closest("[data-dire]");
+  if (dire) parlerGrec(dire.dataset.dire, dire);
   const vj = e.target.closest(".versjour");
   if (vj) goToDay(DAYS.findIndex(x => x.n === +vj.dataset.jour));
   const sv = e.target.closest(".savoir");
