@@ -1575,10 +1575,15 @@ function montrerMaj(){
   });
   document.body.appendChild(el);
 }
+/* Une appli installée sur iOS peut rester gelée des jours : elle est restaurée
+   depuis le cache mémoire sans rien recharger. On multiplie donc les occasions
+   de vérifier — reprise d'onglet, retour de veille, retour du réseau, focus. */
 document.addEventListener("visibilitychange", () => { if (!document.hidden) verifierVersion(); });
+addEventListener("pageshow", verifierVersion);
+addEventListener("focus", verifierVersion);
 addEventListener("online", verifierVersion);
-setTimeout(verifierVersion, 2500);
-setInterval(verifierVersion, 15 * 60 * 1000);
+setTimeout(verifierVersion, 2000);
+setInterval(verifierVersion, 5 * 60 * 1000);
 
 /* Hors connexion — le service worker n'existe que sur le site déployé. */
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
