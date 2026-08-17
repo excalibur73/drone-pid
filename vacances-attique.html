@@ -381,6 +381,56 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .lieu.spot.moy .etat{color:var(--ink-3)}
 .lieu.spot.fort .etat{color:var(--ochre)}
 
+/* ─────────────────────────────  COURBES HORAIRES  ───────────────────────────── */
+.autour.heure > header svg{color:var(--sea)}
+.hcarte{padding:4px 16px 14px; border-top:1px solid var(--line-soft)}
+.hcarte:first-of-type{border-top:none}
+.htete{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:12px 0 6px}
+.htete b{font-size:.95rem}
+.htete .fen{
+  font-family:var(--mono); font-size:.74rem; color:var(--sea);
+  border:1px solid currentColor; border-radius:99px; padding:2px 8px;
+}
+.htete .grille{margin-left:auto; font-family:var(--mono); font-size:.72rem; color:var(--ink-3)}
+.hgraf{position:relative}
+.hgraf svg{width:100%; height:132px; display:block; overflow:visible}
+.hgraf .grid{stroke:var(--line-soft); stroke-width:1}
+.hgraf .ylab,.hgraf .xlab{
+  font-family:var(--mono); font-size:9px; fill:var(--ink-3);
+  paint-order:stroke; text-anchor:middle;
+}
+.hgraf .ylab{text-anchor:end}
+.hgraf .fenetre{fill:var(--sea); opacity:.07}
+.hgraf .seuil{stroke:var(--ochre); stroke-width:1.5; stroke-dasharray:4 4; opacity:.8}
+.hgraf .slab{font-family:var(--mono); font-size:8.5px; fill:var(--ochre); text-anchor:end}
+.hgraf .trace{fill:none; stroke:var(--sea); stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+.hgraf .pic{fill:var(--sea); stroke:var(--surface); stroke-width:2}
+.hgraf .capteur{fill:transparent; cursor:crosshair}
+.hgraf .curseur[hidden]{display:none}
+.hgraf .curseur line{stroke:var(--ink-3); stroke-width:1; stroke-dasharray:3 3}
+.hgraf .curseur circle{fill:var(--sea); stroke:var(--surface); stroke-width:2}
+.hbulle{
+  position:absolute; z-index:5; pointer-events:none; transform:translate(-50%,-100%);
+  background:var(--ink); color:var(--ground); border-radius:var(--r-sm);
+  padding:7px 10px; font-size:.76rem; line-height:1.45; white-space:nowrap;
+  font-family:var(--mono); box-shadow:0 6px 20px -8px rgba(0,0,0,.5);
+}
+.hbulle b{color:var(--ground); font-weight:700}
+.hpied{font-size:.83rem; color:var(--ink-2); margin-top:2px}
+.hpied b{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.chiffres{
+  margin-left:8px; font-size:.78rem; color:var(--ink-3);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.chiffres:hover{color:var(--sea)}
+.htable{margin-top:10px; overflow-x:auto}
+.htable table{min-width:0; width:100%; border:1px solid var(--line-soft); border-radius:var(--r-sm)}
+.htable th,.htable td{padding:5px 10px; font-size:.79rem; border-bottom:1px solid var(--line-soft); border-right:none}
+.htable thead th{position:static; background:var(--surface-2); font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase}
+.htable tbody th{width:auto; background:transparent; font-family:var(--mono); color:var(--ink-2); letter-spacing:0; font-size:.79rem; text-transform:none}
+.htable tr.dedans{background:color-mix(in oklab,var(--sea) 7%,transparent)}
+.htable td{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
 /* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
 .notes{margin-top:16px}
 .notes label{
@@ -1015,6 +1065,170 @@ function merHTML(d){
   </article>`;
 }
 
+/* ════════════════════════════  LA MER, HEURE PAR HEURE  ════════════════════════════
+   Le maximum du jour ne dit pas quand. En Égée la brise se lève l'après-midi :
+   la même crique est un miroir à 9 h et clapoteuse à 16 h. On interroge donc
+   le point exact de chaque activité, et on montre la fenêtre qui vous concerne.
+   Réserve honnête : la grille du modèle est maillée large et se cale sur la mer
+   ouverte — l'écart au point demandé est affiché, et dans une baie fermée la
+   réalité sera plus calme que la prévision.                                    */
+const MER_H_STORE = "attique2026:merh";
+const COURBES = new Map();          // identifiant du graphe → points, pour le survol
+const MER_SPOTS = {
+  2:[{ n:"Plage d'Alimos", lat:37.9075, lon:23.7150, de:14, a:19 }],
+  3:[{ n:"Plage d'Alimos", lat:37.9075, lon:23.7150, de:14, a:19 }],
+  4:[{ n:"Plage d'Alimos", lat:37.9075, lon:23.7150, de:13, a:16 },
+     { n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
+  6:[{ n:"Plage de Saronida", lat:37.7440, lon:23.9050, de:15, a:20 }],
+  7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:8, a:18 }],
+  8:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:18 }],
+  9:[{ n:"Plage de Saronida", lat:37.7440, lon:23.9050, de:9, a:12 },
+     { n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
+  10:[{ n:"Palea Fokea", lat:37.7180, lon:23.9450, de:10, a:14 },
+      { n:"Plage d'Anavyssos", lat:37.7300, lon:23.9300, de:15, a:19 }],
+  11:[{ n:"Plage de Saronida", lat:37.7440, lon:23.9050, de:9, a:12 }]
+};
+const TOUS_SPOTS = (() => {
+  const vus = new Map();
+  Object.values(MER_SPOTS).flat().forEach(s => { const k = `${s.lat},${s.lon}`; if (!vus.has(k)) vus.set(k, s); });
+  return [...vus.values()];
+})();
+let MERH = (() => { try { return JSON.parse(localStorage.getItem(MER_H_STORE)) || {}; } catch { return {}; } })();
+
+const distKm = (a, b, c, d) => {
+  const r = Math.PI / 180, h = Math.sin((c - a) * r / 2) ** 2 +
+    Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+};
+
+async function chargerMerHoraire(){
+  const lats = TOUS_SPOTS.map(s => s.lat).join(","), lons = TOUS_SPOTS.map(s => s.lon).join(",");
+  try {
+    const [mer, air] = await Promise.all([
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lats}&longitude=${lons}` +
+        `&hourly=wave_height,wave_period,sea_surface_temperature&timezone=Europe%2FAthens` +
+        `&start_date=2026-08-17&end_date=2026-08-27`).then(r => r.ok ? r.json() : Promise.reject()),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
+        `&hourly=wind_speed_10m&timezone=Europe%2FAthens` +
+        `&start_date=2026-08-17&end_date=2026-08-27`).then(r => r.ok ? r.json() : Promise.reject())
+    ]);
+    const tab = x => Array.isArray(x) ? x : [x];
+    const out = {};
+    tab(mer).forEach((pt, i) => {
+      const s = TOUS_SPOTS[i], v = tab(air)[i];
+      const arrondi = (t, n) => (t || []).map(x => x == null ? null : +x.toFixed(n));
+      out[`${s.lat},${s.lon}`] = {
+        t: pt.hourly.time,
+        h: arrondi(pt.hourly.wave_height, 2),
+        p: arrondi(pt.hourly.wave_period, 0),
+        e: arrondi(pt.hourly.sea_surface_temperature, 0),
+        w: v ? arrondi(v.hourly.wind_speed_10m, 0) : [],
+        gl: pt.latitude, gn: pt.longitude,
+        ec: +distKm(s.lat, s.lon, pt.latitude, pt.longitude).toFixed(1)
+      };
+    });
+    MERH = out;
+    try { localStorage.setItem(MER_H_STORE, JSON.stringify(out)); } catch {}
+    render();
+  } catch { /* pas de réseau : on garde le dernier relevé */ }
+}
+
+/* Courbe d'une journée : aire pleine, ligne de 2 px, seuil de snorkeling,
+   fenêtre de l'activité mise en avant, survol heure par heure. */
+function courbeMer(spot, date){
+  const src = MERH[`${spot.lat},${spot.lon}`];
+  if (!src) return null;
+  const i0 = src.t.indexOf(`${date}T00:00`);
+  if (i0 < 0) return null;
+  const H0 = 5, H1 = 22;                                  // fenêtre lisible de la journée
+  const pts = [];
+  for (let h = H0; h <= H1; h++){
+    const v = src.h[i0 + h];
+    if (v == null) return null;
+    pts.push({ h, v, p:src.p[i0 + h], w:src.w[i0 + h], e:src.e[i0 + h] });
+  }
+  const W = 640, HT = 132, ML = 34, MR = 10, MT = 12, MB = 22;
+  const maxV = Math.max(0.6, Math.ceil(Math.max(...pts.map(p => p.v)) * 10) / 10);
+  const x = h => ML + (h - H0) / (H1 - H0) * (W - ML - MR);
+  const y = v => MT + (1 - v / maxV) * (HT - MT - MB);
+  const ligne = pts.map((p, i) => `${i ? "L" : "M"}${x(p.h).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+  const aire = `${ligne}L${x(H1).toFixed(1)},${y(0)}L${x(H0).toFixed(1)},${y(0)}Z`;
+  const seuil = 0.5;
+  const dansFenetre = p => p.h >= spot.de && p.h <= spot.a;
+  const pic = pts.filter(dansFenetre).reduce((a, p) => (p.v > a.v ? p : a), pts.filter(dansFenetre)[0] || pts[0]);
+  const xs = pts.map(p => +x(p.h).toFixed(1)), ys = pts.map(p => +y(p.v).toFixed(1));
+  return { pts, xs, ys, W, HT, ML, MR, MT, MB, maxV, x, y, ligne, aire, seuil, pic, src, H0, H1 };
+}
+
+function merHoraireHTML(d){
+  const spots = MER_SPOTS[d.n];
+  if (!spots) return "";
+  const cartes = spots.map((spot, idx) => {
+    const c = courbeMer(spot, d.date);
+    if (!c) return "";
+    const id = `c${d.n}_${idx}`;
+    const gradId = `g${id}`;
+    COURBES.set(id, { pts:c.pts, xs:c.xs, ys:c.ys, W:c.W, HT:c.HT, ML:c.ML, MR:c.MR });
+    const ticks = [];
+    for (let h = 6; h <= 21; h += 3) ticks.push(h);
+    const niveaux = [0, c.maxV / 2, c.maxV];
+    return `<div class="hcarte">
+      <div class="htete">
+        <b>${esc(spot.n)}</b>
+        <span class="fen">${spot.de} h – ${spot.a} h</span>
+        <span class="grille" title="Point de grille du modèle, à ${c.src.ec} km du lieu">± ${c.src.ec} km</span>
+      </div>
+      <div class="hgraf" data-graf="${id}">
+        <svg viewBox="0 0 ${c.W} ${c.HT}" preserveAspectRatio="none" role="img"
+             aria-label="Hauteur des vagues heure par heure à ${esc(spot.n)}">
+          <defs><linearGradient id="${gradId}" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="var(--sea)" stop-opacity=".34"/>
+            <stop offset="100%" stop-color="var(--sea)" stop-opacity=".04"/>
+          </linearGradient></defs>
+          ${niveaux.map(n => `<line class="grid" x1="${c.ML}" x2="${c.W - c.MR}" y1="${c.y(n).toFixed(1)}" y2="${c.y(n).toFixed(1)}"/>
+            <text class="ylab" x="${c.ML - 6}" y="${(c.y(n) + 3.5).toFixed(1)}">${n.toFixed(1)}</text>`).join("")}
+          <rect class="fenetre" x="${c.x(spot.de).toFixed(1)}" y="${c.MT}"
+                width="${(c.x(spot.a) - c.x(spot.de)).toFixed(1)}" height="${(c.HT - c.MT - c.MB).toFixed(1)}"/>
+          ${c.maxV >= c.seuil ? `<line class="seuil" x1="${c.ML}" x2="${c.W - c.MR}"
+                y1="${c.y(c.seuil).toFixed(1)}" y2="${c.y(c.seuil).toFixed(1)}"/>
+            <text class="slab" x="${c.W - c.MR}" y="${(c.y(c.seuil) - 5).toFixed(1)}">0,5 m — au-delà, l'eau se trouble</text>` : ""}
+          <path class="aire" d="${c.aire}" fill="url(#${gradId})"/>
+          <path class="trace" d="${c.ligne}"/>
+          <circle class="pic" cx="${c.x(c.pic.h).toFixed(1)}" cy="${c.y(c.pic.v).toFixed(1)}" r="4"/>
+          ${ticks.map(h => `<text class="xlab" x="${c.x(h).toFixed(1)}" y="${c.HT - 6}">${h} h</text>`).join("")}
+          <g class="curseur" hidden><line y1="${c.MT}" y2="${(c.HT - c.MB).toFixed(1)}"/><circle r="4.5"/></g>
+          <rect class="capteur" x="${c.ML}" y="0" width="${(c.W - c.ML - c.MR).toFixed(1)}" height="${c.HT}"/>
+        </svg>
+        <div class="hbulle" hidden></div>
+      </div>
+      <p class="hpied">Pic sur la fenêtre : <b>${c.pic.v.toFixed(1)} m à ${c.pic.h} h</b>${
+        c.pic.w != null ? ` · vent ${c.pic.w} km/h` : ""}${
+        c.pic.e != null ? ` · eau ${c.pic.e}°` : ""}.
+        <button type="button" class="chiffres" data-tab="${id}">voir les chiffres</button></p>
+      <div class="htable" id="tab_${id}" hidden>
+        <table><caption class="sr">Relevé horaire à ${esc(spot.n)}</caption>
+          <thead><tr><th scope="col">Heure</th><th scope="col">Vagues</th><th scope="col">Période</th><th scope="col">Vent</th></tr></thead>
+          <tbody>${c.pts.filter(p => p.h >= spot.de - 1 && p.h <= spot.a + 1).map(p =>
+            `<tr${p.h >= spot.de && p.h <= spot.a ? ' class="dedans"' : ""}>
+              <th scope="row">${p.h} h</th><td>${p.v.toFixed(1)} m</td><td>${p.p == null ? "—" : p.p + " s"}</td><td>${p.w == null ? "—" : p.w + " km/h"}</td></tr>`).join("")}
+          </tbody></table>
+      </div>
+    </div>`;
+  }).filter(Boolean).join("");
+
+  if (!cartes) return "";
+  return `<article class="autour heure">
+    <header>
+      <svg><use href="#i-swim"/></svg>
+      <h3>La mer heure par heure</h3>
+      <span class="hors">au point de l'activité</span>
+    </header>
+    <p class="intro">Hauteur des vagues sur la journée. La zone teintée est votre créneau ; la brise de mer se lève en général l'après-midi.</p>
+    ${cartes}
+    <p class="ventnote"><svg><use href="#i-info"/></svg>Le modèle est maillé large et calé sur la mer ouverte — l'écart au lieu exact est indiqué sur chaque courbe. Dans une baie fermée comme Porto Rafti, comptez nettement plus calme que la courbe.</p>
+  </article>`;
+}
+
 /* ════════════════════════════  OÙ SE BAIGNER  ════════════════════════════
    Une crique est abritée quand le vent vient de la terre, exposée quand il
    vient du large. On compare donc la direction d'où souffle le vent à celle
@@ -1237,6 +1451,7 @@ function dayHTML(d, { live }){
         </article>`;
       }).join("")}
     </div>
+    ${merHoraireHTML(d)}
     ${baignadeHTML(d)}
     ${d.autour ? `<article class="autour">
       <header>
@@ -1462,7 +1677,50 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("click", e => {
   if (e.target.closest("#icsBtn, #icsFoot")) telechargerICS();
+  const t = e.target.closest(".chiffres");
+  if (t){
+    const tb = document.getElementById("tab_" + t.dataset.tab);
+    tb.hidden = !tb.hidden;
+    t.textContent = tb.hidden ? "voir les chiffres" : "masquer les chiffres";
+  }
 });
+
+/* Survol des courbes : curseur, bulle, et lecture au doigt sur mobile. */
+function survolCourbe(ev){
+  const box = ev.target.closest(".hgraf");
+  if (!box) return;
+  const data = COURBES.get(box.dataset.graf);
+  if (!data) return;
+  const svg = box.querySelector("svg"), r = svg.getBoundingClientRect();
+  const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+  const xSvg = (cx / r.width) * data.W;                    // pixels écran → repère du SVG
+  const frac = Math.max(0, Math.min(1, (xSvg - data.ML) / (data.W - data.ML - data.MR)));
+  const p = data.pts[Math.round(frac * (data.pts.length - 1))];
+  if (!p) return;
+  const g = svg.querySelector(".curseur"), b = box.querySelector(".hbulle");
+  const px = data.xs[data.pts.indexOf(p)], py = data.ys[data.pts.indexOf(p)];
+  g.removeAttribute("hidden");
+  g.querySelector("line").setAttribute("x1", px);
+  g.querySelector("line").setAttribute("x2", px);
+  g.querySelector("circle").setAttribute("cx", px);
+  g.querySelector("circle").setAttribute("cy", py);
+  b.hidden = false;
+  b.innerHTML = `<b>${p.h} h</b> · vagues <b>${p.v.toFixed(1)} m</b>` +
+    (p.p != null ? ` · période ${p.p} s` : "") +
+    (p.w != null ? `<br>vent ${p.w} km/h` : "") +
+    (p.e != null ? ` · eau ${p.e}°` : "");
+  b.style.left = `${(px / data.W) * 100}%`;
+  b.style.top = `${(py / data.HT) * 132 - 10}px`;
+}
+function quitterCourbe(ev){
+  const box = ev.target.closest(".hgraf");
+  if (!box) return;
+  box.querySelector(".curseur").setAttribute("hidden", "");
+  box.querySelector(".hbulle").hidden = true;
+}
+document.addEventListener("pointermove", survolCourbe);
+document.addEventListener("pointerleave", quitterCourbe, true);
+document.addEventListener("pointerdown", survolCourbe);
 if (!dansCadre) document.getElementById("icsFoot").hidden = false;
 
 document.getElementById("filters").addEventListener("click", e => {
@@ -1602,6 +1860,7 @@ if (!fromHash()){
 render();
 chargerMeteo();
 chargerMer();
+chargerMerHoraire();
 setInterval(() => {
   renderStatus();
   const enSaisie = document.activeElement && document.activeElement.closest("textarea,input");
