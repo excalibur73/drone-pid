@@ -654,6 +654,13 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 }
 .rafraichir:hover{border-color:var(--sea); color:var(--sea)}
 .rafraichir[disabled]{opacity:.5}
+.majprev{
+  display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+  margin-top:12px; font-family:var(--mono); font-size:.71rem; color:var(--ink-3); line-height:1.7;
+}
+.majprev svg{width:13px; height:13px; flex:0 0 auto; color:var(--ink-3)}
+.majprev.vieux{color:var(--ochre)}
+.majprev.vieux svg{color:var(--ochre)}
 .etatsync.ok{color:var(--sea)}
 .etatsync.local{color:var(--ochre)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
@@ -1873,8 +1880,8 @@ async function chargerMeteo(){
     });
     METEO = out;
     try { localStorage.setItem(METEO_STORE, JSON.stringify(out)); } catch {}
-    render();
-  } catch { /* pas de réseau : on garde la dernière prévision connue */ }
+    return true;
+  } catch { return false; /* pas de réseau : on garde la dernière prévision connue */ }
 }
 const meteoDe = d => METEO[`${d.phase}:${d.date}`] || null;
 function meteoHTML(d){
@@ -1941,10 +1948,58 @@ async function chargerMer(){
     });
     MER = out;
     try { localStorage.setItem(MER_STORE, JSON.stringify(out)); } catch {}
-    render();
-  } catch { /* pas de réseau : on garde le dernier relevé */ }
+    return true;
+  } catch { return false; /* pas de réseau : on garde le dernier relevé */ }
 }
 const merDe = d => (PLAN_DU_JOUR[d.n] ? MER[`${PLAN_DU_JOUR[d.n]}:${d.date}`] : null);
+
+/* ── Fraîcheur des prévisions ──
+   Températures, état de la mer et courbes horaires viennent des mêmes
+   serveurs et vieillissent ensemble : on les relève d'un bloc. Le modèle
+   d'Open-Meteo est recalculé toutes les heures ; interroger plus souvent ne
+   rapporterait rien. On garde donc un quart d'heure entre deux relevés
+   spontanés — le bouton, lui, passe outre.
+
+   L'heure du dernier relevé est conservée sur le téléphone : une application
+   restaurée après deux jours de veille doit pouvoir dire que ses chiffres
+   datent de deux jours, et non de son réveil. */
+const PREVU_STORE = "attique2026:prevu";
+let PREVU_LE = (() => { try { return +localStorage.getItem(PREVU_STORE) || 0; } catch { return 0; } })();
+let PREVISIONS_EN_COURS = false;
+const AGE_MAX = 15 * 60 * 1000;
+
+async function chargerPrevisions(force){
+  if (PREVISIONS_EN_COURS) return;
+  if (!force && PREVU_LE && Date.now() - PREVU_LE < AGE_MAX) return;
+  if (!navigator.onLine) { if (force) render(); return; }
+  PREVISIONS_EN_COURS = true;
+  if (force) render();
+  const r = await Promise.all([chargerMeteo(), chargerMer(), chargerMerHoraire()]);
+  if (r.some(Boolean)){
+    PREVU_LE = Date.now();
+    try { localStorage.setItem(PREVU_STORE, String(PREVU_LE)); } catch {}
+  }
+  PREVISIONS_EN_COURS = false;
+  render();
+}
+
+/* Ce que l'écran affiche vaut ce que vaut son âge : on le dit, plutôt que de
+   laisser croire à des chiffres de l'instant. */
+function prevuHTML(){
+  if (PREVISIONS_EN_COURS)
+    return `<p class="majprev"><svg><use href="#i-info"/></svg>Relevé en cours…</p>`;
+  const m = PREVU_LE ? Math.floor((Date.now() - PREVU_LE) / 60000) : null;
+  const vieux = m == null || m >= 180;
+  const quand = m == null ? "Prévisions jamais relevées sur ce téléphone"
+    : m < 1 ? "Prévisions relevées à l'instant"
+    : m < 60 ? `Prévisions relevées il y a ${m} min`
+    : m < 1440 ? `Prévisions relevées il y a ${Math.floor(m / 60)} h`
+    : `Prévisions relevées il y a ${Math.floor(m / 1440)} j`;
+  return `<p class="majprev${vieux ? " vieux" : ""}">
+    <svg><use href="#i-info"/></svg>${quand}${navigator.onLine ? "" : " — hors connexion"}.
+    Températures, état de la mer et courbes horaires.
+    <button type="button" class="rafraichir" data-prev>Actualiser</button></p>`;
+}
 
 /* Échelle de Douglas, ramenée à ce qui se ressent à bord et sous le masque. */
 function etatMer(h){
@@ -2044,8 +2099,8 @@ async function chargerMerHoraire(){
     });
     MERH = out;
     try { localStorage.setItem(MER_H_STORE, JSON.stringify(out)); } catch {}
-    render();
-  } catch { /* pas de réseau : on garde le dernier relevé */ }
+    return true;
+  } catch { return false; /* pas de réseau : on garde le dernier relevé */ }
 }
 
 /* Courbe d'une journée : aire pleine, ligne de 2 px, seuil de snorkeling,
@@ -2308,7 +2363,7 @@ function avisHTML(d){
       ? "Vous avez déjà noté cette journée — réécrivez le texte ou touchez une autre étoile pour corriger ; retoucher l'étoile allumée efface la note."
       : "Touchez une étoile pour noter, écrivez si vous voulez. C'est enregistré tout seul."}</p>
     ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}
-      <button type="button" class="rafraichir"${LECTURE_EN_COURS ? " disabled" : ""}>Actualiser</button></p>`; })()}
+      <button type="button" class="rafraichir" data-avis-maj${LECTURE_EN_COURS ? " disabled" : ""}>Relire</button></p>`; })()}
     ${autres.length ? `<div class="autresavis">
       ${autres.map(([id, a]) => `<div class="unavis">
         <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
@@ -2714,6 +2769,7 @@ function dayHTML(d, { live }){
     ${meteoAlerte(d)}
     ${alarm}
     ${merHTML(d)}
+    ${prevuHTML()}
     <div class="slots">
       ${SLOTS.map(s => {
         const items = itemsOf(d, s.k);
@@ -3027,6 +3083,7 @@ document.addEventListener("click", e => {
     enregistrerAvis(j, { note: actuel === n ? 0 : n });   // retoucher efface
     render();
   }
+  if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
   if (e.target.closest("#journalBtn")) envoyerJournal();
 });
@@ -3284,9 +3341,17 @@ addEventListener("pageshow", () => lireAvis());
 addEventListener("focus", () => lireAvis());
 addEventListener("online", lireAvis);
 setInterval(() => { if (!document.hidden) lireAvis(); }, 60000);
-chargerMeteo();
-chargerMer();
-chargerMerHoraire();
+
+/* Les prévisions suivent le même rythme d'occasions, mais ne repartent
+   chercher que si elles ont vieilli — sauf au retour du réseau, où la
+   dernière tentative a pu échouer. */
+const revoirPrevisions = () => { if (!document.hidden) chargerPrevisions(false); };
+document.addEventListener("visibilitychange", revoirPrevisions);
+addEventListener("pageshow", revoirPrevisions);
+addEventListener("focus", revoirPrevisions);
+addEventListener("online", () => chargerPrevisions(true));
+setInterval(revoirPrevisions, 5 * 60 * 1000);
+chargerPrevisions(true);
 setInterval(() => {
   renderStatus();
   const enSaisie = document.activeElement && document.activeElement.closest("textarea,input");
