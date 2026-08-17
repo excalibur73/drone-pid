@@ -598,18 +598,23 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
 }
 .soir .signe{
-  margin-left:auto; display:inline-flex; align-items:center; gap:9px;
+  margin-left:auto; display:inline-flex; align-items:baseline; gap:9px; flex-wrap:wrap;
   font-family:var(--sans); font-size:.86rem; letter-spacing:0; text-transform:none; color:var(--sea); font-weight:600;
 }
+.soir .signe i{font-style:normal; font-family:var(--mono); font-size:.72rem; color:var(--ink-3); font-weight:400}
 .changequi{font-size:.76rem; color:var(--ink-3); text-decoration:underline; text-underline-offset:3px; font-weight:400}
 .changequi:hover{color:var(--sea)}
 .soir-intro{margin-top:8px; font-size:.87rem; color:var(--ink-2)}
 .quisuisje{display:flex; gap:9px; flex-wrap:wrap; margin-top:12px}
 .qui{
-  min-height:46px; padding:0 20px; border-radius:99px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:1px;
+  min-height:52px; padding:8px 16px; border-radius:var(--r-sm);
   border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
-  font-size:.95rem; font-weight:600; transition:border-color .18s, color .18s;
+  transition:border-color .18s, color .18s;
 }
+.qui b{font-size:.95rem}
+.qui span{font-family:var(--mono); font-size:.72rem; color:var(--ink-3)}
+.qui:hover span{color:var(--sea)}
 .qui:hover{border-color:var(--sea); color:var(--sea)}
 .notes-etoiles{display:flex; align-items:center; gap:4px; margin:14px 0 12px}
 .etoile{width:42px; height:42px; display:grid; place-items:center; color:var(--line); transition:color .15s, transform .15s}
@@ -627,6 +632,8 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
 .unavis .ai{font-size:.83rem; color:var(--ink-3)}
 .unavis .ai b{color:var(--sea); font-size:.9rem}
+.unavis .ai a,.courriel{font-family:var(--mono); font-size:.74rem; color:var(--ink-3); text-decoration:none}
+.unavis .ai a:hover,.courriel:hover{color:var(--sea); text-decoration:underline}
 .unavis p{margin-top:2px; font-size:.89rem; color:var(--ink-2)}
 
 /* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
@@ -2166,16 +2173,18 @@ function baignadeHTML(d){
    le site est statique, il n'y a pas de serveur pour rassembler les avis.
    Chaque appareil garde donc les siens, et le journal s'envoie à la main.
 
-   Les prénoms suffisent à attribuer un mot. Les adresses de courriel ne
-   figurent pas dans la page : elle est publique, et une adresse écrite en
-   clair dans un site finit toujours par être moissonnée. */
+   Les adresses sont affichées à côté de chaque note, comme demandé. Elles
+   sont assemblées à l'exécution plutôt qu'écrites en clair dans la page :
+   à l'écran c'est identique, mais les robots qui aspirent le code source
+   n'y trouvent aucune adresse à moissonner. */
 const QUI_STORE = "attique2026:qui", AVIS_STORE = "attique2026:avis";
 const FAMILLE = [
-  { id:"hilal", nom:"Hilal" },
-  { id:"layal", nom:"Layal" },
-  { id:"sana",  nom:"Sana" },
-  { id:"papa",  nom:"Abderrahmane" }
+  { id:"hilal", nom:"Hilal",        u:"hilal.aitbaha", d:"icloud.com" },
+  { id:"layal", nom:"Layal",        u:"layal.aitbaha", d:"icloud.com" },
+  { id:"sana",  nom:"Sana",         u:"sana.m",        d:"wanadoo.fr" },
+  { id:"papa",  nom:"Abderrahmane", u:"aitbaha",       d:"icloud.com" }
 ];
+const mailDe = id => { const f = FAMILLE.find(x => x.id === id); return f ? f.u + "@" + f.d : ""; };
 let QUI = (() => { try { return localStorage.getItem(QUI_STORE) || null; } catch { return null; } })();
 /* Lecture autonome : « lire » est déclaré plus bas, et une constante ne
    s'utilise pas avant sa déclaration. */
@@ -2193,12 +2202,14 @@ function avisHTML(d){
       <h4>Le mot du soir</h4>
       <p class="soir-intro">Qui êtes-vous ? Choisissez une fois, ce téléphone s'en souviendra.</p>
       <div class="quisuisje">
-        ${FAMILLE.map(f => `<button type="button" class="qui" data-qui="${f.id}">${esc(f.nom)}</button>`).join("")}
+        ${FAMILLE.map(f => `<button type="button" class="qui" data-qui="${f.id}">
+          <b>${esc(f.nom)}</b><span>${esc(f.u + "@" + f.d)}</span>
+        </button>`).join("")}
       </div>
     </section>`;
   }
   return `<section class="soir">
-    <h4>Le mot du soir <span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">changer</button></span></h4>
+    <h4>Le mot du soir <span class="signe">${esc(nomDe(QUI))} <i>${esc(mailDe(QUI))}</i><button type="button" class="changequi">changer</button></span></h4>
     <div class="notes-etoiles" role="group" aria-label="Note de la journée">
       ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="etoile${mien && mien.note >= n ? " pleine" : ""}"
         data-note="${n}" data-jour="${d.n}" aria-label="${n} sur 5">
@@ -2210,7 +2221,7 @@ function avisHTML(d){
     <textarea id="avis-${d.n}" data-avis="${d.n}" placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
     ${autres.length ? `<div class="autresavis">
       ${autres.map(([id, a]) => `<div class="unavis">
-        <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
+        <span class="ai"><b>${esc(nomDe(id))}</b> <a href="mailto:${esc(mailDe(id))}">${esc(mailDe(id))}</a>${a.note ? ` · ${a.note}/5` : ""}</span>
         ${a.txt ? `<p>${esc(a.txt)}</p>` : ""}
       </div>`).join("")}
     </div>` : ""}
@@ -2225,7 +2236,7 @@ function journalTexte(){
     if (!a || !Object.keys(a).length) return;
     l.push(`${DOW_FULL[d.dow]} ${d.dm} — ${d.title}`);
     Object.entries(a).forEach(([id, v]) => {
-      l.push(`  ${nomDe(id)}${v.note ? ` — ${v.note}/5` : ""}${v.txt ? ` : ${v.txt}` : ""}`);
+      l.push(`  ${nomDe(id)} <${mailDe(id)}>${v.note ? ` — ${v.note}/5` : ""}${v.txt ? ` : ${v.txt}` : ""}`);
     });
     l.push("");
   });
@@ -2698,7 +2709,8 @@ function renderCarnet(){
             return jours.map(d => `<div class="fld">
               <span>${DOW_FULL[d.dow]} ${esc(d.dm)} — ${esc(d.title)}</span>
               ${Object.entries(AVIS[d.n]).map(([id, v]) => `<p style="font-size:.88rem">
-                <b>${esc(nomDe(id))}</b>${v.note ? ` · ${v.note}/5` : ""}${v.txt ? ` — ${esc(v.txt)}` : ""}</p>`).join("")}
+                <b>${esc(nomDe(id))}</b> <a href="mailto:${esc(mailDe(id))}" class="courriel">${esc(mailDe(id))}</a>${
+                v.note ? ` · ${v.note}/5` : ""}${v.txt ? ` — ${esc(v.txt)}` : ""}</p>`).join("")}
             </div>`).join("");
           })()}
           <button class="bigbtn" id="journalBtn"><svg><use href="#i-partage"/></svg>Envoyer le journal</button>
