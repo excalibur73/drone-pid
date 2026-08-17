@@ -272,7 +272,15 @@ main{padding-bottom:64px}
 .items > .item:first-child{border-top:none}
 .item:hover{background:var(--surface-2)}
 .item.dim{opacity:.24}
-.item.done .body .ttl{text-decoration:line-through; color:var(--ink-3)}
+.item.passe{opacity:.5}
+.item.passe .body .ttl{text-decoration:line-through; text-decoration-thickness:1px; color:var(--ink-3)}
+.item.encours{background:color-mix(in oklab,var(--sea) 6%,transparent)}
+.item.encours .body .ttl{color:var(--sea)}
+.maintenant{
+  display:inline-block; margin-top:5px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--sea); border:1px solid currentColor; border-radius:99px; padding:2px 8px;
+}
 
 .mark{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; border:1px solid var(--line); background:var(--surface); flex:0 0 auto}
 .mark svg{width:14px; height:14px}
@@ -357,14 +365,6 @@ mark{background:color-mix(in oklab,var(--sea) 26%,transparent); color:inherit; b
   #savoir .corps{padding:14px 18px 28px}
 }
 
-.tick{
-  display:inline-flex; align-items:center; gap:6px; font-size:.79rem; font-weight:600;
-  padding:4px 10px; border-radius:99px; border:1px dashed var(--line); color:var(--ink-3);
-  transition:color .18s, border-color .18s, background .18s;
-}
-.tick:hover{color:var(--sea); border-color:var(--sea)}
-.item.done .tick{color:var(--sea); border-style:solid; border-color:var(--sea); background:var(--sea-soft)}
-.tick svg{width:12px; height:12px}
 
 /* à prendre */
 .pack{
@@ -708,7 +708,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
   .hint{display:none}
 
   /* Au doigt, en marchant : rien en dessous de 44 px de haut. */
-  .maplink,.tick,.partage,.savoir{min-height:44px; padding:0 16px; font-size:.85rem}
+  .maplink,.partage,.savoir{min-height:44px; padding:0 16px; font-size:.85rem}
   .acts{gap:10px}
   .f{min-height:40px; padding:0 15px}
   .seg button{min-height:42px}
@@ -723,7 +723,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
   *{transition-duration:.01ms !important; animation:none !important; scroll-behavior:auto !important}
 }
 @media print{
-  .railbar,.toolbar,.iconbtn,.tick,.acts,footer,.alarm,.pack{display:none}
+  .railbar,.toolbar,.iconbtn,.acts,footer,.alarm,.pack{display:none}
   body{background:#fff}
   .slot,.scroller{box-shadow:none; break-inside:avoid}
   .printday{break-before:page}
@@ -852,8 +852,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <p class="booked"><b>Déjà réservé :</b> les billets des sites, l'Acropole à 17 h et les deux croisières. Le reste se décide sur place.</p>
 
     <footer>
-      <span id="doneCount">0 étape cochée</span>
-      <button id="resetBtn">tout décocher</button>
+      <span id="doneCount">—</span>
       <button id="printBtn">imprimer les 11 jours</button>
       <button id="icsFoot" hidden>télécharger le calendrier</button>
       <span class="off" id="offlineFlag" hidden><svg><use href="#i-offline"/></svg>disponible hors connexion</span>
@@ -1078,13 +1077,34 @@ function petitDejeuner(d){
 DAYS.forEach(d => { const p = petitDejeuner(d); if (p) d.matin = [p, ...(d.matin || [])]; });
 
 /* ════════════════════════════  ÉTAT  ════════════════════════════ */
-const STORE = "attique2026:v2";
-const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } };
-const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state.done)); } catch {} };
-
-const state = { day:0, view:"day", filters:new Set(), query:"", done:load() };
+const state = { day:0, view:"day", filters:new Set(), query:"" };
 
 const keyOf = (n, slot, i) => `${n}.${slot}.${i}`;
+
+/* ── Une étape est derrière vous quand son heure est passée ──
+   Les étapes horodatées valent jusqu'à leur fin ; les autres tiennent
+   jusqu'à la fin de leur demi-journée. Rien à cocher : l'heure d'Athènes
+   fait foi, et une journée révolue est entièrement derrière. */
+const FIN_CRENEAU = { matin:12 * 60, aprem:17 * 60, soir:24 * 60 };
+function finEtape(it, slot){
+  const r = it.when ? whenRange(it.when, it.t === "depart" ? 15 : 60) : null;
+  return r ? r.end : FIN_CRENEAU[slot];
+}
+function etatEtape(day, slot, it){
+  const auj = athensNow().toISOString().slice(0, 10);
+  if (day.date < auj) return "passe";
+  if (day.date > auj) return "avenir";
+  const m = nowMin(), fin = finEtape(it, slot);
+  if (m >= fin) return "passe";
+  const r = it.when ? whenRange(it.when, it.t === "depart" ? 15 : 60) : null;
+  if (r && m >= r.start) return "encours";
+  return "avenir";
+}
+const avancementJour = d => {
+  const tout = allItems(d);
+  if (!tout.length) return 0;
+  return tout.filter(x => etatEtape(d, x.slot, x.it) === "passe").length / tout.length;
+};
 const itemsOf = (day, slot) => day[slot] || [];
 const allItems = day => SLOTS.flatMap(s => itemsOf(day, s.k).map((it, i) => ({ it, slot:s.k, i })));
 
@@ -2124,10 +2144,8 @@ function renderRail(){
   const rail = document.getElementById("rail");
   const today = dayIndexToday();
   rail.innerHTML = DAYS.map((d, i) => {
-    const items = allItems(d);
-    const done = items.filter(x => state.done[keyOf(d.n, x.slot, x.i)]).length;
-    const pct = items.length ? (done / items.length) * 100 : 0;
-    const hits = items.some(x => matches(x.it));
+    const pct = avancementJour(d) * 100;
+    const hits = allItems(d).some(x => matches(x.it));
     return `<button class="chip${i === today ? " today" : ""}${hits ? "" : " faded"}" role="tab"
               data-i="${i}" data-phase="${d.phase}" aria-selected="${i === state.day}" title="${esc(d.title)}">
         <span class="d">Jour ${d.n}</span>
@@ -2141,16 +2159,17 @@ function renderRail(){
 
 /* ════════════════════════════  VUE JOUR  ════════════════════════════ */
 function itemHTML(day, slot, it, i, vedette){
-  const k = keyOf(day.n, slot, i);
-  const done = !!state.done[k];
+  const etat = etatEtape(day, slot, it);
+  const done = etat === "passe";
   /* La carte du haut porte déjà l'itinéraire de cette étape : inutile de le
      répéter à un écran d'écart. */
   const repete = vedette === `${slot}.${i}`;
-  return `<div class="item${done ? " done" : ""}${matches(it) ? "" : " dim"}" data-t="${it.t}">
+  return `<div class="item ${etat}${matches(it) ? "" : " dim"}" data-t="${it.t}">
     <span class="mark"><svg><use href="#${ICON[it.t]}"/></svg></span>
     <div class="body">
       <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}${
         it.sacre ? `<span class="sacre">sacré</span>` : ""}</div>
+      ${etat === "encours" ? `<span class="maintenant">en ce moment</span>` : ""}
       ${it.det ? `<p class="det">${highlight(it.det)}</p>` : ""}
       ${it.alerte ? `<span class="note alerte"><svg><use href="#i-info"/></svg>${esc(it.alerte)}</span>` : ""}
       ${it.rdv ? `<span class="note rdv"><svg><use href="#i-map"/></svg>${esc(it.rdv)}</span>` : ""}
@@ -2160,7 +2179,6 @@ function itemHTML(day, slot, it, i, vedette){
       <div class="acts">
         ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
         ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
-        <button class="tick" data-k="${k}" aria-pressed="${done}"><svg><use href="#i-check"/></svg>${done ? "Fait" : "Cocher"}</button>
       </div>
     </div>
   </div>`;
@@ -2447,9 +2465,13 @@ function renderCarnet(){
 
 /* ════════════════════════════  RENDU  ════════════════════════════ */
 function renderFoot(){
-  const n = Object.values(state.done).filter(Boolean).length;
-  document.getElementById("doneCount").textContent =
-    n === 0 ? "0 étape cochée" : `${n} étape${n > 1 ? "s" : ""} cochée${n > 1 ? "s" : ""}`;
+  const t = dayIndexToday();
+  const d = DAYS[state.day];
+  const pct = Math.round(avancementJour(d) * 100);
+  document.getElementById("doneCount").textContent = t === state.day
+    ? `journée faite à ${pct} %`
+    : t >= 0 && state.day < t ? "journée passée"
+    : "l'avancement suit l'heure d'Athènes";
 }
 function render(){
   const searching = state.view === "day" && state.query.trim().length > 0;
@@ -2483,12 +2505,6 @@ document.getElementById("searchView").addEventListener("click", e => {
   const b = e.target.closest("button[data-i]");
   if (b){ document.getElementById("q").value = ""; state.query = ""; goToDay(+b.dataset.i); }
 });
-document.addEventListener("click", e => {
-  const t = e.target.closest(".tick"); if (!t) return;
-  state.done[t.dataset.k] ? delete state.done[t.dataset.k] : state.done[t.dataset.k] = true;
-  save(); render();
-});
-
 function syncSeg(){
   document.getElementById("viewDay").setAttribute("aria-pressed", state.view === "day");
   document.getElementById("viewGrid").setAttribute("aria-pressed", state.view === "grid");
@@ -2583,7 +2599,6 @@ document.getElementById("q").addEventListener("input", e => {
   clearTimeout(qt);
   qt = setTimeout(() => { state.query = e.target.value; render(); }, 120);
 });
-document.getElementById("resetBtn").addEventListener("click", () => { state.done = {}; save(); render(); });
 document.getElementById("printBtn").addEventListener("click", () => {
   const prev = state.view, keep = document.getElementById("dayView").innerHTML;
   document.getElementById("dayView").innerHTML = DAYS.map(d => dayHTML(d, { live:false })).join("");
