@@ -876,8 +876,15 @@ const ATHENES = [37.9838, 23.7275], SARO = [37.744, 23.905], SOUNION = [37.6503,
 
 const DAYS = [
   { n:1, date:"2026-08-17", dow:"Lun", dm:"17 août", phase:1, title:"Arrivée à Athènes", sun:ATHENES,
-    matin:[ {t:"travel", ttl:"Voyage", det:"Vol vers Athènes"} ],
-    aprem:[ {t:"travel", ttl:"Atterrissage", when:"18 h 30"} ],
+    /* Les heures d'embarquement sont locales à leur aéroport ; l'appli, elle,
+       raisonne en heure d'Athènes. On les laisse donc dans le texte, avec leur
+       fuseau nommé, plutôt que dans un champ horaire qui serait mal interprété. */
+    matin:[ {t:"travel", ttl:"BA 301 · Paris → Londres",
+             det:"Embarquement 9 h 55, heure de Paris — Roissy, terminal 2C"} ],
+    aprem:[ {t:"travel", ttl:"BA 630 · Londres → Athènes",
+             det:"Embarquement 11 h 55, heure de Londres — Heathrow, terminal 5",
+             note:"Correspondance à Heathrow : les deux vols sont au terminal 5, pas de terminal à changer"},
+            {t:"travel", ttl:"Atterrissage à Athènes", when:"18 h 30"} ],
     soir:[ {t:"plain", ttl:"Transfert & installation"},
            {t:"food", ttl:"Dîner à la marina d'Alimos"} ] },
 
@@ -2401,7 +2408,7 @@ function renderCarnet(){
           </div>
           <div class="fld">
             <span>À faire avant jeudi</span>
-            <p style="font-size:.88rem;color:var(--ink-2)">Prévenir l'opérateur de la croisière du 20 : le barbecue à bord est préparé à l'avance, une demande sans porc se traite en cuisine, pas au moment de servir.</p>
+            <p style="font-size:.88rem;color:var(--ink-2)">Prévenir l'opérateur de la croisière du 20 : le barbecue à bord est préparé à l'avance, une demande sans porc se traite en cuisine, pas au moment de servir. « Sans porc, merci » suffit — une préférence alimentaire n'a pas à s'expliquer.</p>
           </div>
         </div>
       </article>
