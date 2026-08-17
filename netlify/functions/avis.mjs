@@ -20,6 +20,8 @@ export default async (req) => {
     await Promise.all(QUI_VALIDES.map(async (qui) => {
       const sien = (await store.get(qui, { type: "json" })) || {};
       Object.entries(sien).forEach(([jour, v]) => {
+        /* Un avis effacé — ni note ni texte — n'a pas à réapparaître. */
+        if (!v || (!v.note && !(v.txt || "").trim())) return;
         tout[jour] = tout[jour] || {};
         tout[jour][qui] = v;
       });
