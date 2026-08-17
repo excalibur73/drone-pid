@@ -1168,7 +1168,7 @@ const CHRONO = [
     { an:-776, q:"grece", t:"Premiers Jeux d'Olympie", d:"Date traditionnelle. Les Grecs commenceront à compter le temps à partir de là." },
     { an:-753, q:"monde", t:"Fondation légendaire de Rome", d:"Un village de bergers, quand Athènes a déjà des lois." },
     { an:-750, q:"grece", t:"Homère mis par écrit", d:"L'Iliade et l'Odyssée fixent une mémoire vieille de cinq siècles." },
-    { an:-563, q:"monde", t:"Naissance du Bouddha", d:"À vingt ans près, celle de Confucius. Le siècle où l'humanité se met à penser autrement, partout à la fois." },
+    { an:-563, q:"monde", t:"Naissance du Bouddha", d:"À vingt ans près, celle de Confucius, et le siècle de Clisthène à Athènes. Un moment où, sur trois continents et sans se connaître, des hommes reprennent tout depuis le début." },
     { an:-560, q:"grece", t:"Pisistrate lance le temple de Zeus", d:"Le chantier durera près de sept cents ans.", jour:3 },
     { an:-508, q:"grece", t:"Clisthène invente la démocratie", d:"Le pouvoir au dèmos. Une expérience qui durera moins de deux siècles." }
   ]},
@@ -1193,6 +1193,7 @@ const CHRONO = [
     { an:-86, q:"grece", t:"Sylla saccage Athènes", d:"Les murs abattus, le Céramique brûlé." },
     { an:-50, q:"grece", t:"Tour des Vents", d:"Horloge, girouette, calendrier : la première station météo du monde.", jour:3 },
     { an:-44, q:"monde", t:"Mort de César", d:"Cléopâtre est plus proche de nous que de la pyramide de Khéops." },
+    { an:30, q:"monde", t:"Jésus est crucifié à Jérusalem", d:"La Judée est alors une province romaine, comme la Grèce. Trois siècles plus tard, le christianisme sera la religion de l'Empire — et le Parthénon deviendra une église." },
     { an:79, q:"monde", t:"Pompéi ensevelie" },
     { an:116, q:"grece", t:"Monument de Philopappos", d:"Un prince sans royaume s'offre le plus beau balcon d'Athènes.", jour:2 },
     { an:131, q:"grece", t:"Hadrien achève le temple de Zeus", d:"Sept cents ans après Pisistrate. Il fait graver son nom sur la porte.", jour:3 },
@@ -1201,7 +1202,9 @@ const CHRONO = [
   ]},
   { e:"Éclipse et retour", de:529, a:2026, faits:[
     { an:529, q:"grece", t:"Justinien ferme l'école d'Athènes", d:"Mille ans de philosophie s'arrêtent par décret." },
-    { an:622, q:"monde", t:"L'Hégire", d:"Le Parthénon est alors une église chrétienne depuis un siècle." },
+    { an:570, q:"monde", t:"Naissance du prophète Mohammed", d:"À La Mecque, dans une Arabie de tribus et de caravanes, aux marges des deux empires qui s'épuisent — Byzance et la Perse." },
+    { an:622, q:"monde", t:"L'Hégire", d:"Mohammed quitte La Mecque pour Médine : c'est l'an 1 du calendrier musulman. En moins d'un siècle, l'islam ira de l'Atlantique à l'Indus, et deviendra le gardien des textes grecs qu'Athènes avait cessé d'enseigner." },
+    { an:1150, q:"monde", t:"Tolède traduit les Grecs", d:"Aristote et Ptolémée reviennent en Europe par l'arabe : conservés à Bagdad et à Cordoue, retraduits en latin. L'Occident redécouvre ses classiques par le sud." },
     { an:1204, q:"grece", t:"Les croisés prennent Athènes", d:"L'Acropole devient un château franc." },
     { an:1456, q:"grece", t:"Les Ottomans entrent dans Athènes", d:"Le Parthénon devient mosquée. Il aura été temple, église et mosquée sans jamais cesser de servir." },
     { an:1492, q:"monde", t:"Colomb atteint l'Amérique" },
@@ -1238,7 +1241,7 @@ function renderChrono(){
           <span class="or" style="left:${debutOr}%; width:${(finOr - debutOr).toFixed(2)}%"></span>
           ${[-3300, -2000, -1000, 0, 1000, 2026].map((a, i, t) =>
             `<span class="tic${i === 0 ? " debut" : i === t.length - 1 ? " fin" : ""}" style="left:${pos(a)}%"><i></i><b>${
-              a === 2026 ? "auj." : a === 0 ? "an 0" : "−" + (-a)}</b></span>`).join("")}
+              a === 2026 ? "auj." : a === 0 ? "an 0" : a < 0 ? "−" + (-a) : String(a)}</b></span>`).join("")}
         </div>
         <p class="frise-leg">Les nombres négatifs sont des années avant notre ère. En orange, les 142 ans de l'hégémonie athénienne, sur cinq mille trois cents ans d'histoire écrite : c'est tout ce qu'elle a duré.</p>
       </div>
