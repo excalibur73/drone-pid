@@ -624,6 +624,9 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 }
 .soir textarea::placeholder{color:var(--ink-3); font-style:italic}
 .soir textarea:focus{outline:none; border-style:solid; border-color:var(--sea); background:var(--surface)}
+.etatsync{margin-top:10px; font-family:var(--mono); font-size:.72rem; color:var(--ink-3)}
+.etatsync.ok{color:var(--sea)}
+.etatsync.local{color:var(--ochre)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
 .unavis .ai{font-size:.83rem; color:var(--ink-3)}
 .unavis .ai b{color:var(--sea); font-size:.9rem}
@@ -2166,9 +2169,10 @@ function baignadeHTML(d){
    le site est statique, il n'y a pas de serveur pour rassembler les avis.
    Chaque appareil garde donc les siens, et le journal s'envoie à la main.
 
-   Les prénoms suffisent à attribuer un mot. Les adresses de courriel ne
-   figurent pas dans la page : elle est publique, et une adresse écrite en
-   clair dans un site finit toujours par être moissonnée. */
+   Les avis sont mis en commun par une fonction du serveur : chacun écrit
+   depuis son téléphone et voit ceux des autres. Le stockage local ne sert
+   plus que de copie hors connexion, et de file d'attente quand le réseau
+   manque — ce qui arrive dans une crique. */
 const QUI_STORE = "attique2026:qui", AVIS_STORE = "attique2026:avis";
 const FAMILLE = [
   { id:"hilal", nom:"Hilal" },
@@ -2208,6 +2212,10 @@ function avisHTML(d){
     </div>
     <label class="sr" for="avis-${d.n}">Commentaire de la journée</label>
     <textarea id="avis-${d.n}" data-avis="${d.n}" placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
+    <p class="etatsync ${etatSync}">${
+      etatSync === "ok" ? "Partagé avec les autres téléphones."
+      : etatSync === "local" ? "Hors connexion : enregistré ici, envoyé dès que le réseau revient."
+      : "Mise en commun en cours…"}${ENATTENTE.length ? ` ${ENATTENTE.length} en attente.` : ""}</p>
     ${autres.length ? `<div class="autresavis">
       ${autres.map(([id, a]) => `<div class="unavis">
         <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
@@ -2216,6 +2224,62 @@ function avisHTML(d){
     </div>` : ""}
   </section>`;
 }
+
+/* ── Mise en commun ──
+   Le serveur fait foi. Ce qu'on écrit part aussitôt ; si le réseau manque,
+   la modification attend dans une file et repart à la première occasion. */
+const ATTENTE_STORE = "attique2026:enattente";
+let ENATTENTE = (() => { try { return JSON.parse(localStorage.getItem(ATTENTE_STORE)) || []; } catch { return []; } })();
+let etatSync = "inconnu";           // inconnu · ok · local
+
+const garderAttente = () => { try { localStorage.setItem(ATTENTE_STORE, JSON.stringify(ENATTENTE)); } catch {} };
+
+async function lireAvis(){
+  if (!navigator.onLine) { etatSync = "local"; return; }
+  try {
+    const r = await fetch("/api/avis", { cache:"no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const distant = await r.json();
+    Object.keys(AVIS).forEach(k => delete AVIS[k]);
+    Object.assign(AVIS, distant);
+    noteEcrire(AVIS_STORE, AVIS);
+    etatSync = "ok";
+    render();
+  } catch { etatSync = "local"; }
+}
+
+async function poussserUn(e){
+  const r = await fetch("/api/avis", {
+    method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(e)
+  });
+  if (!r.ok) throw new Error(r.status);
+}
+
+async function viderAttente(){
+  if (!ENATTENTE.length || !navigator.onLine) return;
+  const file = [...ENATTENTE];
+  for (const e of file){
+    try { await poussserUn(e); ENATTENTE.shift(); garderAttente(); }
+    catch { etatSync = "local"; return; }
+  }
+  etatSync = "ok";
+  await lireAvis();
+}
+
+/* Enregistre localement, puis tente d'envoyer. */
+function enregistrerAvis(jour, champs){
+  AVIS[jour] = AVIS[jour] || {};
+  AVIS[jour][QUI] = { ...(AVIS[jour][QUI] || {}), ...champs };
+  noteEcrire(AVIS_STORE, AVIS);
+  const a = AVIS[jour][QUI];
+  const env = { jour:String(jour), qui:QUI, note:a.note || 0, txt:a.txt || "" };
+  ENATTENTE = ENATTENTE.filter(x => !(x.jour === env.jour && x.qui === env.qui));
+  ENATTENTE.push(env);
+  garderAttente();
+  viderAttente();
+}
+
+addEventListener("online", viderAttente);
 
 /* Le journal complet, tel qu'il part par message. */
 function journalTexte(){
@@ -2810,10 +2874,9 @@ document.addEventListener("click", e => {
   const et = e.target.closest(".etoile");
   if (et){
     const j = et.dataset.jour, n = +et.dataset.note;
-    AVIS[j] = AVIS[j] || {};
-    const a = AVIS[j][QUI] = AVIS[j][QUI] || {};
-    a.note = a.note === n ? 0 : n;          // retoucher la même étoile efface la note
-    noteEcrire(AVIS_STORE, AVIS); render();
+    const actuel = ((AVIS[j] || {})[QUI] || {}).note;
+    enregistrerAvis(j, { note: actuel === n ? 0 : n });   // retoucher efface
+    render();
   }
   if (e.target.closest("#journalBtn")) envoyerJournal();
 });
@@ -2821,12 +2884,9 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   const avis = e.target.closest("textarea[data-avis]");
   if (avis && QUI){
-    const j = avis.dataset.avis;
-    AVIS[j] = AVIS[j] || {};
-    AVIS[j][QUI] = AVIS[j][QUI] || {};
-    AVIS[j][QUI].txt = avis.value;
+    const j = avis.dataset.avis, v = avis.value;
     clearTimeout(saveT);
-    saveT = setTimeout(() => noteEcrire(AVIS_STORE, AVIS), 400);
+    saveT = setTimeout(() => enregistrerAvis(j, { txt:v }), 700);
     return;
   }
   const note = e.target.closest("textarea[data-note]");
@@ -3016,6 +3076,8 @@ if (!fromHash()){
   if (t0 >= 0) state.day = t0;
 }
 render();
+lireAvis();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) lireAvis(); });
 chargerMeteo();
 chargerMer();
 chargerMerHoraire();

@@ -83,7 +83,9 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
-  if (new URL(req.url).pathname === "/version.txt") return;   // toujours au réseau
+  const chemin = new URL(req.url).pathname;
+  if (chemin === "/version.txt") return;              // toujours au réseau
+  if (chemin.startsWith("/api/")) return;             // les avis partagés ne se mettent pas en cache
   e.respondWith(
     fetch(req)
       .then(res => {

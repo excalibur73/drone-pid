@@ -5,6 +5,9 @@
 #   /            → vacances-attique.html  (Onze jours en Attique)
 #   /pid-drone   → index.html             (cours de régulation PID)
 
+[functions]
+  directory = "netlify/functions"
+
 [build]
   command = "bash build.sh"
   publish = "site"
