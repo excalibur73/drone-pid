@@ -547,7 +547,11 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
 <script>
 /* ════════════════════════════  DONNÉES  ════════════════════════════ */
 const ALIMOS = "37.906,23.712", SARONIDA = "37.744,23.905";
-const dir = (from, to, walk) => `https://www.google.com/maps/dir/${from}/${to}` + (walk ? "/data=!4m2!4m1!3e3" : "");
+/* Mode de trajet encodé par Google : 3e0 voiture · 3e2 transports · 3e3 à pied.
+   Le PDF encodait « à pied » pour la phase 1 — deux heures de marche jusqu'au
+   centre. Les trajets athéniens se font en taxi : itinéraire routier. */
+const MODE = { voiture:"", transports:"/data=!4m2!4m1!3e2", pied:"/data=!4m2!4m1!3e3" };
+const dir = (from, to, mode) => `https://www.google.com/maps/dir/${from}/${to}` + (MODE[mode] || "");
 
 /* Coordonnées utilisées pour le soleil : là où se passe la fin de journée. */
 const ATHENES = [37.9838, 23.7275], SARO = [37.744, 23.905], SOUNION = [37.6503, 24.0247];
@@ -560,32 +564,33 @@ const DAYS = [
            {t:"food", ttl:"Dîner à la marina d'Alimos"} ] },
 
   { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS,"37.9747,23.7218",true)},
+    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9747,23.7218")},
             {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale"},
             {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides", note:"Arriver 10 h 45 — guichet jeunes"} ],
     aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"},
             {t:"swim", ttl:"Plage d'Alimos"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"16 h 40", map:dir(ALIMOS,"37.9715,23.7257",true)},
+    soir:[ {t:"depart", ttl:"Départ", when:"16 h 40", map:dir(ALIMOS, "37.9715,23.7257"),
+            corrige:"Serré : 20 à 30 min de trajet aux heures chargées pour un créneau à 17 h. Commandez le taxi avant de descendre."},
            {t:"site", ttl:"Acropole & Parthénon", when:"17 h – 18 h", note:"Créneau réservé"},
            {t:"site", ttl:"Colline de Philopappos", det:"Le point de vue sur le Parthénon au couchant", sunset:true} ] },
 
   { n:3, date:"2026-08-19", dow:"Mer", dm:"19 août", phase:1, title:"Zeus olympien & Lycabette", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS,"37.9693,23.7331",true)},
+    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9693,23.7331")},
             {t:"site", ttl:"Temple de Zeus olympien", when:"8 h – 9 h", det:"Porte d'Hadrien"},
             {t:"site", ttl:"Agora romaine", when:"10 h – 11 h", det:"Tour des Vents"} ],
     aprem:[ {t:"site", ttl:"Psiri", det:"Quartier street art"},
             {t:"swim", ttl:"Plage d'Alimos"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"17 h 45", map:dir(ALIMOS,"37.9819,23.744",true)},
+    soir:[ {t:"depart", ttl:"Départ", when:"17 h 45", map:dir(ALIMOS, "37.9819,23.744")},
            {t:"site", ttl:"Colline du Lycabette", when:"19 h", det:"Vue à 360°, montée en funiculaire", sunset:true},
            {t:"food", ttl:"Dîner à Kolonaki"} ] },
 
   { n:4, date:"2026-08-20", dow:"Jeu", dm:"20 août", phase:1, title:"Stade panathénaïque & croisière", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(ALIMOS,"37.9683,23.741",true)},
+    matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(ALIMOS, "37.9683,23.741")},
             {t:"site", ttl:"Stade panathénaïque", det:"Les premiers JO modernes, 1896"},
             {t:"site", ttl:"Relève des evzones", det:"Place Syntagma"} ],
     aprem:[ {t:"swim", ttl:"Plage d'Alimos"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS,"37.938196,23.6852153",true),
-            corrige:"Le PDF indiquait 16 h 15 — impossible : l'embarquement est à 15 h 45."},
+    soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
+            corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true,
             rdv:"Marina Delta, Le Pirée — présentation à 15 h 45",
             det:"Accueil par Michalis, t-shirt blanc au logo de la compagnie"},
@@ -593,13 +598,13 @@ const DAYS = [
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
     matin:[ {t:"plain", ttl:"Matinée libre", det:"Plage, ou les puces de Monastiraki"} ],
-    aprem:[ {t:"depart", ttl:"Départ", when:"17 h", map:dir(ALIMOS,"37.9403,23.6929",true)},
+    aprem:[ {t:"depart", ttl:"Départ", when:"17 h", map:dir(ALIMOS, "37.9403,23.6929")},
             {t:"site", ttl:"SNFCC", det:"Fondation Niarchos — toit-belvédère et jardins", sunset:true} ],
     soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
 
   { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", sun:SARO,
-    matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(ALIMOS,"37.9611,23.7228"),
-             corrige:"Le PDF indiquait 9 h 45 — trop juste pour un retrait à 10 h."},
+    matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(ALIMOS, "37.9611,23.7228"),
+             corrige:"Avancé de 30 min : retrait à 10 h, et il y a des papiers à signer."},
             {t:"plain", ttl:"Récupération de la voiture", when:"10 h",
              det:"Puis route vers Saronida et installation",
              rdv:"Sixt — Syngrou Avenue 11 / Lempesi, Athina-Neos Kosmos"} ],
@@ -614,7 +619,7 @@ const DAYS = [
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
-             corrige:"Le PDF indiquait 8 h 15 — trop tard : environ 35 min de route pour 8 h 30."},
+             corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
             {t:"site", ttl:"Croisière de Porto Rafti", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"site", ttl:"Erotospilia ou Avlaki", det:"Criques et grotte-abri — pique-nique, sans précipitation", gear:true} ],
@@ -645,7 +650,7 @@ const DAYS = [
 ];
 
 const PHASES = {
-  1:{ name:"Phase 1 — Alimos", short:"Alimos", mode:"transports en commun", range:"17 → 21 août", home:"l'hôtel d'Alimos" },
+  1:{ name:"Phase 1 — Alimos", short:"Alimos", mode:"taxi", range:"17 → 21 août", home:"l'hôtel d'Alimos" },
   2:{ name:"Phase 2 — Saronida", short:"Saronida", mode:"voiture", range:"22 → 27 août", home:"le Waterfront Penthouse" }
 };
 const SLOTS = [
@@ -1224,6 +1229,7 @@ function renderCarnet(){
         </header>
         <div class="inner">
           <p class="fixe"><span>Urgences, toutes (européen)</span><a href="tel:112"><b>112</b></a></p>
+          <p class="fixe"><span>Taxi — applications locales</span><b>FREE NOW · Uber</b></p>
           <p class="fixe"><span>Indicatif de la Grèce</span><b>+30</b></p>
           <p class="fixe"><span>Base phase 1</span><b>Alimos</b></p>
           <p class="fixe"><span>Base phase 2</span><b>Saronida</b></p>
