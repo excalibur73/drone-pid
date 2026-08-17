@@ -167,6 +167,63 @@ main{padding-bottom:64px}
 .suntimes svg{width:13px; height:13px}
 .suntimes b{color:var(--ink-2); font-weight:600}
 
+/* ── Prochaine étape : la carte qu'on lit en marchant ── */
+.suite{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  margin:16px 0 22px; padding:15px 18px;
+  border:1px solid var(--line); border-left:4px solid var(--sea);
+  border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow);
+}
+.suite.depart{border-left-color:var(--ochre); background:var(--ochre-soft); border-color:color-mix(in oklab,var(--ochre) 38%,var(--line))}
+.suite.imminent{animation:pulse 2.6s ease-in-out infinite}
+.sq{display:flex; flex-direction:column; gap:2px; min-width:104px}
+.sq .lab{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.sq .t{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.6rem; font-weight:600; line-height:1.1; color:var(--sea)}
+.suite.depart .sq .t{color:var(--ochre)}
+.sq .cd{font-family:var(--mono); font-size:.78rem; color:var(--ink-2)}
+.sc{flex:1 1 210px; min-width:0}
+.sc b{font-size:1.02rem; display:block}
+.sc p{font-size:.87rem; color:var(--ink-2); margin-top:2px}
+.sgo{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:46px; padding:0 20px; border-radius:99px; text-decoration:none;
+  background:var(--sea); color:var(--surface); font-weight:600; font-size:.92rem;
+  flex:0 0 auto; transition:filter .2s;
+}
+.suite.depart .sgo{background:var(--ochre)}
+.sgo:hover{filter:brightness(1.1)}
+.sgo svg{width:16px; height:16px}
+
+/* ── Partager ── */
+.partage{
+  display:inline-flex; align-items:center; gap:7px; min-height:36px; padding:0 14px;
+  border:1px solid var(--line); border-radius:99px; background:var(--surface);
+  color:var(--ink-2); font-size:.83rem; font-weight:600;
+  transition:color .18s, border-color .18s;
+}
+.partage:hover{color:var(--sea); border-color:var(--sea)}
+.partage svg{width:14px; height:14px}
+.toast{
+  position:fixed; left:50%; bottom:24px; transform:translate(-50%,14px); z-index:90;
+  padding:12px 20px; border-radius:99px; background:var(--ink); color:var(--ground);
+  font-size:.88rem; box-shadow:0 10px 34px -10px rgba(0,0,0,.5);
+  opacity:0; pointer-events:none; transition:opacity .25s, transform .25s;
+}
+.toast.vu{opacity:1; transform:translate(-50%,0)}
+
+/* ── Lexique ── */
+.lex{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
+.mot{display:flex; flex-direction:column; gap:1px; padding:9px 12px; border-radius:var(--r-sm); background:var(--surface-2)}
+.mot.piege{background:var(--ochre-soft); border:1px solid color-mix(in oklab,var(--ochre) 34%,var(--line))}
+.mot .gr{font-size:1rem; font-weight:600}
+.mot .ph{font-family:var(--mono); font-size:.8rem; color:var(--sea)}
+.mot.piege .ph{color:var(--ochre)}
+.mot .fr{font-size:.83rem; color:var(--ink-2)}
+.chiffres-gr{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px}
+.chiffres-gr span{font-size:.82rem; color:var(--ink-2); background:var(--surface-2); border-radius:99px; padding:5px 12px}
+.chiffres-gr b{font-family:var(--mono); color:var(--ink)}
+.chiffres-gr i{font-style:normal; font-family:var(--mono); font-size:.76rem; color:var(--sea)}
+
 .alarm{
   display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   margin:16px 0 22px; padding:13px 16px;
@@ -497,7 +554,20 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
   .search input{width:100%}
   .masthead-side{margin-left:0}
   .suntimes{margin-left:0; width:100%}
+  .partage{margin-left:auto}
   .hint{display:none}
+
+  /* Au doigt, en marchant : rien en dessous de 44 px de haut. */
+  .maplink,.tick,.partage{min-height:44px; padding:0 16px; font-size:.85rem}
+  .acts{gap:10px}
+  .f{min-height:40px; padding:0 15px}
+  .seg button{min-height:42px}
+  .chip{padding:10px 15px 11px}
+  .chiffres{display:inline-flex; align-items:center; min-height:40px}
+  .sgo{width:100%}
+  .item{padding:15px 16px}
+  /* Le pouce atteint mal le haut de l'écran : la barre des jours descend. */
+  .railbar{position:sticky; top:0}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition-duration:.01ms !important; animation:none !important; scroll-behavior:auto !important}
@@ -542,6 +612,8 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></symbol>
   <symbol id="i-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5 17.5a4 4 0 0 1 .8-7.9 6 6 0 0 1 11.6-1.4A3.9 3.9 0 0 1 20 15.9"/><path d="m9 20 3-3 3 3M12 17v5"/></symbol>
+  <symbol id="i-partage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></symbol>
   <symbol id="i-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
     <path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8a2.6 2.6 0 1 1-2.6 2.6"/></symbol>
   <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
@@ -839,6 +911,64 @@ function packFor(day){
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
   if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
   return [...new Set(out)];
+}
+
+/* ════════════════════════════  PROCHAINE ÉTAPE  ════════════════════════════
+   Ouvrir l'appli en marchant doit répondre à une seule question : et
+   maintenant, quoi ? On cherche donc la prochaine étape horodatée du jour,
+   quelle qu'elle soit — un départ, un créneau réservé, un décollage.        */
+function prochaineEtape(d){
+  const m = nowMin();
+  const liste = [];
+  SLOTS.forEach(s => itemsOf(d, s.k).forEach((it, i) => {
+    const r = it.when ? whenRange(it.when, it.t === "depart" ? 15 : 60) : null;
+    if (r) liste.push({ it, slot:s.k, i, ...r });
+  }));
+  liste.sort((a, b) => a.start - b.start);
+  const encours = liste.find(x => m >= x.start && m < x.end);
+  const suivant = liste.find(x => x.start > m);
+  return { encours, suivant, reste: suivant ? suivant.start - m : null };
+}
+function dureeCourte(min){
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60), r = min % 60;
+  return r ? `${h} h ${String(r).padStart(2, "0")}` : `${h} h`;
+}
+
+/* ════════════════════════════  PARTAGE  ════════════════════════════ */
+function texteDuJour(d){
+  const ph = PHASES[d.phase];
+  const lignes = [`${DOW_FULL[d.dow]} ${d.dm} — ${d.title}`, `${ph.short} · ${ph.mode}`, ""];
+  SLOTS.forEach(s => {
+    const its = itemsOf(d, s.k);
+    if (!its.length) return;
+    lignes.push(`${s.label} :`);
+    its.forEach(it => lignes.push(`  ${it.when ? it.when + " — " : ""}${it.ttl}${it.det ? " (" + it.det + ")" : ""}`));
+    lignes.push("");
+  });
+  lignes.push(`Lever ${hhmm(d.sunT.rise)} · coucher ${hhmm(d.sunT.set)}`);
+  return lignes.join("\n");
+}
+async function partagerJour(d){
+  const url = location.origin + location.pathname + `#j${d.n}`;
+  const data = { title:`Jour ${d.n} — ${d.title}`, text:texteDuJour(d), url };
+  try {
+    if (navigator.share){ await navigator.share(data); return; }
+    await navigator.clipboard.writeText(`${data.text}\n\n${url}`);
+    toast("Programme du jour copié");
+  } catch (e){
+    if (e && e.name === "AbortError") return;          // partage annulé, rien à dire
+    toast("Copie impossible sur cet appareil");
+  }
+}
+let toastT;
+function toast(msg){
+  let el = document.querySelector(".toast");
+  if (!el){ el = document.createElement("div"); el.className = "toast"; document.body.appendChild(el); }
+  el.textContent = msg;
+  el.classList.add("vu");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove("vu"), 2600);
 }
 
 /* ════════════════════════════  CALENDRIER .ics  ════════════════════════════
@@ -1305,6 +1435,36 @@ const BASES = {
       quand:"22 → 27 août · 4 adultes" }
 };
 
+/* Le minimum pour se débrouiller, commander et remercier. Prononciation
+   à la française ; les MAJUSCULES portent l'accent tonique. */
+const LEXIQUE = [
+  { g:"Καλημέρα",     p:"kali-MÉ-ra",      f:"Bonjour (le matin)" },
+  { g:"Καλησπέρα",    p:"kali-SPÉ-ra",     f:"Bonsoir" },
+  { g:"Γεια σας",     p:"YA sass",         f:"Bonjour / au revoir (poli)" },
+  { g:"Γεια σου",     p:"YA sou",          f:"Salut (à quelqu'un de votre âge)" },
+  { g:"Ευχαριστώ",    p:"efkhari-STO",     f:"Merci" },
+  { g:"Παρακαλώ",     p:"paraka-LO",       f:"S'il vous plaît / de rien" },
+  { g:"Ναι",          p:"né",              f:"OUI — le piège : ça sonne comme « non »", piege:true },
+  { g:"Όχι",          p:"O-khi",           f:"Non" },
+  { g:"Συγγνώμη",     p:"si-GHNO-mi",      f:"Pardon, excusez-moi" },
+  { g:"Πόσο κάνει;",  p:"PO-so KA-ni",     f:"Combien ça coûte ?" },
+  { g:"Το λογαριασμό","p":"to loghariaz-MO", f:"L'addition, s'il vous plaît" },
+  { g:"Πού είναι…;",  p:"POU I-né",        f:"Où est… ?" },
+  { g:"Η παραλία",    p:"i para-LI-a",     f:"La plage" },
+  { g:"Νερό",         p:"né-RO",           f:"De l'eau" },
+  { g:"Φρέντο εσπρέσο", p:"FRÉ-do es-PRÈ-so", f:"Le café glacé du pays" },
+  { g:"Μια μπύρα",    p:"mia BI-ra",       f:"Une bière" },
+  { g:"Γεια μας",     p:"YA mass",         f:"Santé ! (on trinque)" },
+  { g:"Πολύ νόστιμο", p:"po-LI NO-sti-mo", f:"C'est délicieux" },
+  { g:"Μιλάτε αγγλικά;", p:"mi-LA-té angli-KA", f:"Parlez-vous anglais ?" },
+  { g:"Δεν καταλαβαίνω", p:"dhen katala-VÉ-no", f:"Je ne comprends pas" },
+  { g:"Βοήθεια",      p:"vo-I-thia",       f:"À l'aide" },
+  { g:"Καληνύχτα",    p:"kali-NIKH-ta",    f:"Bonne nuit" }
+];
+const CHIFFRES = [["1","ένα","É-na"],["2","δύο","DHI-o"],["3","τρία","TRI-a"],["4","τέσσερα","TÉ-sé-ra"],
+  ["5","πέντε","PÈN-dé"],["6","έξι","È-ksi"],["7","εφτά","ef-TA"],["8","οχτώ","okh-TO"],
+  ["9","εννιά","é-NIA"],["10","δέκα","DHÉ-ka"]];
+
 const CHAMPS = [
   { k:"hoteltel", l:"Téléphone de l'hôtel d'Alimos", ph:"+30 …" },
   { k:"proprio",  l:"Contact du penthouse sur place", ph:"+30 …" },
@@ -1410,16 +1570,39 @@ function dayHTML(d, { live }){
   const next = live ? departs.find(it => toMinutes(it.when) > m) : departs[0];
 
   let alarm = "";
-  if (next){
-    const delta = toMinutes(next.when) - m;
-    const soon = live && delta <= 90;
-    const label = live
-      ? (soon ? `Dans <b>${delta} minute${delta > 1 ? "s" : ""}</b> — préparez-vous` : "Prochain départ de la journée")
-      : "Premier départ de la journée";
-    alarm = `<div class="alarm${soon ? " imminent" : ""}">
-      <svg><use href="#i-depart"/></svg>
-      <span class="t">${esc(next.when)}</span>
-      <span class="l">${label} · on quitte ${ph.home}</span>
+  if (live){
+    /* Aujourd'hui : une seule carte répond à « et maintenant ? ». */
+    const { encours, suivant, reste } = prochaineEtape(d);
+    const vedette = suivant || encours;
+    if (vedette){
+      const dep = vedette.it.t === "depart";
+      const urgent = suivant && reste <= 90;
+      const carte = encours && !suivant ? encours : (suivant || encours);
+      const enCours = carte === encours && !suivant;
+      alarm = `<div class="suite${urgent ? " imminent" : ""}${dep ? " depart" : ""}">
+        <div class="sq">
+          <span class="lab">${enCours ? "En ce moment" : suivant ? "Prochaine étape" : "En ce moment"}</span>
+          <span class="t">${esc(carte.it.when)}</span>
+          ${suivant ? `<span class="cd">dans ${dureeCourte(reste)}</span>` : ""}
+        </div>
+        <div class="sc">
+          <b>${esc(carte.it.ttl)}${dep ? ` — on quitte ${ph.home}` : ""}</b>
+          ${carte.it.det ? `<p>${esc(carte.it.det)}</p>` : ""}
+          ${carte.it.rdv ? `<p>${esc(carte.it.rdv)}</p>` : ""}
+        </div>
+        ${carte.it.map ? `<a class="sgo" href="${carte.it.map}" target="_blank" rel="noopener noreferrer">
+          <svg><use href="#i-map"/></svg>Y aller</a>` : ""}
+      </div>`;
+    }
+  } else if (next){
+    alarm = `<div class="suite depart">
+      <div class="sq">
+        <span class="lab">Premier départ</span>
+        <span class="t">${esc(next.when)}</span>
+      </div>
+      <div class="sc"><b>On quitte ${ph.home}</b>${next.map ? "" : ""}</div>
+      ${next.map ? `<a class="sgo" href="${next.map}" target="_blank" rel="noopener noreferrer">
+        <svg><use href="#i-map"/></svg>Y aller</a>` : ""}
     </div>`;
   }
 
@@ -1429,6 +1612,9 @@ function dayHTML(d, { live }){
       <h2>${esc(d.title)}</h2>
       <span class="tag p${d.phase}">${esc(ph.short)} · ${esc(ph.mode)}</span>
       <span class="basis">${DOW_FULL[d.dow]} ${esc(d.dm)} — jour ${d.n} sur 11</span>
+      <button class="partage" data-jour="${d.n}" type="button">
+        <svg><use href="#i-partage"/></svg>Partager
+      </button>
       <span class="suntimes" title="Calculé pour ${d.sun === SOUNION ? "le cap Sounion" : d.phase === 1 ? "Athènes" : "Saronida"}">
         <svg><use href="#i-sunrise"/></svg><b>${hhmm(d.sunT.rise)}</b>
         <svg><use href="#i-sunset"/></svg><b>${hhmm(d.sunT.set)}</b>
@@ -1560,6 +1746,25 @@ function renderCarnet(){
         </div>
       </article>
 
+      <article class="card" style="grid-column:1/-1">
+        <header>
+          <h3>Vingt mots de grec</h3>
+          <p>Prononcez ce qui est en gras un peu plus fort — c'est là que tombe l'accent. Ça marche hors connexion, et ça change tout à la taverne.</p>
+        </header>
+        <div class="inner">
+          <div class="lex">
+            ${LEXIQUE.map(l => `<div class="mot${l.piege ? " piege" : ""}">
+              <span class="gr">${esc(l.g)}</span>
+              <span class="ph">${esc(l.p)}</span>
+              <span class="fr">${esc(l.f)}</span>
+            </div>`).join("")}
+          </div>
+          <div class="chiffres-gr">
+            ${CHIFFRES.map(([n, g, p]) => `<span><b>${n}</b> ${esc(g)} <i>${esc(p)}</i></span>`).join("")}
+          </div>
+        </div>
+      </article>
+
       <article class="card">
         <header>
           <h3>Vos deux pieds-à-terre</h3>
@@ -1684,6 +1889,8 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("click", e => {
   if (e.target.closest("#icsBtn, #icsFoot")) telechargerICS();
+  const pa = e.target.closest(".partage");
+  if (pa) partagerJour(DAYS.find(x => x.n === +pa.dataset.jour));
   const t = e.target.closest(".chiffres");
   if (t){
     const tb = document.getElementById("tab_" + t.dataset.tab);
