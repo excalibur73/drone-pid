@@ -888,9 +888,9 @@ const DAYS = [
     soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true,
-            rdv:"Marina Delta, Le Pirée — présentation à 15 h 45",
-            det:"Accueil par Michalis, t-shirt blanc au logo de la compagnie"},
-           {t:"swim", ttl:"Baignade Hydrousa + Varkiza"} ] },
+            rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
+            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris."},
+           {t:"swim", ttl:"Baignade Hydrousa + Varkiza", det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
     matin:[ {t:"plain", ttl:"Matinée libre", det:"Plage, ou les puces de Monastiraki"} ],
@@ -1088,6 +1088,11 @@ function packFor(day){
   if (items.some(i => /colline|acropole|stade|philopappos|lycabette/i.test(i.ttl))) out.push("Chaussures qui tiennent");
   if (items.some(i => i.sunset)) out.push("De quoi couvrir les épaules au couchant");
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
+  /* Sur la croisière du couchant, le matériel de snorkeling est fourni à bord. */
+  if (items.some(i => /couchant/i.test(i.ttl) && /croisi/i.test(i.ttl))){
+    out.push("Masques fournis à bord");
+    return [...new Set(out)].filter(x => x !== "Masque & tuba" && x !== "Chaussons de roche");
+  }
   if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
   return [...new Set(out)];
 }
@@ -1375,13 +1380,13 @@ const SAVOIRS = {
     mot:"Un village qui porte le nom d'une ville qu'il a perdue."
   },
   "Croisière au couchant":{
-    quoi:"Le golfe Saronique au soleil couchant, entre la côte athénienne et les îles. Une mer fermée, abritée, qui fut le théâtre de la bataille de Salamine en 480 av. J.-C.",
+    quoi:"Départ de la marina Delta, à Kallithea, sur un caïque traditionnel en bois. Deux mouillages, un barbecue à bord, et le retour au couchant le long de la Riviera athénienne. Le golfe Saronique est une mer fermée et abritée — c'est là que la flotte perse fut détruite à Salamine en 480 av. J.-C.",
     regarder:[
-      "La côte vue de la mer : c'est l'angle sous lequel les Athéniens voyaient leur ville en rentrant.",
-      "La lumière des dernières heures sur les îles — l'air d'Attique est réputé pour sa transparence, les Anciens en avaient fait un motif de fierté.",
-      "Le moment de la baignade au large : l'eau y est plus fraîche et plus claire qu'au bord."
+      "Premier arrêt, l'îlot d'Hydrousa : inhabité, sans construction, eaux claires. Baignade et masque — le matériel est fourni à bord, inutile d'emporter le vôtre.",
+      "Puis le barbecue grec en naviguant, avec buffet de spécialités. Vin blanc, bière, boissons et eau sont compris et servis sans compter : c'est votre dîner, ne mangez pas avant.",
+      "Deuxième arrêt, la baie de Varkiza : eaux calmes, dernière baignade. Puis retour vers Kallithea à la musique, face à la côte — l'angle sous lequel les Athéniens voyaient leur ville en rentrant de la mer."
     ],
-    mot:"Le couchant tombe à 20 h 13 ce soir-là."
+    mot:"Embarquement 15 h 45 ; le soleil se couche à 20 h 13 ce soir-là, en mer."
   },
   "Psiri":{
     quoi:"Un quartier d'ateliers et de petits métiers devenu le territoire du street art athénien. La crise de 2010 a vidé les locaux ; les murs se sont remplis.",
