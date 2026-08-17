@@ -521,6 +521,10 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .fixe span{color:var(--ink-3)}
 .fixe b{font-family:var(--mono); font-variant-numeric:tabular-nums}
 .fixe a{color:var(--sea); text-decoration:none; font-weight:600}
+.equip{margin:6px 0 0; padding-left:16px; display:flex; flex-direction:column; gap:3px}
+.equip li{font-size:.83rem; color:var(--ink-2)}
+.equip li::marker{color:var(--sea)}
+.areserver{margin-top:6px; font-size:.76rem; color:var(--ink-3); font-style:italic}
 .bigbtn{
   display:inline-flex; align-items:center; gap:9px; align-self:flex-start;
   padding:10px 16px; border-radius:99px; border:1px solid var(--sea); background:var(--sea-soft);
@@ -726,7 +730,8 @@ const DAYS = [
            {t:"food", ttl:"Dîner à la marina d'Alimos"} ] },
 
   { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9747,23.7218")},
+    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9747,23.7218"),
+             corrige:"Petit-déjeuner de 7 h à 10 h : vous n'avez que 45 min. Descendez à l'ouverture."},
             {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale"},
             {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides", note:"Arriver 10 h 45 — guichet jeunes"} ],
     aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"},
@@ -737,7 +742,8 @@ const DAYS = [
            {t:"site", ttl:"Colline de Philopappos", det:"Le point de vue sur le Parthénon au couchant", sunset:true} ] },
 
   { n:3, date:"2026-08-19", dow:"Mer", dm:"19 août", phase:1, title:"Zeus olympien & Lycabette", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9693,23.7331")},
+    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9693,23.7331"),
+             corrige:"Petit-déjeuner de 7 h à 10 h : 45 min avant de partir."},
             {t:"site", ttl:"Temple de Zeus olympien", when:"8 h – 9 h", det:"Porte d'Hadrien"},
             {t:"site", ttl:"Agora romaine", when:"10 h – 11 h", det:"Tour des Vents"} ],
     aprem:[ {t:"site", ttl:"Psiri", det:"Quartier street art"},
@@ -1427,12 +1433,18 @@ const CARNET = lire(CARNET_STORE);
 const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 const BASES = {
-  1:{ nom:"Alimos", quoi:"Hôtel", adresse:"74 Possidonos Avenue, Kalamakion, Alimos",
-      map:"https://www.google.com/maps/search/?api=1&query=74+Possidonos+Avenue+Kalamaki+Alimos",
-      quand:"17 → 22 août" },
+  1:{ nom:"Alimos", quoi:"Tropical Hotel Seafront Boutique", adresse:"74 Possidonos Avenue, Kalamakion, Alimos",
+      map:"https://www.google.com/maps/search/?api=1&query=Tropical+Hotel+Seafront+Boutique+Alimos",
+      quand:"17 → 22 août",
+      infos:["Piscine sur la terrasse du 1er étage, ouverte de mai à octobre",
+             "Petit-déjeuner 7 h – 10 h · restaurant et bar au 1er, vue mer",
+             "Arrivée à partir de 15 h · départ avant 11 h",
+             "Tram « Zefiros » à 50 m, marina d'Alimos à 500 m"],
+      reserve:"Relevé sur les fiches publiques de l'hôtel, à confirmer à l'arrivée." },
   2:{ nom:"Saronida", quoi:"Waterfront Penthouse", adresse:"47 Μυτιλήνης (Mytilinis), Saronida",
       map:"https://www.google.com/maps/search/?api=1&query=47+Mytilinis+Saronida+Greece",
-      quand:"22 → 27 août · 4 adultes" }
+      quand:"22 → 27 août · 4 adultes",
+      infos:["Terrasse : grillades prévues le 23, dîner possible le 22"] }
 };
 
 /* Le minimum pour se débrouiller, commander et remercier. Prononciation
@@ -1775,6 +1787,8 @@ function renderCarnet(){
             <span>Phase ${ph} · ${esc(BASES[ph].quand)}</span>
             <p style="font-size:.92rem;font-weight:600">${esc(BASES[ph].quoi)}</p>
             <p style="font-size:.86rem;color:var(--ink-2)">${esc(BASES[ph].adresse)}</p>
+            ${BASES[ph].infos ? `<ul class="equip">${BASES[ph].infos.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+            ${BASES[ph].reserve ? `<p class="areserver">${esc(BASES[ph].reserve)}</p>` : ""}
             <a class="maplink" style="align-self:flex-start;margin-top:4px" href="${BASES[ph].map}"
                target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Y aller</a>
           </div>`).join("")}
