@@ -1,4 +1,4 @@
-<title>Onze jours en Attique</title>
+<title>Athènes 2026</title>
 <style>
 /* ─────────────────────────────  TOKENS  ───────────────────────────── */
 :root{
@@ -783,7 +783,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <div class="masthead">
       <div>
         <div class="eyebrow">17 → 27 août 2026 · Attique, Grèce</div>
-        <h1>Onze jours <em>en Attique</em></h1>
+        <h1>Athènes <em>2026</em></h1>
         <p class="sub">Cinq jours à Athènes en transports en commun, puis six jours à Saronida en voiture. Chaque journée est découpée en matin, après-midi et soir — avec l'heure à laquelle il faut être dehors.</p>
       </div>
       <div class="masthead-side">
@@ -1626,9 +1626,9 @@ function buildICS(){
       }
     });
   });
-  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Onze jours en Attique//FR",
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Athènes 2026//FR",
           "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-          "X-WR-CALNAME:Attique 17–27 août 2026", ...ev.filter(Boolean),
+          "X-WR-CALNAME:Athènes 2026 · 17–27 août", ...ev.filter(Boolean),
           "END:VCALENDAR", ""].join("\r\n");
 }
 function telechargerICS(){
