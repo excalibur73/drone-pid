@@ -588,6 +588,47 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .htable tr.dedans{background:color-mix(in oklab,var(--sea) 7%,transparent)}
 .htable td{font-family:var(--mono); font-variant-numeric:tabular-nums}
 
+/* ─────────────────────────────  LE MOT DU SOIR  ───────────────────────────── */
+.soir{
+  margin-top:16px; padding:15px 17px; border-radius:var(--r);
+  border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+}
+.soir h4{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
+}
+.soir .signe{
+  margin-left:auto; display:inline-flex; align-items:center; gap:9px;
+  font-family:var(--sans); font-size:.86rem; letter-spacing:0; text-transform:none; color:var(--sea); font-weight:600;
+}
+.changequi{font-size:.76rem; color:var(--ink-3); text-decoration:underline; text-underline-offset:3px; font-weight:400}
+.changequi:hover{color:var(--sea)}
+.soir-intro{margin-top:8px; font-size:.87rem; color:var(--ink-2)}
+.quisuisje{display:flex; gap:9px; flex-wrap:wrap; margin-top:12px}
+.qui{
+  min-height:46px; padding:0 20px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
+  font-size:.95rem; font-weight:600; transition:border-color .18s, color .18s;
+}
+.qui:hover{border-color:var(--sea); color:var(--sea)}
+.notes-etoiles{display:flex; align-items:center; gap:4px; margin:14px 0 12px}
+.etoile{width:42px; height:42px; display:grid; place-items:center; color:var(--line); transition:color .15s, transform .15s}
+.etoile svg{width:27px; height:27px; fill:currentColor}
+.etoile:hover{transform:scale(1.12); color:var(--ochre)}
+.etoile.pleine{color:var(--ochre)}
+.notes-etoiles .valeur{margin-left:10px; font-family:var(--mono); font-size:.8rem; color:var(--ink-3)}
+.soir textarea{
+  width:100%; min-height:86px; resize:vertical; padding:12px 14px;
+  border:1px dashed var(--line); border-radius:var(--r); background:var(--surface-2);
+  color:var(--ink); font:inherit; font-size:.92rem; line-height:1.55;
+}
+.soir textarea::placeholder{color:var(--ink-3); font-style:italic}
+.soir textarea:focus{outline:none; border-style:solid; border-color:var(--sea); background:var(--surface)}
+.autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
+.unavis .ai{font-size:.83rem; color:var(--ink-3)}
+.unavis .ai b{color:var(--sea); font-size:.9rem}
+.unavis p{margin-top:2px; font-size:.89rem; color:var(--ink-2)}
+
 /* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
 .notes{margin-top:16px}
 .notes label{
@@ -2120,6 +2161,89 @@ function baignadeHTML(d){
   </article>`;
 }
 
+/* ════════════════════════════  LE MOT DU SOIR  ════════════════════════════
+   Chacun note sa journée depuis son téléphone. Rien ne circule tout seul :
+   le site est statique, il n'y a pas de serveur pour rassembler les avis.
+   Chaque appareil garde donc les siens, et le journal s'envoie à la main.
+
+   Les prénoms suffisent à attribuer un mot. Les adresses de courriel ne
+   figurent pas dans la page : elle est publique, et une adresse écrite en
+   clair dans un site finit toujours par être moissonnée. */
+const QUI_STORE = "attique2026:qui", AVIS_STORE = "attique2026:avis";
+const FAMILLE = [
+  { id:"hilal", nom:"Hilal" },
+  { id:"layal", nom:"Layal" },
+  { id:"sana",  nom:"Sana" },
+  { id:"papa",  nom:"Abderrahmane" }
+];
+let QUI = (() => { try { return localStorage.getItem(QUI_STORE) || null; } catch { return null; } })();
+/* Lecture autonome : « lire » est déclaré plus bas, et une constante ne
+   s'utilise pas avant sa déclaration. */
+const AVIS = (() => { try { return JSON.parse(localStorage.getItem(AVIS_STORE)) || {}; } catch { return {}; } })();
+const noteEcrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const nomDe = id => (FAMILLE.find(x => x.id === id) || {}).nom || id;
+
+function avisHTML(d){
+  const duJour = AVIS[d.n] || {};
+  const autres = Object.entries(duJour).filter(([id]) => id !== QUI);
+  const mien = QUI ? duJour[QUI] : null;
+
+  if (!QUI){
+    return `<section class="soir">
+      <h4>Le mot du soir</h4>
+      <p class="soir-intro">Qui êtes-vous ? Choisissez une fois, ce téléphone s'en souviendra.</p>
+      <div class="quisuisje">
+        ${FAMILLE.map(f => `<button type="button" class="qui" data-qui="${f.id}">${esc(f.nom)}</button>`).join("")}
+      </div>
+    </section>`;
+  }
+  return `<section class="soir">
+    <h4>Le mot du soir <span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">changer</button></span></h4>
+    <div class="notes-etoiles" role="group" aria-label="Note de la journée">
+      ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="etoile${mien && mien.note >= n ? " pleine" : ""}"
+        data-note="${n}" data-jour="${d.n}" aria-label="${n} sur 5">
+        <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.4 9.4l6.1-.8Z"/></svg>
+      </button>`).join("")}
+      <span class="valeur">${mien && mien.note ? mien.note + " / 5" : "pas encore noté"}</span>
+    </div>
+    <label class="sr" for="avis-${d.n}">Commentaire de la journée</label>
+    <textarea id="avis-${d.n}" data-avis="${d.n}" placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
+    ${autres.length ? `<div class="autresavis">
+      ${autres.map(([id, a]) => `<div class="unavis">
+        <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
+        ${a.txt ? `<p>${esc(a.txt)}</p>` : ""}
+      </div>`).join("")}
+    </div>` : ""}
+  </section>`;
+}
+
+/* Le journal complet, tel qu'il part par message. */
+function journalTexte(){
+  const l = [`Carnet de bord — Athènes 2026`, ""];
+  DAYS.forEach(d => {
+    const a = AVIS[d.n];
+    if (!a || !Object.keys(a).length) return;
+    l.push(`${DOW_FULL[d.dow]} ${d.dm} — ${d.title}`);
+    Object.entries(a).forEach(([id, v]) => {
+      l.push(`  ${nomDe(id)}${v.note ? ` — ${v.note}/5` : ""}${v.txt ? ` : ${v.txt}` : ""}`);
+    });
+    l.push("");
+  });
+  if (l.length === 2) l.push("Rien de noté pour l'instant.");
+  return l.join("\n");
+}
+async function envoyerJournal(){
+  const texte = journalTexte();
+  try {
+    if (navigator.share){ await navigator.share({ title:"Carnet de bord — Athènes 2026", text:texte }); return; }
+    await navigator.clipboard.writeText(texte);
+    toast("Journal copié — collez-le dans un message");
+  } catch (e){
+    if (e && e.name === "AbortError") return;
+    toast("Copie impossible sur cet appareil");
+  }
+}
+
 /* ════════════════════════════  NOTES & CARNET  ════════════════════════════ */
 /* Page affichée dans un cadre isolé (aperçu artifact) : les téléchargements y
    sont interdits — inutile de proposer un bouton qui ne ferait rien. */
@@ -2436,10 +2560,7 @@ function dayHTML(d, { live }){
       <span class="lbl">À prendre</span>
       <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
     </div>` : ""}
-    <div class="notes">
-      <label for="note-${d.n}">Notes du jour</label>
-      <textarea id="note-${d.n}" data-note="${d.n}" placeholder="La taverne à retenir, où on s'est garés, ce qu'il faudra refaire…">${esc(NOTES[d.n] || "")}</textarea>
-    </div>
+    ${avisHTML(d)}
   </div>`;
 }
 
@@ -2565,6 +2686,25 @@ function renderCarnet(){
         </div>
       </article>
 
+      <article class="card" style="grid-column:1/-1">
+        <header>
+          <h3>Carnet de bord</h3>
+          <p>Ce que chacun a noté sur cet appareil. Rien ne circule tout seul : envoyez le journal pour le partager.</p>
+        </header>
+        <div class="inner">
+          ${(() => {
+            const jours = DAYS.filter(d => AVIS[d.n] && Object.keys(AVIS[d.n]).length);
+            if (!jours.length) return `<p style="font-size:.88rem;color:var(--ink-3)">Rien de noté pour l'instant. La notation se fait en bas de chaque journée.</p>`;
+            return jours.map(d => `<div class="fld">
+              <span>${DOW_FULL[d.dow]} ${esc(d.dm)} — ${esc(d.title)}</span>
+              ${Object.entries(AVIS[d.n]).map(([id, v]) => `<p style="font-size:.88rem">
+                <b>${esc(nomDe(id))}</b>${v.note ? ` · ${v.note}/5` : ""}${v.txt ? ` — ${esc(v.txt)}` : ""}</p>`).join("")}
+            </div>`).join("");
+          })()}
+          <button class="bigbtn" id="journalBtn"><svg><use href="#i-partage"/></svg>Envoyer le journal</button>
+        </div>
+      </article>
+
       <article class="card">
         <header>
           <h3>Numéros qui ne changent pas</h3>
@@ -2663,7 +2803,32 @@ document.getElementById("viewChrono").addEventListener("click", () => { state.vi
 /* Saisies : on enregistre au fil de la frappe, sans redessiner — un rendu
    ferait perdre le curseur au milieu d'une phrase. */
 let saveT;
+document.addEventListener("click", e => {
+  const q = e.target.closest(".qui");
+  if (q){ QUI = q.dataset.qui; try { localStorage.setItem(QUI_STORE, QUI); } catch {} render(); return; }
+  if (e.target.closest(".changequi")){ QUI = null; try { localStorage.removeItem(QUI_STORE); } catch {} render(); return; }
+  const et = e.target.closest(".etoile");
+  if (et){
+    const j = et.dataset.jour, n = +et.dataset.note;
+    AVIS[j] = AVIS[j] || {};
+    const a = AVIS[j][QUI] = AVIS[j][QUI] || {};
+    a.note = a.note === n ? 0 : n;          // retoucher la même étoile efface la note
+    noteEcrire(AVIS_STORE, AVIS); render();
+  }
+  if (e.target.closest("#journalBtn")) envoyerJournal();
+});
+
 document.addEventListener("input", e => {
+  const avis = e.target.closest("textarea[data-avis]");
+  if (avis && QUI){
+    const j = avis.dataset.avis;
+    AVIS[j] = AVIS[j] || {};
+    AVIS[j][QUI] = AVIS[j][QUI] || {};
+    AVIS[j][QUI].txt = avis.value;
+    clearTimeout(saveT);
+    saveT = setTimeout(() => noteEcrire(AVIS_STORE, AVIS), 400);
+    return;
+  }
   const note = e.target.closest("textarea[data-note]");
   const champ = e.target.closest("input[data-carnet]");
   if (!note && !champ) return;
