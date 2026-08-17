@@ -366,6 +366,20 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   background:var(--ochre-soft); color:var(--ink-2); font-size:.84rem;
 }
 .autour .ventnote svg{width:14px; height:14px; color:var(--ochre); flex:0 0 auto; margin-top:3px}
+.autour.baign > header svg{color:var(--sea)}
+.autour.baign .ventnote{background:var(--surface-2)}
+.autour.baign .ventnote svg{color:var(--ink-3)}
+.lieu.spot{border-left:3px solid var(--line); padding-left:11px}
+.lieu.spot.ok{border-left-color:var(--sea)}
+.lieu.spot.moy{border-left-color:var(--ink-3)}
+.lieu.spot.fort{border-left-color:var(--ochre); opacity:.72}
+.lieu .etat{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid currentColor; border-radius:99px; padding:2px 7px;
+}
+.lieu.spot.ok .etat{color:var(--sea)}
+.lieu.spot.moy .etat{color:var(--ink-3)}
+.lieu.spot.fort .etat{color:var(--ochre)}
 
 /* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
 .notes{margin-top:16px}
@@ -648,13 +662,14 @@ const DAYS = [
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
             {t:"site", ttl:"Croisière de Porto Rafti", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
-    aprem:[ {t:"site", ttl:"Erotospilia ou Avlaki", det:"Criques et grotte-abri — pique-nique, sans précipitation", gear:true} ],
+    aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", gear:true,
+             det:"Erotospilia, Avlaki — criques et grotte-abri, pique-nique, sans précipitation. On ne repasse pas par Saronida."} ],
     soir:[ {t:"depart", ttl:"Départ", when:"~18 h", map:dir("37.8868674,24.0143872",SARONIDA)},
            {t:"plain", ttl:"Retour à Saronida en fin de journée"},
            {t:"food", ttl:"Dîner Stou Stavrou"} ],
     autour:{
       titre:"Autour de Porto Rafti",
-      intro:"Hors programme — vous êtes sur place toute la journée, autant en profiter. Tout est à moins de 20 min de voiture du terminal.",
+      intro:"Hors programme — la journée entière se passe ici. Si la mer est trop agitée pour en profiter, voilà le repli, tout à moins de 20 min du terminal.",
       lieux:[
         { n:"Sanctuaire d'Artémis à Brauron", km:"~15 min au nord",
           d:"Un des grands sanctuaires de l'Attique, et le plus parlant pour des enfants : les petites Athéniennes y jouaient « les ourses » d'Artémis. Portique des Arctes, source sacrée, et un musée qui expose leurs statues votives.",
@@ -877,14 +892,16 @@ async function chargerMeteo(){
     const res = await Promise.all([1, 2].map(ph => {
       const { lat, lon } = LIEUX[ph];
       return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-        `&daily=weather_code,temperature_2m_max,wind_speed_10m_max&timezone=Europe%2FAthens` +
+        `&daily=weather_code,temperature_2m_max,wind_speed_10m_max,wind_direction_10m_dominant&timezone=Europe%2FAthens` +
         `&start_date=2026-08-17&end_date=2026-08-27`).then(r => r.ok ? r.json() : Promise.reject());
     }));
     const out = {};
     [1, 2].forEach((ph, k) => {
       const j = res[k].daily;
       j.time.forEach((date, n) => {
-        out[`${ph}:${date}`] = { c:j.weather_code[n], t:Math.round(j.temperature_2m_max[n]), v:Math.round(j.wind_speed_10m_max[n]) };
+        out[`${ph}:${date}`] = { c:j.weather_code[n], t:Math.round(j.temperature_2m_max[n]),
+          v:Math.round(j.wind_speed_10m_max[n]),
+          vd:j.wind_direction_10m_dominant ? Math.round(j.wind_direction_10m_dominant[n]) : null };
       });
     });
     METEO = out;
@@ -910,9 +927,12 @@ function meteoAlerte(d){
   const items = allItems(d).map(x => x.it);
   const mer = items.some(i => i.t === "swim" || /croisi/i.test(i.ttl));
   if (!mer) return "";
+  /* Ne renvoyer vers Saronida que les jours où l'on y est. */
+  const replis = SPOTS[d.n]
+    ? "Le classement des criques, plus bas, dit lesquelles seront à l'abri."
+    : "Les plages de sable abritées — Saronida, Anavyssos — restent agréables ; le snorkeling, beaucoup moins.";
   return `<p class="wxwarn"><b>Vent annoncé à ${w.v} km/h.</b> Au-delà de 30, l'eau se trouble sur
-    les fonds rocheux et le bateau secoue. Les plages de sable abritées — Saronida, Anavyssos —
-    restent agréables ; le snorkeling, beaucoup moins.</p>`;
+    les fonds rocheux et le bateau secoue. ${replis}</p>`;
 }
 
 /* ════════════════════════════  MÉTÉO MARINE  ════════════════════════════
@@ -992,6 +1012,55 @@ function merHTML(d){
       ${w ? `<div><span>Vent</span><b>${w.v} km/h</b><i>rafales max</i></div>` : ""}
     </div>
     <p class="verdict">${esc(e.d)}${bateau && e.c !== "ok" ? " — prévoyez de quoi vous tenir, et le ventre plein plutôt que vide." : ""}</p>
+  </article>`;
+}
+
+/* ════════════════════════════  OÙ SE BAIGNER  ════════════════════════════
+   Une crique est abritée quand le vent vient de la terre, exposée quand il
+   vient du large. On compare donc la direction d'où souffle le vent à celle
+   vers laquelle la crique est ouverte. Les orientations sont approximatives :
+   ce classement dit où chercher, pas où se garer.                            */
+const SPOTS = { 8:[
+  { n:"Erotospilia",            ouvert:135, d:"Criques et grotte-abri — le repli du programme" },
+  { n:"Avlaki",                 ouvert:150, d:"Plus de sable, entrée douce" },
+  { n:"Fond de baie, Porto Rafti", ouvert:100, d:"Le plus abrité de tous, mais fréquenté en août" },
+  { n:"Sous la pointe de Koroni",  ouvert:200, d:"Petites anses, accès à pied" },
+  { n:"Chamolia",               ouvert:40,  d:"Ouverte au large — c'est un spot de planche, ce n'est pas un hasard" }
+] };
+const ecartAngle = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+function abri(ouvert, ventDe){
+  if (ventDe == null) return null;
+  const e = ecartAngle(ouvert, ventDe);          // 0° = vent pile dans la crique
+  if (e < 50)  return { m:"exposée",      c:"fort", r:3 };
+  if (e < 100) return { m:"de travers",   c:"moy",  r:2 };
+  return          { m:"abritée",     c:"ok",   r:1 };
+}
+function baignadeHTML(d){
+  const spots = SPOTS[d.n];
+  if (!spots) return "";
+  const w = meteoDe(d), m = merDe(d);
+  const ventDe = w ? w.vd : null;
+  const classes = spots.map(s => ({ ...s, a:abri(s.ouvert, ventDe) }))
+                       .sort((x, y) => (x.a ? x.a.r : 9) - (y.a ? y.a.r : 9));
+  const houle = m && m.h != null ? etatMer(m.h) : null;
+  return `<article class="autour baign">
+    <header>
+      <svg><use href="#i-swim"/></svg>
+      <h3>Où se baigner ce jour-là</h3>
+      <span class="hors">${ventDe == null ? "vent inconnu" : `vent de ${cap(ventDe)}`}</span>
+    </header>
+    <p class="intro">${houle
+      ? `Mer <b>${esc(houle.m)}</b> annoncée, ${m.h.toFixed(1)} m — ${esc(houle.d)}. Classement des criques de la baie, de la plus abritée à la plus exposée.`
+      : `La prévision de mer n'est pas encore disponible pour ce jour. Le classement ci-dessous vaut dès que le vent est connu.`}</p>
+    <div class="lieux">
+      ${classes.map(s => `<div class="lieu spot${s.a ? " " + s.a.c : ""}">
+        <div class="tete"><b>${esc(s.n)}</b>${s.a ? `<span class="etat">${s.a.m}</span>` : ""}</div>
+        <p>${esc(s.d)}</p>
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.n + " Porto Rafti Greece")}"
+           target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Situer</a>
+      </div>`).join("")}
+    </div>
+    <p class="ventnote"><svg><use href="#i-info"/></svg>Orientations approximatives : ce classement indique où chercher l'abri, pas où se garer. Sur place, la règle tient en une phrase — si le vent vous vient de la terre, l'eau sera plate.</p>
   </article>`;
 }
 
@@ -1168,6 +1237,7 @@ function dayHTML(d, { live }){
         </article>`;
       }).join("")}
     </div>
+    ${baignadeHTML(d)}
     ${d.autour ? `<article class="autour">
       <header>
         <svg><use href="#i-book"/></svg>
