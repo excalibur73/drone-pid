@@ -1068,6 +1068,47 @@ function petitDejeuner(d){
    étape, recherche, vue parallèle — le voit alors comme une étape ordinaire. */
 DAYS.forEach(d => { const p = petitDejeuner(d); if (p) d.matin = [p, ...(d.matin || [])]; });
 
+/* ── Le déjeuner ──
+   Rien de formulaire ici : taverne, pique-nique, terrasse ou aéroport selon
+   le jour, et le rang varie — le 22 il suit les courses, le 27 il attend que
+   la voiture soit rendue. D'où une définition explicite, avec sa position. */
+const DEJEUNERS = {
+  1:{ rang:0, it:{ t:"repas", ttl:"Déjeuner",
+      det:"À Heathrow, pendant la correspondance — le seul vrai créneau avant l'atterrissage à 18 h 30." } },
+  2:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
+      det:"Dans Plaka, en sortant du musée : vous y êtes déjà, et l'après-midi s'y passe." } },
+  3:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"11 h 30 – 13 h",
+      det:"Monastiraki ou Psiri, à deux pas de l'Agora romaine." } },
+  4:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 30 – 13 h 30",
+      det:"Léger : le barbecue de la croisière est votre dîner, et il est copieux.",
+      note:"Départ à 15 h — ne traînez pas à table" } },
+  5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h 30",
+      det:"Libre comme la matinée. Les tavernes de Monastiraki si vous y êtes, sinon la marina d'Alimos." } },
+  6:{ rang:1, it:{ t:"repas", ttl:"Déjeuner", when:"13 h 30 – 14 h 30",
+      det:"À Saronida une fois installés — ou sur la terrasse, avec ce que vous venez d'acheter." } },
+  7:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"12 h 30 – 13 h 30",
+      det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
+      note:"À préparer la veille au soir" } },
+  8:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"13 h 30 – 14 h 30",
+      det:"À Erotospilia ou Avlaki, à l'ombre de la grotte. C'est au programme, et sans précipitation.",
+      note:"Acheté le 22, gardé au frais dans la voiture" } },
+  9:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
+      det:"Avant de partir : le KAPE n'a rien, et vous enchaînez jusqu'au couchant à Sounion.",
+      note:"Départ à 14 h" } },
+  10:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h",
+      det:"Palea Fokea est un village de pêcheurs : les tavernes sont sur le port." } },
+  11:{ rang:2, it:{ t:"repas", ttl:"Déjeuner", when:"14 h 15 – 15 h 15",
+      det:"À l'aéroport, une fois la voiture rendue et les bagages déposés.",
+      note:"Décollage 16 h 20" } }
+};
+DAYS.forEach(d => {
+  const dj = DEJEUNERS[d.n];
+  if (!dj) return;
+  const a = [...(d.aprem || [])];
+  a.splice(Math.min(dj.rang, a.length), 0, dj.it);
+  d.aprem = a;
+});
+
 /* ════════════════════════════  ÉTAT  ════════════════════════════ */
 const state = { day:0, view:"day", filters:new Set(), query:"" };
 
@@ -1356,10 +1397,10 @@ const SAVOIRS = {
     mot:"Relève toutes les heures pile ; la grande a lieu le dimanche à 11 h."
   },
   "Courses pour la semaine":{
-    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique du 24 à Erotospilia. Les deux petits-déjeuners les plus matinaux — 6 h 50 le 23, 6 h 35 le 24 — se prennent avant l'ouverture de tout commerce, et les départs suivent à 8 h et 7 h 45.",
+    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus deux pique-niques : les criques de Limanakia le 23, Erotospilia le 24. Les deux petits-déjeuners les plus matinaux — 6 h 50 le 23, 6 h 35 le 24 — se prennent avant l'ouverture de tout commerce, et les départs suivent à 8 h et 7 h 45.",
     regarder:[
       "Le petit-déjeuner : café ou thé, lait, pain ou biscottes, yaourt grec et miel — le vrai, celui de thym —, fruits de saison, œufs, jus. Comptez large : les pêches et les figues d'août ne survivent pas à cinq jours.",
-      "Le pique-nique du 24 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace, la voiture restera au soleil pendant la croisière.",
+      "Les deux pique-niques, le 23 et le 24 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace — la voiture restera au soleil pendant la croisière, et les criques n'ont pas d'ombre.",
       "L'eau : prévoyez de grosses bouteilles. Vous en boirez plus que vous ne pensez par 35°, et les criques n'ont pas de buvette."
     ],
     mot:"Les grandes enseignes grecques — Sklavenitis, AB, Lidl, My Market — ont des magasins le long de la côte vers Anavyssos."
