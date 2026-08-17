@@ -467,6 +467,14 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .mer .grille i{font-style:normal; font-size:.76rem; color:var(--ink-3)}
 .mer .verdict{padding:11px 16px; font-size:.86rem; color:var(--ink-2); border-top:1px solid var(--line-soft)}
 
+.bonplan{
+  margin-top:8px; padding:9px 12px; border-radius:var(--r-sm);
+  background:var(--sea-soft); color:var(--ink-2); font-size:.84rem; line-height:1.5;
+}
+.bonplan b{
+  color:var(--sea); font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.13em; text-transform:uppercase; margin-right:7px;
+}
 .note.rdv{color:var(--sea)}
 .note.corr{color:var(--ochre)}
 .note.alerte{
@@ -1076,30 +1084,40 @@ const DEJEUNERS = {
   1:{ rang:0, it:{ t:"repas", ttl:"Déjeuner",
       det:"À Heathrow, pendant la correspondance — le seul vrai créneau avant l'atterrissage à 18 h 30." } },
   2:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
-      det:"Dans Plaka, en sortant du musée : vous y êtes déjà, et l'après-midi s'y passe." } },
+      det:"Dans Plaka, en sortant du musée : vous y êtes déjà, et l'après-midi s'y passe.",
+      bonplan:"Ne mangez pas sur la place principale : montez les marches vers Anafiotika, ou redescendez côté Mitropoleos. Cent mètres suffisent à faire tomber les prix." } },
   3:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"11 h 30 – 13 h",
-      det:"Monastiraki ou Psiri, à deux pas de l'Agora romaine." } },
+      det:"Monastiraki ou Psiri, à deux pas de l'Agora romaine.",
+      bonplan:"Psiri est le quartier des mezedopoleia : petites assiettes, tables dans la rue, clientèle athénienne. Le meilleur rapport qualité-prix du séjour." } },
   4:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 30 – 13 h 30",
       det:"Léger : le barbecue de la croisière est votre dîner, et il est copieux.",
-      note:"Départ à 15 h — ne traînez pas à table" } },
+      note:"Départ à 15 h — ne traînez pas à table",
+      bonplan:"Léger et rapide : une pita à la boulangerie suffit. Le vrai repas est à bord ce soir." } },
   5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h 30",
-      det:"Libre comme la matinée. Les tavernes de Monastiraki si vous y êtes, sinon la marina d'Alimos." } },
+      det:"Libre comme la matinée. Les tavernes de Monastiraki si vous y êtes, sinon la marina d'Alimos.",
+      bonplan:"Jour de puces à Monastiraki : les tavernes de la place sont chères, celles des rues perpendiculaires ne le sont pas." } },
   6:{ rang:1, it:{ t:"repas", ttl:"Déjeuner", when:"13 h 30 – 14 h 30",
-      det:"À Saronida une fois installés — ou sur la terrasse, avec ce que vous venez d'acheter." } },
+      det:"À Saronida une fois installés — ou sur la terrasse, avec ce que vous venez d'acheter.",
+      bonplan:"Premier jour en voiture : repérez le supermarché et la boulangerie de Saronida, vous y reviendrez cinq fois." } },
   7:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"12 h 30 – 13 h 30",
       det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
-      note:"À préparer la veille au soir" } },
+      note:"À préparer la veille au soir",
+      bonplan:"Le panier se prépare la veille au soir : le 23 vous partez à 8 h, rien n'est ouvert avant." } },
   8:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"13 h 30 – 14 h 30",
       det:"À Erotospilia ou Avlaki, à l'ombre de la grotte. C'est au programme, et sans précipitation.",
-      note:"Acheté le 22, gardé au frais dans la voiture" } },
+      note:"Acheté le 22, gardé au frais dans la voiture",
+      bonplan:"La glacière reste dans la voiture pendant la croisière — cherchez une place à l'ombre en arrivant au terminal." } },
   9:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
       det:"Avant de partir : le KAPE n'a rien, et vous enchaînez jusqu'au couchant à Sounion.",
-      note:"Départ à 14 h" } },
+      note:"Départ à 14 h",
+      bonplan:"Rien à acheter en route vers le KAPE ni à Sounion : ce déjeuner est le dernier avant le dîner." } },
   10:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h",
-      det:"Palea Fokea est un village de pêcheurs : les tavernes sont sur le port." } },
+      det:"Palea Fokea est un village de pêcheurs : les tavernes sont sur le port.",
+      bonplan:"Village de pêcheurs : le poisson y est meilleur qu'à Athènes et moins cher. Demandez le prix au kilo avant." } },
   11:{ rang:2, it:{ t:"repas", ttl:"Déjeuner", when:"14 h 15 – 15 h 15",
       det:"À l'aéroport, une fois la voiture rendue et les bagages déposés.",
-      note:"Décollage 16 h 20" } }
+      note:"Décollage 16 h 20",
+      bonplan:"À l'aéroport d'Athènes, le choix est plus large côté départs avant les contrôles qu'après. Mangez avant de passer." } }
 };
 DAYS.forEach(d => {
   const dj = DEJEUNERS[d.n];
@@ -1395,6 +1413,28 @@ const SAVOIRS = {
       "La lenteur des gestes est délibérée — chaque mouvement est tenu à l'extrême. Regardez le visage : il ne doit rien exprimer."
     ],
     mot:"Relève toutes les heures pile ; la grande a lieu le dimanche à 11 h."
+  },
+  "Déjeuner":{
+    quoi:"En Grèce on déjeune tard : les tables se remplissent vers 14 h 30. À 12 h 30 vous serez presque seuls et servis vite. Et le repas de midi se prend en mezze partagés plutôt qu'en plat par personne — moins cher, plus varié, et c'est ainsi qu'on mange ici.",
+    regarder:[
+      "Où entrer : une ψησταριά (psistariá, le grill), un μεζεδοπωλείο (mezedopolío, les petites assiettes) ou une simple ταβέρνα. Le signe qui ne trompe pas : une carte en grec avec une seule traduction anglaise. Photos des plats, menu en six langues ou rabatteur sur le trottoir — passez votre chemin, surtout dans Plaka.",
+      "Ce qu'on commande sans se tromper : χωριάτικη, la salade paysanne, sans laitue et avec son bloc de feta ; φάβα, purée de pois cassés ; γίγαντες, haricots géants au four ; τζατζίκι ; μελιτζανοσαλάτα ; σαγανάκι, le fromage poêlé ; κολοκυθοκεφτέδες, beignets de courgette. Quatre ou cinq de ces plats nourrissent quatre personnes.",
+      "Le piège du poisson : ψάρι της ημέρας se vend au kilo, et le kilo dépasse souvent cinquante euros. Demandez le prix au kilo et faites peser devant vous avant de dire oui — c'est l'usage, pas une impolitesse.",
+      "Ordres de grandeur : une assiette de mezze 5 à 8 €, une χωριάτικη 7 à 9 €, un frappé 3 à 4 €. Un déjeuner de mezze partagés revient souvent à 12–15 € par personne, moitié moins qu'un plat chacun.",
+      "L'option express des journées à trois sites : le φούρνος, la boulangerie. Une τυρόπιτα ou une σπανακόπιτα sortie du four coûte 2 à 3 € et se mange en marchant.",
+      "L'eau : demandez νερό βρύσης, l'eau du robinet en carafe — potable et gratuite à Athènes. Le pain et le couvert sont facturés un euro ou deux, c'est normal."
+    ],
+    mot:"Un cran en arrière de la rue touristique, la même assiette coûte un tiers de moins."
+  },
+  "Pique-nique":{
+    quoi:"Deux journées entières se passent dans des criques sans buvette, sans ombre et sans eau : le 23 aux Limanakia, le 24 à Erotospilia. Tout s'achète avant et se porte depuis la voiture.",
+    regarder:[
+      "Le panier qui tient la chaleur : pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque. Rien de crémeux, rien de fragile — à 35° dans une voiture, une salade composée ne passe pas deux heures.",
+      "Le froid : une glacière souple et deux pains de glace changent tout, surtout le 24 où la voiture reste au soleil pendant la croisière.",
+      "L'eau : deux litres par personne. C'est le seul poste où l'on se trompe toujours, et le seul qui ne se rattrape pas sur place.",
+      "Où acheter : les enseignes de la côte vers Anavyssos pour l'essentiel. Et si vous croisez une λαϊκή αγορά — le marché de rue, un jour fixe par quartier — les fruits y sont moitié prix et cueillis la veille."
+    ],
+    mot:"Le sel et un couteau : c'est ce qu'on oublie, et ce qui manque le plus devant une pastèque."
   },
   "Courses pour la semaine":{
     quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus deux pique-niques : les criques de Limanakia le 23, Erotospilia le 24. Les deux petits-déjeuners les plus matinaux — 6 h 50 le 23, 6 h 35 le 24 — se prennent avant l'ouverture de tout commerce, et les départs suivent à 8 h et 7 h 45.",
@@ -2223,6 +2263,7 @@ function itemHTML(day, slot, it, i, vedette){
       ${it.corrige ? `<span class="note corr"><svg><use href="#i-info"/></svg>${esc(it.corrige)}</span>` : ""}
       ${it.sunset ? `<span class="note"><svg><use href="#i-sunset"/></svg>Coucher du soleil ${hhmm(day.sunT.set)}</span>` : ""}
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
+      ${it.bonplan ? `<p class="bonplan"><b>Bon plan</b> ${esc(it.bonplan)}</p>` : ""}
       <div class="acts">
         ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
         ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
