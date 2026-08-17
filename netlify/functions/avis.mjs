@@ -1,21 +1,30 @@
 /* Collecte partagée des avis du soir.
-   Un seul objet stocké : { "7": { "layal": {note, txt, maj} }, … }
-   Chaque personne n'écrit que sous sa propre clé, donc deux téléphones qui
-   enregistrent en même temps ne s'écrasent pas — sauf collision à la seconde,
-   auquel cas la dernière écriture gagne. Assumé pour quatre personnes. */
+ *
+ * Un objet par personne — « avis/layal » — et non un seul objet commun :
+ * chaque téléphone n'écrit que son propre fichier, si bien qu'aucune écriture
+ * n'en écrase une autre. La première version stockait tout ensemble, et le
+ * second téléphone à enregistrer effaçait le premier : le stockage est en
+ * cohérence différée, la relecture précédant l'écriture était périmée.
+ * Les lectures se font donc aussi en cohérence forte.
+ */
 import { getStore } from "@netlify/blobs";
 
-const CLE = "tout";
 const QUI_VALIDES = ["hilal", "layal", "sana", "papa"];
+const depot = () => getStore({ name: "avis-athenes-2026", consistency: "strong" });
 
 export default async (req) => {
-  const store = getStore("avis-athenes-2026");
+  const store = depot();
 
   if (req.method === "GET") {
-    const data = (await store.get(CLE, { type: "json" })) || {};
-    return Response.json(data, {
-      headers: { "cache-control": "no-store" }
-    });
+    const tout = {};
+    await Promise.all(QUI_VALIDES.map(async (qui) => {
+      const sien = (await store.get(qui, { type: "json" })) || {};
+      Object.entries(sien).forEach(([jour, v]) => {
+        tout[jour] = tout[jour] || {};
+        tout[jour][qui] = v;
+      });
+    }));
+    return Response.json(tout, { headers: { "cache-control": "no-store" } });
   }
 
   if (req.method === "POST") {
@@ -32,10 +41,11 @@ export default async (req) => {
     if (n < 0 || n > 5) return new Response("Note hors barème", { status: 400 });
     const t = typeof txt === "string" ? txt.slice(0, 2000) : "";
 
-    const data = (await store.get(CLE, { type: "json" })) || {};
-    data[j] = data[j] || {};
-    data[j][qui] = { note: n, txt: t, maj: new Date().toISOString() };
-    await store.setJSON(CLE, data);
+    /* Lecture-modification-écriture sans risque : ce fichier n'appartient
+       qu'à cette personne, et une personne n'écrit que d'un téléphone. */
+    const sien = (await store.get(qui, { type: "json" })) || {};
+    sien[j] = { note: n, txt: t, maj: new Date().toISOString() };
+    await store.setJSON(qui, sien);
     return Response.json({ ok: true, jour: j, qui });
   }
 
