@@ -298,6 +298,23 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 }
 .wxwarn b{color:var(--ink)}
 
+/* ─────────────────────────────  BANDEAU DE MISE À JOUR  ───────────────────────────── */
+.maj{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:80;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;
+  max-width:min(560px, calc(100vw - 32px)); padding:12px 16px;
+  border:1px solid var(--sea); border-radius:99px; background:var(--surface);
+  box-shadow:0 10px 40px -12px rgba(0,0,0,.45);
+  font-size:.87rem; color:var(--ink);
+  animation:monte .35s ease-out;
+}
+@keyframes monte{from{opacity:0; transform:translate(-50%,14px)}to{opacity:1; transform:translate(-50%,0)}}
+.maj button{
+  padding:6px 14px; border-radius:99px; background:var(--sea); color:var(--surface);
+  font-weight:600; font-size:.83rem; white-space:nowrap;
+}
+.maj button:hover{filter:brightness(1.1)}
+
 /* ─────────────────────────────  ÉTAT DE LA MER  ───────────────────────────── */
 .mer{
   margin:0 0 22px; border:1px solid var(--line); border-left:4px solid var(--sea);
@@ -628,8 +645,8 @@ const DAYS = [
 ];
 
 const PHASES = {
-  1:{ name:"Phase 1 — Alimos", short:"Alimos", mode:"transports en commun", range:"17 → 21 août", home:"l'hôtel" },
-  2:{ name:"Phase 2 — Saronida", short:"Saronida", mode:"voiture", range:"22 → 27 août", home:"le penthouse" }
+  1:{ name:"Phase 1 — Alimos", short:"Alimos", mode:"transports en commun", range:"17 → 21 août", home:"l'hôtel d'Alimos" },
+  2:{ name:"Phase 2 — Saronida", short:"Saronida", mode:"voiture", range:"22 → 27 août", home:"le Waterfront Penthouse" }
 };
 const SLOTS = [
   { k:"matin", label:"Matin", icon:"i-sunrise", from:0,    to:12*60 },
@@ -939,11 +956,19 @@ const NOTES = lire(NOTES_STORE);
 const CARNET = lire(CARNET_STORE);
 const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
+const BASES = {
+  1:{ nom:"Alimos", quoi:"Hôtel", adresse:"74 Possidonos Avenue, Kalamakion, Alimos",
+      map:"https://www.google.com/maps/search/?api=1&query=74+Possidonos+Avenue+Kalamaki+Alimos",
+      quand:"17 → 22 août" },
+  2:{ nom:"Saronida", quoi:"Waterfront Penthouse", adresse:"47 Μυτιλήνης (Mytilinis), Saronida",
+      map:"https://www.google.com/maps/search/?api=1&query=47+Mytilinis+Saronida+Greece",
+      quand:"22 → 27 août · 4 adultes" }
+};
+
 const CHAMPS = [
-  { k:"hotel",    l:"Hôtel à Alimos — nom et adresse", ph:"à compléter" },
-  { k:"hoteltel", l:"Téléphone de l'hôtel", ph:"+30 …" },
-  { k:"penthouse",l:"Penthouse à Saronida — adresse", ph:"à compléter" },
-  { k:"proprio",  l:"Propriétaire / contact sur place", ph:"+30 …" },
+  { k:"hoteltel", l:"Téléphone de l'hôtel d'Alimos", ph:"+30 …" },
+  { k:"proprio",  l:"Contact du penthouse sur place", ph:"+30 …" },
+  { k:"logement", l:"N° de réservation des logements", ph:"Booking / hôtel" },
   { k:"loueur",   l:"Loueur de voiture — agence et téléphone", ph:"récupération le 22, restitution le 27 à 13 h 30" },
   { k:"plaque",   l:"Plaque d'immatriculation", ph:"à noter le jour J" },
   { k:"croisiere1",l:"Croisière du 20 août — référence", ph:"n° de réservation" },
@@ -1178,6 +1203,22 @@ function renderCarnet(){
 
       <article class="card">
         <header>
+          <h3>Vos deux pieds-à-terre</h3>
+          <p>Le point de départ de chaque « on quitte la maison ».</p>
+        </header>
+        <div class="inner">
+          ${[1, 2].map(ph => `<div class="fld">
+            <span>Phase ${ph} · ${esc(BASES[ph].quand)}</span>
+            <p style="font-size:.92rem;font-weight:600">${esc(BASES[ph].quoi)}</p>
+            <p style="font-size:.86rem;color:var(--ink-2)">${esc(BASES[ph].adresse)}</p>
+            <a class="maplink" style="align-self:flex-start;margin-top:4px" href="${BASES[ph].map}"
+               target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Y aller</a>
+          </div>`).join("")}
+        </div>
+      </article>
+
+      <article class="card">
+        <header>
           <h3>Numéros qui ne changent pas</h3>
           <p>Valables partout en Grèce.</p>
         </header>
@@ -1366,6 +1407,40 @@ function fromHash(){
   return false;
 }
 addEventListener("hashchange", () => { if (fromHash()) render(); });
+
+/* ════════════════════════════  MISE À JOUR  ════════════════════════════
+   « Est-ce que ça se met à jour ? » ne doit pas rester une question. La page
+   compare sa propre version à celle publiée, à chaque retour au premier plan,
+   et le dit franchement quand une nouvelle est disponible.                   */
+const MA_VERSION = (document.querySelector('meta[name="version"]') || {}).content || null;
+let banniereMontree = false;
+
+async function verifierVersion(){
+  if (!MA_VERSION || !navigator.onLine) return;
+  try {
+    const v = (await (await fetch("/version.txt", { cache:"no-store" })).text()).trim();
+    if (v && v !== MA_VERSION && !banniereMontree) montrerMaj();
+  } catch { /* hors connexion : rien à signaler */ }
+}
+function montrerMaj(){
+  banniereMontree = true;
+  const el = document.createElement("div");
+  el.className = "maj";
+  el.innerHTML = `<span>Une version plus récente du programme est disponible.</span>
+    <button type="button">Mettre à jour</button>`;
+  el.querySelector("button").addEventListener("click", async () => {
+    try {
+      const rs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(rs.map(r => r.update()));
+    } catch {}
+    location.reload();
+  });
+  document.body.appendChild(el);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) verifierVersion(); });
+addEventListener("online", verifierVersion);
+setTimeout(verifierVersion, 2500);
+setInterval(verifierVersion, 15 * 60 * 1000);
 
 /* Hors connexion — le service worker n'existe que sur le site déployé. */
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){

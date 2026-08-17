@@ -30,6 +30,7 @@ mkdir -p site
 <meta name="apple-mobile-web-app-title" content="Attique">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>${TITRE}</title>
+<meta name="version" content="${VERSION}">
 <link rel="icon" href="data:image/svg+xml,${ICONE}">
 <link rel="apple-touch-icon" href="data:image/svg+xml,${ICONE}">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -42,6 +43,8 @@ HEAD
 
 # Le cours de régulation PID reste en ligne, à sa propre adresse.
 cp index.html site/pid-drone.html
+
+printf '%s' "${VERSION}" > site/version.txt
 
 cat > site/manifest.webmanifest <<MANIFEST
 {
@@ -80,6 +83,7 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
+  if (new URL(req.url).pathname === "/version.txt") return;   // toujours au réseau
   e.respondWith(
     fetch(req)
       .then(res => {
