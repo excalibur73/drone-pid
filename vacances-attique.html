@@ -1992,8 +1992,9 @@ const LEXIQUE = [
   { g:"Η παραλία",    p:"i para-LI-a",     f:"La plage" },
   { g:"Νερό",         p:"né-RO",           f:"De l'eau" },
   { g:"Φρέντο εσπρέσο", p:"FRÉ-do es-PRÈ-so", f:"Le café glacé du pays" },
-  { g:"Μια μπύρα",    p:"mia BI-ra",       f:"Une bière" },
-  { g:"Γεια μας",     p:"YA mass",         f:"Santé ! (on trinque)" },
+  { g:"Χωρίς αλκοόλ", p:"kho-RISS al-ko-OL", f:"Sans alcool" },
+  { g:"Πού είναι η τουαλέτα;", p:"POU I-né i toua-LÉ-ta", f:"Où sont les toilettes ?" },
+  { g:"Γεια μας",     p:"YA mass",         f:"Santé ! — on trinque avec ce qu'on veut" },
   { g:"Πολύ νόστιμο", p:"po-LI NO-sti-mo", f:"C'est délicieux" },
   { g:"Μιλάτε αγγλικά;", p:"mi-LA-té angli-KA", f:"Parlez-vous anglais ?" },
   { g:"Δεν καταλαβαίνω", p:"dhen katala-VÉ-no", f:"Je ne comprends pas" },
@@ -2031,7 +2032,9 @@ function parlerGrec(texte, bouton){
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(texte);
   u.lang = "el-GR";
-  if (VOIX_EL) u.voice = VOIX_EL;
+  /* Si l'affectation de la voix échoue, on prononce quand même : la langue
+     el-GR suffit à orienter le moteur. */
+  try { if (VOIX_EL) u.voice = VOIX_EL; } catch {}
   u.rate = 0.8;                       // ralenti : on écoute pour répéter
   if (bouton){
     bouton.classList.add("parle");
@@ -2338,7 +2341,7 @@ function renderCarnet(){
 
       <article class="card" style="grid-column:1/-1">
         <header>
-          <h3>Vingt mots de grec</h3>
+          <h3>Le grec de survie</h3>
           <p>Prononcez ce qui est en gras un peu plus fort — c'est là que tombe l'accent. Touchez le haut-parleur pour entendre le mot. Tout fonctionne hors connexion.</p>
         </header>
         <div class="inner">
