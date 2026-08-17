@@ -292,6 +292,52 @@ mark{background:color-mix(in oklab,var(--sea) 26%,transparent); color:inherit; b
 }
 .maplink:hover{color:var(--sea); border-color:var(--sea)}
 .maplink svg{width:12px; height:12px}
+.savoir{
+  display:inline-flex; align-items:center; gap:6px; font-size:.79rem; font-weight:600;
+  padding:4px 10px; border-radius:99px; border:1px solid color-mix(in oklab,var(--stone) 40%,var(--line));
+  color:var(--stone); background:var(--stone-soft);
+  transition:filter .18s;
+}
+.savoir:hover{filter:brightness(1.06)}
+.savoir svg{width:12px; height:12px}
+
+/* ── Fiche « comprendre » ── */
+#savoir{
+  width:min(620px, calc(100vw - 24px)); max-height:86vh; padding:0; border:none;
+  border-radius:var(--r); background:var(--surface); color:var(--ink);
+  box-shadow:0 30px 90px -20px rgba(0,0,0,.55);
+}
+#savoir::backdrop{background:rgba(6,18,22,.62); backdrop-filter:blur(3px)}
+#savoir header{
+  position:sticky; top:0; display:flex; align-items:flex-start; gap:14px;
+  padding:20px 22px 14px; background:var(--surface); border-bottom:1px solid var(--line-soft);
+}
+#savoir h2{font-family:var(--serif); font-weight:400; font-size:1.5rem; line-height:1.15; flex:1}
+#savoir .fermer{
+  flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+  color:var(--ink-2); font-size:1rem; display:grid; place-items:center;
+}
+#savoir .fermer:hover{color:var(--sea); border-color:var(--sea)}
+#savoir .corps{padding:16px 22px 24px; overflow-y:auto}
+#savoir .quoi{font-size:.97rem; line-height:1.65}
+#savoir h3{
+  margin:20px 0 10px; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3);
+}
+#savoir .regarder{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:11px}
+#savoir .regarder li{font-size:.91rem; line-height:1.6; color:var(--ink-2)}
+#savoir .regarder li::marker{color:var(--stone); font-family:var(--mono); font-size:.8rem}
+#savoir .mot{
+  margin-top:20px; padding:13px 16px; border-radius:var(--r-sm);
+  background:var(--stone-soft); color:var(--ink); font-family:var(--serif);
+  font-size:1.02rem; font-style:italic; line-height:1.5;
+}
+@media (max-width:720px){
+  #savoir{width:100vw; max-width:100vw; max-height:92vh; margin:auto 0 0; border-radius:var(--r) var(--r) 0 0}
+  #savoir header{padding:18px 18px 12px}
+  #savoir .corps{padding:14px 18px 28px}
+}
+
 .tick{
   display:inline-flex; align-items:center; gap:6px; font-size:.79rem; font-weight:600;
   padding:4px 10px; border-radius:99px; border:1px dashed var(--line); color:var(--ink-3);
@@ -569,7 +615,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
   .hint{display:none}
 
   /* Au doigt, en marchant : rien en dessous de 44 px de haut. */
-  .maplink,.tick,.partage{min-height:44px; padding:0 16px; font-size:.85rem}
+  .maplink,.tick,.partage,.savoir{min-height:44px; padding:0 16px; font-size:.85rem}
   .acts{gap:10px}
   .f{min-height:40px; padding:0 15px}
   .seg button{min-height:42px}
@@ -965,6 +1011,211 @@ function packFor(day){
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
   if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
   return [...new Set(out)];
+}
+
+/* ════════════════════════════  COMPRENDRE CE QU'ON VOIT  ════════════════════════════
+   Devant des colonnes, la question n'est pas « qu'est-ce que c'est » mais
+   « qu'est-ce que je regarde, et pourquoi ça compte ». Chaque fiche tient en
+   trois temps : ce que c'est, le détail qu'on manque si on ne le sait pas, et
+   la phrase à retenir.                                                        */
+const SAVOIRS = {
+  "Agora antique":{
+    quoi:"Le centre civique d'Athènes pendant mille ans : le marché, les tribunaux, la monnaie, et la place où Socrate discutait — c'est ici qu'il fut jugé et condamné. Rien à voir avec l'Acropole, qui était le sanctuaire : ici on votait, on plaidait, on vendait du poisson.",
+    regarder:[
+      "Le temple d'Héphaïstos, sur la butte ouest : le temple dorique le mieux conservé de toute la Grèce, vers 449 av. J.-C. S'il a gardé son toit alors que le Parthénon l'a perdu, c'est qu'il a été transformé en église Saint-Georges pendant treize siècles.",
+      "La stoa d'Attale, le long portique à deux étages : offerte au IIe siècle av. J.-C. par un roi de Pergame, mais entièrement reconstruite dans les années 1950. Vous marchez dans du neuf bâti à l'ancienne — d'où l'impression étrange de netteté.",
+      "Dans le musée de la stoa, les ostraka : des tessons de poterie sur lesquels les Athéniens gravaient le nom de celui qu'ils voulaient exiler. Certains portent le nom de Thémistocle, le vainqueur de Salamine. On y voit l'ancêtre du vote — et de l'ingratitude."
+    ],
+    mot:"L'Acropole était pour les dieux ; l'Agora, pour les citoyens."
+  },
+  "Musée de l'Acropole":{
+    quoi:"Ouvert en 2009, signé Bernard Tschumi, construit sur pilotis au-dessus d'un quartier antique qu'on avait mis au jour en creusant. Le sol de verre à l'entrée n'est pas un effet : vous marchez au-dessus des ruelles.",
+    regarder:[
+      "Les caryatides, ces six jeunes filles qui portaient un toit à la place de colonnes. Cinq sont ici, la sixième est à Londres — et l'emplacement vide a été laissé vide exprès. C'est une revendication, pas un oubli.",
+      "Le dernier étage : la frise du Parthénon est présentée aux dimensions et à l'orientation exactes du temple, qu'on voit par la baie vitrée. Les parties claires sont des moulages des originaux restés au British Museum ; le contraste est volontaire.",
+      "Regardez le marbre de près : il reste des traces de couleur. Les temples grecs étaient peints de rouge, de bleu et d'or. Le blanc que nous admirons est un accident de l'histoire."
+    ],
+    mot:"Un musée qui plaide un dossier autant qu'il expose."
+  },
+  "Acropole & Parthénon":{
+    quoi:"Bâti en quinze ans, de 447 à 432 av. J.-C., sous Périclès, par Ictinos et Callicratès. Non pas un temple où l'on entrait prier, mais un écrin pour une statue d'Athéna en or et ivoire de douze mètres, aujourd'hui disparue.",
+    regarder:[
+      "Aucune ligne n'est droite. Les colonnes se renflent en leur milieu, le sol bombe légèrement, les colonnes d'angle penchent vers l'intérieur. Ces corrections optiques corrigent les déformations de l'œil : c'est pour cela que l'édifice paraît parfait alors qu'il ne l'est pas.",
+      "Le trou au milieu : en 1687, les Ottomans y stockaient leur poudre, un obus vénitien l'a atteint. Le Parthénon était resté presque intact pendant vingt et un siècles — temple, puis église, puis mosquée. Il a été détruit en une soirée.",
+      "À côté, l'Érechthéion et son porche des caryatides : celles que vous y voyez sont des copies, les vraies sont au musée. Et le petit temple d'Athéna Nikè, en équilibre sur son bastion à droite de l'entrée."
+    ],
+    mot:"Votre créneau est à 17 h : la pierre devient dorée en fin d'après-midi, c'est la meilleure heure."
+  },
+  "Colline de Philopappos":{
+    quoi:"La colline d'en face, couronnée d'un tombeau romain. C'est de là que vient l'image du Parthénon que tout le monde a en tête — la seule hauteur qui le regarde d'égal à égal.",
+    regarder:[
+      "Le monument lui-même : le tombeau de Philopappos, prince exilé de Commagène devenu consul romain, élevé vers 114-116 apr. J.-C. Un homme sans royaume qui s'est offert le plus beau balcon d'Athènes.",
+      "Sur le chemin, des chambres creusées dans le roc qu'on appelle « la prison de Socrate ». Elles n'ont rien à voir avec lui, mais le nom est resté.",
+      "Le dallage du sentier est signé Dimitris Pikionis, années 1950 : chaque pierre a été posée à la main, en réemployant des fragments anciens. Un chef-d'œuvre discret sous vos pieds."
+    ],
+    mot:"On y monte pour le couchant, on y reste pour le silence."
+  },
+  "Temple de Zeus olympien":{
+    quoi:"Le plus grand temple de Grèce, et le plus long chantier de l'Antiquité : commencé au VIe siècle av. J.-C. par les tyrans, abandonné, repris, achevé par l'empereur Hadrien en 131 apr. J.-C. Près de sept siècles.",
+    regarder:[
+      "Quinze colonnes debout sur cent quatre. La seizième est couchée par terre depuis une tempête de 1852 : elle s'est effondrée en gardant ses tambours alignés, comme un saucisson tranché. C'est le meilleur endroit pour comprendre comment une colonne est assemblée.",
+      "La hauteur : dix-sept mètres. Mettez-vous au pied et levez la tête.",
+      "La porte d'Hadrien, juste à côté, porte deux inscriptions qui se répondent. Côté ville : « Ici est Athènes, l'ancienne cité de Thésée. » Côté temple : « Ici est la cité d'Hadrien et non celle de Thésée. » Un empereur qui s'annexe une ville par une phrase."
+    ],
+    mot:"Sept cents ans de travaux pour une ruine de quinze colonnes."
+  },
+  "Agora romaine":{
+    quoi:"Le marché déplacé par César et Auguste, quand l'ancienne Agora fut jugée trop encombrée. Plus petit, plus tardif, mais il abrite l'un des objets les plus étonnants de la ville.",
+    regarder:[
+      "La tour des Vents : octogonale, chaque face sculptée d'une divinité du vent, avec le vent qu'elle apporte. Boréas souffle dans une conque au nord, Zéphyr répand des fleurs à l'ouest.",
+      "Sous chaque relief, les traces d'un cadran solaire. À l'intérieur, il y avait une horloge à eau alimentée par l'Acropole. Horloge, girouette et calendrier dans un seul bâtiment : sans doute la première station météorologique du monde.",
+      "Cherchez aussi les latrines publiques, à l'angle : quatre-vingts places, aucune cloison. La vie privée est une invention récente."
+    ],
+    mot:"Une horloge de pierre qui donnait l'heure, le vent et la saison."
+  },
+  "Plaka & Anafiotika":{
+    quoi:"Sous le rocher, un village des Cyclades planté au milieu d'Athènes. Ce n'est pas un décor pour touristes : c'est le résultat d'un chantier royal.",
+    regarder:[
+      "Dans les années 1840, le roi Othon fit venir des maçons de l'île d'Anafi pour bâtir son palais. Ils s'installèrent au pied de l'Acropole et construisirent leurs maisons comme chez eux : cubes blancs, volets bleus, ruelles d'un mètre de large.",
+      "Une loi ottomane survivante voulait qu'une maison construite entre le coucher et le lever du soleil, avec un toit posé, ne puisse être démolie. Les Anafiotes ont bâti de nuit.",
+      "Les ruelles n'ont pas de plan. Perdez-vous, c'est le seul usage correct du quartier."
+    ],
+    mot:"Une île échouée sous l'Acropole."
+  },
+  "Stade panathénaïque":{
+    quoi:"Creusé dans un vallon au IVe siècle av. J.-C. pour les jeux des Panathénées, rebâti en marbre par Hérode Atticus vers 144 apr. J.-C., puis restauré pour les premiers Jeux olympiques modernes de 1896.",
+    regarder:[
+      "Le seul stade au monde entièrement bâti en marbre blanc — d'où son surnom, Kallimarmaro, « le beau marbre ».",
+      "La piste : les virages sont d'une brutalité que ne connaît aucun stade moderne. En 1896 les coureurs devaient presque s'arrêter pour tourner.",
+      "Les trônes de marbre au premier rang, et le tunnel voûté d'où sortaient les athlètes antiques."
+    ],
+    mot:"Cinquante mille places taillées dans une seule matière."
+  },
+  "Relève des evzones":{
+    quoi:"La garde présidentielle devant le tombeau du Soldat inconnu, place Syntagma. Ce n'est pas du folklore : ces hommes gardent un mémorial de guerre, et chaque élément de leur tenue est un signe.",
+    regarder:[
+      "La fustanelle, la jupe plissée : on lui prête quatre cents plis, un par année d'occupation ottomane.",
+      "Les tsarouchia, ces chaussures à pompon : elles pèsent près de trois kilos pièce, cloutées, et le claquement au sol fait partie du rituel.",
+      "La lenteur des gestes est délibérée — chaque mouvement est tenu à l'extrême. Regardez le visage : il ne doit rien exprimer."
+    ],
+    mot:"Relève toutes les heures pile ; la grande a lieu le dimanche à 11 h."
+  },
+  "Colline du Lycabette":{
+    quoi:"Le point le plus haut d'Athènes, 277 mètres, un cône de calcaire surgi au milieu de la ville. La légende raconte qu'Athéna rapportait ce rocher pour surélever l'Acropole ; une mauvaise nouvelle l'a fait sursauter, elle l'a lâché, il est resté là.",
+    regarder:[
+      "La vue à 360° : l'Acropole en contrebas — d'ici on la domine, c'est le seul endroit d'où on la regarde de haut — le Pirée, la mer, et par temps clair les montagnes du Péloponnèse.",
+      "La chapelle Saint-Georges au sommet, blanchie à la chaux, minuscule. On y monte encore en procession.",
+      "Les pins qui couvrent les pentes ne sont pas d'origine : la colline était nue, elle a été reboisée à la fin du XIXe siècle. Athènes a reconstruit son paysage comme elle a reconstruit ses monuments."
+    ],
+    mot:"Le funiculaire part de la rue Aristippou ; à pied, comptez vingt minutes de lacets."
+  },
+  "Snorkeling tôt":{
+    quoi:"Les criques de Limanakia, sous la falaise de la route côtière, entre Vouliagméni et Varkiza. Pas de sable, pas de transat : de la roche calcaire qui plonge droit dans une eau très claire.",
+    regarder:[
+      "Les fonds : éboulis de roche et herbiers. C'est ce mélange qui fait la faune — les poissons se cachent dans les creux et broutent l'herbier.",
+      "L'heure : vous partez à 8 h et c'est délibéré. Le vent se lève l'après-midi, l'eau se trouble, et les Athéniens arrivent vers midi.",
+      "Les chaussons de roche ne sont pas un luxe : la descente se fait sur du calcaire coupant, et les oursins occupent les premiers mètres."
+    ],
+    mot:"Tôt, l'eau est un aquarium ; à 15 h, une piscine agitée."
+  },
+  "Journée à la mer dans la baie":{
+    quoi:"Erotospilia et Avlaki : des criques à l'abri de la pointe, avec une grotte qui sert de refuge à l'ombre. Erotospilia signifie « la grotte de l'amour ».",
+    regarder:[
+      "Les fonds : roche et posidonie. L'herbier de posidonie n'est pas de la saleté — c'est une plante à fleurs sous-marine, protégée, et la nurserie de tout ce qui vit là.",
+      "L'ombre de la grotte vers midi, quand le soleil devient intenable.",
+      "Le sable au fond des criques est fait de coquilles broyées, pas de roche : regardez-le de près."
+    ],
+    mot:"Pique-nique, sieste, masque — sans précipitation."
+  },
+  "SNFCC":{
+    quoi:"Le centre culturel Stavros-Niarchos, signé Renzo Piano, ouvert en 2016 : la Bibliothèque nationale et l'Opéra sous une même canopée, posés sur une colline artificielle qui n'existait pas.",
+    regarder:[
+      "La canopée : une dalle de béton ultrafin de dix mille mètres carrés, couverte de panneaux solaires, qui alimente le bâtiment. Elle semble flotter.",
+      "Montez sur le toit-belvédère : d'un côté l'Acropole, de l'autre la mer et le port du Pirée. C'est le meilleur point de vue gratuit d'Athènes.",
+      "Le canal d'eau qui longe le parc rejoue, en miniature, la ligne d'eau qui séparait autrefois la ville de la côte."
+    ],
+    mot:"Un parc qui est un bâtiment, un bâtiment qui est un parc."
+  },
+  "Criques du KAPE":{
+    quoi:"Des criques rocheuses sur la route de Sounion, entre Anavyssos et Legrena. Aucun aménagement, aucune paillote : on se gare sur le bas-côté et on descend.",
+    regarder:[
+      "Les fonds : de la roche jusqu'à cinq ou six mètres, puis du sable clair. C'est cette rupture qui concentre la faune — les poissons longent la limite.",
+      "L'eau y est plus froide qu'à Saronida : le fond descend vite et il n'y a pas de lagune pour la réchauffer. C'est aussi pour ça qu'elle est plus claire.",
+      "Vous êtes à vingt minutes du temple de Poséidon, que vous verrez ce soir : la même roche, la même côte. Regardez la falaise, c'est celle sur laquelle il est posé."
+    ],
+    mot:"Chaussons obligatoires, ombre inexistante — prévoyez de quoi vous couvrir."
+  },
+  "Temple de Poséidon":{
+    quoi:"Sur la falaise du cap Sounion, soixante mètres au-dessus de la mer, à la pointe de l'Attique. Bâti vers 444 av. J.-C., dans le même programme que le Parthénon. C'était le premier ou le dernier signe de la patrie pour les marins.",
+    regarder:[
+      "Quinze colonnes sur trente-quatre. Le marbre local contient peu de fer : il ne jaunit pas comme celui de l'Acropole, il reste blanc et devient rose au couchant.",
+      "Sur une colonne du portique nord, une signature gravée : BYRON. Le poète l'a incisée en 1810. Aujourd'hui on ne peut plus approcher — cherchez-la depuis le cordon, elle est à hauteur d'homme.",
+      "En contrebas, la mer d'où Égée se serait jeté en voyant revenir les voiles noires de Thésée. La mer Égée porte son nom."
+    ],
+    mot:"Le couchant y est à 20 h 04 : arrivez avant, la lumière change vite."
+  },
+  "Croisière de Porto Rafti":{
+    quoi:"Une baie profonde, presque fermée, gardée par deux îlots. Le grand porte une statue de marbre colossale d'époque romaine, assise, dont on ignore encore qui elle représente.",
+    regarder:[
+      "L'îlot Raftis et sa statue : de loin la silhouette évoque un tailleur penché sur son ouvrage — raftis en grec. C'est elle qui a donné son nom au port.",
+      "La presqu'île de Koroni, au sud, porte les restes d'une forteresse hellénistique du IIIe siècle av. J.-C., élevée pendant la guerre de Chrémonidès.",
+      "La grotte marine et le lagon : les fonds sont clairs, c'est le moment de mettre le masque."
+    ],
+    mot:"Une statue anonyme veille sur la baie depuis dix-huit siècles."
+  },
+  "Palea Fokea":{
+    quoi:"Un village côtier fondé par des réfugiés grecs de Phocée, en Asie mineure, chassés lors de l'échange de populations de 1922-1923. Le nom veut dire « la vieille Phocée » : ils ont rebaptisé leur nouvelle terre du nom de l'ancienne.",
+    regarder:[
+      "La chapelle Agios Nikolaos, posée sur son rocher au bord de l'eau — Nicolas est le saint des marins.",
+      "Les fonds rocheux tout autour : c'est là que la faune se voit le mieux de tout le séjour. Oursins, girelles, parfois des poulpes dans les anfractuosités.",
+      "Le contraste avec Saronida : ici pas de sable, que de la roche. On vient pour regarder sous l'eau, pas pour bronzer."
+    ],
+    mot:"Un village qui porte le nom d'une ville qu'il a perdue."
+  },
+  "Croisière au couchant":{
+    quoi:"Le golfe Saronique au soleil couchant, entre la côte athénienne et les îles. Une mer fermée, abritée, qui fut le théâtre de la bataille de Salamine en 480 av. J.-C.",
+    regarder:[
+      "La côte vue de la mer : c'est l'angle sous lequel les Athéniens voyaient leur ville en rentrant.",
+      "La lumière des dernières heures sur les îles — l'air d'Attique est réputé pour sa transparence, les Anciens en avaient fait un motif de fierté.",
+      "Le moment de la baignade au large : l'eau y est plus fraîche et plus claire qu'au bord."
+    ],
+    mot:"Le couchant tombe à 20 h 13 ce soir-là."
+  },
+  "Psiri":{
+    quoi:"Un quartier d'ateliers et de petits métiers devenu le territoire du street art athénien. La crise de 2010 a vidé les locaux ; les murs se sont remplis.",
+    regarder:[
+      "Les grandes fresques des rues Sarri et Karaiskaki, souvent politiques.",
+      "Les enseignes des vieux artisans qui subsistent entre deux bars : cordiers, quincailliers, marchands de boutons.",
+      "Le contraste avec Plaka, à dix minutes : l'un se visite, l'autre se vit."
+    ],
+    mot:"L'Athènes qui ne figure pas sur les cartes postales."
+  }
+};
+const savoirDe = it => SAVOIRS[it.ttl] || null;
+
+function ouvrirSavoir(titre){
+  const s = SAVOIRS[titre];
+  if (!s) return;
+  let dlg = document.getElementById("savoir");
+  if (!dlg){
+    dlg = document.createElement("dialog");
+    dlg.id = "savoir";
+    document.body.appendChild(dlg);
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  }
+  dlg.innerHTML = `
+    <header>
+      <h2>${esc(titre)}</h2>
+      <button type="button" class="fermer" aria-label="Fermer">✕</button>
+    </header>
+    <div class="corps">
+      <p class="quoi">${esc(s.quoi)}</p>
+      <h3>À regarder</h3>
+      <ol class="regarder">${s.regarder.map(x => `<li>${esc(x)}</li>`).join("")}</ol>
+      <p class="mot">${esc(s.mot)}</p>
+    </div>`;
+  dlg.querySelector(".fermer").addEventListener("click", () => dlg.close());
+  dlg.showModal();
 }
 
 /* ════════════════════════════  PROCHAINE ÉTAPE  ════════════════════════════
@@ -1622,6 +1873,7 @@ function itemHTML(day, slot, it, i, vedette){
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       <div class="acts">
         ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
+        ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
         <button class="tick" data-k="${k}" aria-pressed="${done}"><svg><use href="#i-check"/></svg>${done ? "Fait" : "Cocher"}</button>
       </div>
     </div>
@@ -1961,6 +2213,8 @@ document.addEventListener("input", e => {
   }, 400);
 });
 document.addEventListener("click", e => {
+  const sv = e.target.closest(".savoir");
+  if (sv) ouvrirSavoir(sv.dataset.savoir);
   if (e.target.closest("#icsBtn, #icsFoot")) telechargerICS();
   const pa = e.target.closest(".partage");
   if (pa) partagerJour(DAYS.find(x => x.n === +pa.dataset.jour));
