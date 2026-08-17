@@ -1307,7 +1307,14 @@ function packFor(day){
   const items = allItems(day).map(x => x.it);
   const out = [];
   if (items.some(i => i.gear)) out.push("Masque & tuba", "Chaussons de roche");
-  if (items.some(i => i.t === "swim")) out.push("Maillot & serviette");
+  /* La plage d'Alimos est à 500 m de l'hôtel : on s'y baigne et l'on revient
+     se sécher. Porter une serviette toute la journée dans les ruines n'a pas
+     de sens — sauf le 20, où la baignade se fait depuis le bateau. */
+  const baignades = items.filter(i => i.t === "swim");
+  if (baignades.length){
+    const rentrable = day.phase === 1 && baignades.every(i => /alimos/i.test(i.ttl));
+    out.push(rentrable ? "Maillot — serviette à l'hôtel" : "Maillot & serviette");
+  }
   if (items.some(i => i.t === "site")) out.push("Billets", "Eau, chapeau, crème");
   if (items.some(i => /colline|acropole|stade|philopappos|lycabette/i.test(i.ttl))) out.push("Chaussures qui tiennent");
   if (items.some(i => i.sunset)) out.push("De quoi couvrir les épaules au couchant");
