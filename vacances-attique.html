@@ -664,6 +664,14 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .etatsync.ok{color:var(--sea)}
 .etatsync.local{color:var(--ochre)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
+.anontitre{font-family:var(--mono); font-size:.7rem; letter-spacing:.05em; color:var(--ink-3)}
+.unavis.mien{padding-left:9px; border-left:2px solid var(--line)}
+.reveler{
+  align-self:flex-start; margin-top:2px; padding:8px 14px; border-radius:99px;
+  border:1px dashed var(--line); background:transparent; color:var(--ink-3);
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.04em; min-height:38px;
+}
+.reveler:hover{border-style:solid; border-color:var(--sea); color:var(--sea)}
 .unavis .ai{font-size:.83rem; color:var(--ink-3)}
 .unavis .ai b{color:var(--sea); font-size:.9rem}
 .unavis p{margin-top:2px; font-size:.89rem; color:var(--ink-2)}
@@ -2311,7 +2319,6 @@ const nomDe = id => (FAMILLE.find(x => x.id === id) || {}).nom || id;
 
 function avisHTML(d){
   const duJour = AVIS[d.n] || {};
-  const autres = Object.entries(duJour).filter(([id]) => id !== QUI);
   const mien = QUI ? duJour[QUI] : null;
 
   const aQuoiCaSert = `<p class="soir-intro"><b>À quoi sert cette section :</b> à noter la journée qui
@@ -2380,14 +2387,44 @@ function avisHTML(d){
       : "Touchez une étoile pour noter, écrivez si vous voulez. C'est enregistré tout seul."}</p>
     ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}
       <button type="button" class="rafraichir" data-avis-maj${LECTURE_EN_COURS ? " disabled" : ""}>Relire</button></p>`; })()}
-    ${autres.length ? `<div class="autresavis">
-      ${autres.map(([id, a]) => `<div class="unavis">
-        <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
-        ${a.txt ? `<p>${esc(a.txt)}</p>` : ""}
-      </div>`).join("")}
-    </div>` : ""}
+    ${(() => {
+      const liste = avisRanges(duJour);
+      if (!liste.length) return "";
+      return `<div class="autresavis">
+        <p class="anontitre">${liste.length} avis pour cette journée${
+          REVELER ? "" : " — à vous de deviner qui a écrit quoi"}</p>
+        ${liste.map((x, i) => `<div class="unavis${x.id === QUI ? " mien" : ""}">
+          <span class="ai"><b>${REVELER ? esc(nomDe(x.id)) : `Avis ${i + 1}`}</b>${
+            x.id === QUI ? ` · vous` : ""}${x.a.note ? ` · ${x.a.note}/5` : ""}</span>
+          ${x.a.txt ? `<p>${esc(x.a.txt)}</p>` : ""}
+        </div>`).join("")}
+        <button type="button" class="reveler">${
+          REVELER ? "Masquer les auteurs" : "Révéler qui a écrit quoi"}</button>
+      </div>`;
+    })()}
   </section>`;
 }
+
+/* ── Anonymat ──
+   Les avis s'affichent sans nom : on lit, on devine, on rit. Deux précautions
+   pour que le jeu tienne.
+
+   L'ordre d'abord. Le serveur rend toujours la famille dans le même ordre, si
+   bien que la première place trahirait son auteur. On range donc par une
+   empreinte du texte : stable d'un affichage à l'autre, et sans rapport avec
+   l'identité.
+
+   Le numéro ensuite. « Avis 2 » donne de quoi désigner un avis sans le nommer,
+   et comme il vient du contenu, c'est le même numéro sur les quatre téléphones
+   — sans quoi on ne pourrait pas en parler à table. Le sien est donc affiché
+   avec les autres, marqué « vous », plutôt que retiré de la liste : le retirer
+   décalerait la numérotation d'un téléphone à l'autre. */
+const ANON_STORE = "attique2026:reveler";
+let REVELER = (() => { try { return localStorage.getItem(ANON_STORE) === "oui"; } catch { return false; } })();
+const empreinteTexte = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return h; };
+const avisRanges = duJour => Object.entries(duJour)
+  .map(([id, a]) => ({ id, a, r: empreinteTexte(`${a.note || 0}|${a.txt || ""}`) }))
+  .sort((x, y) => x.r - y.r || (x.id < y.id ? -1 : 1));
 
 /* ── Mise en commun ──
    Le serveur fait foi. Ce qu'on écrit part aussitôt ; si le réseau manque,
@@ -2492,8 +2529,11 @@ function journalTexte(){
     const a = AVIS[d.n];
     if (!a || !Object.keys(a).length) return;
     l.push(`${DOW_FULL[d.dow]} ${d.dm} — ${d.title}`);
-    Object.entries(a).forEach(([id, v]) => {
-      l.push(`  ${nomDe(id)}${v.note ? ` — ${v.note}/5` : ""}${v.txt ? ` : ${v.txt}` : ""}`);
+    /* Le journal suit l'écran : tant que les auteurs sont masqués, l'envoyer
+       ne doit pas révéler ce que la page cache. */
+    avisRanges(a).forEach((x, i) => {
+      const qui = REVELER ? nomDe(x.id) : `Avis ${i + 1}`;
+      l.push(`  ${qui}${x.a.note ? ` — ${x.a.note}/5` : ""}${x.a.txt ? ` : ${x.a.txt}` : ""}`);
     });
     l.push("");
   });
@@ -3100,6 +3140,11 @@ document.addEventListener("click", e => {
     const actuel = ((AVIS[j] || {})[QUI] || {}).note;
     enregistrerAvis(j, { note: actuel === n ? 0 : n });   // retoucher efface
     render();
+  }
+  if (e.target.closest(".reveler")){
+    REVELER = !REVELER;
+    try { localStorage.setItem(ANON_STORE, REVELER ? "oui" : "non"); } catch {}
+    render(); return;
   }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
