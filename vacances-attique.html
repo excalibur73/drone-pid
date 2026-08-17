@@ -983,10 +983,10 @@ const DAYS = [
     /* Soirée recalée sur l'atterrissage retardé. Les durées sont des estimations
        honnêtes, pas des horaires fermes : contrôle des passeports (vol hors
        Schengen), bagages, puis 35 km jusqu'à Alimos par l'Attiki Odos. */
-    soir:[ {t:"plain", ttl:"Transfert & installation", when:"19 h 45 – 21 h 15",
-            det:"Passeports et bagages ≈ 40 min, puis taxi jusqu'à l'hôtel ≈ 40 min",
-            note:"Arrivée à l'hôtel possible à toute heure — la réception ne ferme pas"},
-           {t:"food", ttl:"Dîner à la marina d'Alimos", when:"21 h 30",
+    soir:[ {t:"plain", ttl:"Navette privée jusqu'à l'hôtel", when:"19 h 45 – 21 h 05",
+            det:"Passeports et bagages ≈ 40 min, puis ≈ 40 min de route par l'Attiki Odos",
+            note:"Le chauffeur attend en salle des arrivées, panneau au nom. Vérifiez qu'il a bien le numéro de vol BA 630 : les navettes suivent alors le retard toutes seules"},
+           {t:"food", ttl:"Dîner à la marina d'Alimos", when:"21 h 20",
             det:"Les tavernes de la marina servent tard : rien ne presse",
             note:"À 500 m de l'hôtel, à pied le long de la mer"} ] },
 
@@ -2609,6 +2609,7 @@ const CHIFFRES = [["1","ένα","É-na"],["2","δύο","DHI-o"],["3","τρία",
   ["9","εννιά","é-NIA"],["10","δέκα","DHÉ-ka"]];
 
 const CHAMPS = [
+  { k:"navette",  l:"Navette de l'aéroport — société et téléphone", ph:"+30 … · le 17 au soir" },
   { k:"hoteltel", l:"Téléphone de l'hôtel d'Alimos", ph:"+30 …" },
   { k:"proprio",  l:"Contact du penthouse sur place", ph:"+30 …" },
   { k:"logement", l:"N° de réservation des logements", ph:"Booking / hôtel" },
