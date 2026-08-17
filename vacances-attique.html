@@ -611,6 +611,20 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   font-size:.95rem; font-weight:600; transition:border-color .18s, color .18s;
 }
 .qui:hover{border-color:var(--sea); color:var(--sea)}
+.qui.primaire{background:var(--sea); border-color:var(--sea); color:#fff; flex:0 0 auto}
+.qui.primaire:hover{color:#fff; filter:brightness(1.08)}
+.soir-q{margin-top:12px; font-size:.9rem; color:var(--ink)}
+.codeligne{display:flex; gap:9px; margin-top:10px; flex-wrap:wrap}
+.codeligne input{
+  flex:1 1 150px; min-width:0; min-height:46px; padding:0 15px;
+  border:1px solid var(--line); border-radius:99px; background:var(--surface-2);
+  color:var(--ink); font:inherit; font-family:var(--mono); font-size:1rem; letter-spacing:.22em;
+}
+.codeligne input:focus{outline:none; border-color:var(--sea); background:var(--surface)}
+.codeaide{margin-top:9px; font-size:.79rem; color:var(--ink-3)}
+.codeaide.faux{color:var(--ochre); font-weight:600}
+.retourliste{display:inline-block; margin-top:12px; min-height:44px}
+.soir-modif{margin-top:9px; font-size:.79rem; color:var(--ink-3); line-height:1.5}
 .notes-etoiles{display:flex; align-items:center; gap:4px; margin:14px 0 12px}
 .etoile{width:42px; height:42px; display:grid; place-items:center; color:var(--line); transition:color .15s, transform .15s}
 .etoile svg{width:27px; height:27px; fill:currentColor}
@@ -2173,14 +2187,28 @@ function baignadeHTML(d){
    depuis son téléphone et voit ceux des autres. Le stockage local ne sert
    plus que de copie hors connexion, et de file d'attente quand le réseau
    manque — ce qui arrive dans une crique. */
-const QUI_STORE = "attique2026:qui", AVIS_STORE = "attique2026:avis";
+/* La clé a changé de nom : les téléphones qui avaient déjà choisi un prénom
+   sans le confirmer repartent d'une page blanche, et l'ancienne valeur est
+   effacée au passage. */
+const QUI_STORE = "attique2026:qui2", AVIS_STORE = "attique2026:avis";
+/* Chaque prénom est confirmé par une date de naissance. Le site est public :
+   la date elle-même n'y figure pas, seule son empreinte SHA-256 est écrite,
+   et une empreinte ne se remonte pas. Cela écarte un visiteur de passage ;
+   ce n'est pas un verrou — qui connaît la date entre, et le contrôle se fait
+   dans le navigateur. Pour un carnet de famille, cela suffit. */
 const FAMILLE = [
-  { id:"hilal", nom:"Hilal" },
-  { id:"layal", nom:"Layal" },
-  { id:"sana",  nom:"Sana" },
-  { id:"papa",  nom:"Abderrahmane" }
+  { id:"hilal", nom:"Hilal", h:"dd0ff5d7523cc45bd5204de0f75011b7accc9e8e0f885f1365f59378b4c172fa" },
+  { id:"layal", nom:"Layal", h:"dd0ff5d7523cc45bd5204de0f75011b7accc9e8e0f885f1365f59378b4c172fa" },
+  { id:"sana",  nom:"Sana",  h:"2053c380e618f81422fc3c7cb17d68c76078d25fd7370411cd7309834116a0f7" },
+  { id:"papa",  nom:"Abderrahman", h:"047fbb749bbdc4f767db87e836bf3a786fe0873ee31cc90fd51921df2ab17233" }
 ];
-let QUI = (() => { try { return localStorage.getItem(QUI_STORE) || null; } catch { return null; } })();
+let QUI = (() => {
+  try {
+    localStorage.removeItem("attique2026:qui");   // l'ancien choix, non confirmé
+    return localStorage.getItem(QUI_STORE) || null;
+  } catch { return null; }
+})();
+let CANDIDAT = null, ERREUR_CODE = "";            // prénom en cours de confirmation
 /* Lecture autonome : « lire » est déclaré plus bas, et une constante ne
    s'utilise pas avant sa déclaration. */
 const AVIS = (() => { try { return JSON.parse(localStorage.getItem(AVIS_STORE)) || {}; } catch { return {}; } })();
@@ -2192,17 +2220,38 @@ function avisHTML(d){
   const autres = Object.entries(duJour).filter(([id]) => id !== QUI);
   const mien = QUI ? duJour[QUI] : null;
 
+  const aQuoiCaSert = `<p class="soir-intro"><b>À quoi sert cette section :</b> à noter la journée qui
+    vient de s'écouler — une note sur cinq et, si le cœur vous en dit, un mot sur ce qui a plu
+    ou déplu. Rien d'autre : ce n'est ni un pense-bête, ni la liste du lendemain.
+    Chacun écrit depuis son téléphone et voit ce que les autres ont mis.
+    Une note comme un commentaire se modifient autant de fois qu'on veut.</p>`;
+
   if (!QUI){
+    const c = CANDIDAT ? FAMILLE.find(f => f.id === CANDIDAT) : null;
     return `<section class="soir">
       <h4>Le mot du soir</h4>
-      <p class="soir-intro">Qui êtes-vous ? Choisissez une fois, ce téléphone s'en souviendra.</p>
-      <div class="quisuisje">
+      ${aQuoiCaSert}
+      ${c ? `<form class="codeform" data-codeform>
+        <p class="soir-q">Bonsoir ${esc(c.nom)}. Votre date de naissance, pour confirmer que c'est bien vous.</p>
+        <div class="codeligne">
+          <label class="sr" for="codenaiss">Date de naissance, huit chiffres</label>
+          <input id="codenaiss" type="password" inputmode="numeric" autocomplete="off"
+                 maxlength="8" placeholder="JJMMAAAA" aria-describedby="codeaide">
+          <button type="submit" class="qui primaire">Entrer</button>
+        </div>
+        <p id="codeaide" class="codeaide${ERREUR_CODE ? " faux" : ""}">${
+          ERREUR_CODE ? esc(ERREUR_CODE)
+          : "Huit chiffres à la suite, sans séparateur — le 3 février 1990 s'écrit 03021990."}</p>
+        <button type="button" class="changequi retourliste">← revenir à la liste des prénoms</button>
+      </form>` : `<div class="quisuisje">
         ${FAMILLE.map(f => `<button type="button" class="qui" data-qui="${f.id}">${esc(f.nom)}</button>`).join("")}
-      </div>
+      </div>`}
     </section>`;
   }
   return `<section class="soir">
-    <h4>Le mot du soir <span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">changer</button></span></h4>
+    <h4>Le mot du soir <span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
+    <p class="soir-intro"><b>Notez la journée qui vient de s'écouler</b> — une note sur cinq, et un mot
+      si le cœur vous en dit. Rien d'autre : ce n'est ni un pense-bête, ni la liste du lendemain.</p>
     <div class="notes-etoiles" role="group" aria-label="Note de la journée">
       ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="etoile${mien && mien.note >= n ? " pleine" : ""}"
         data-note="${n}" data-jour="${d.n}" aria-label="${n} sur 5">
@@ -2212,6 +2261,9 @@ function avisHTML(d){
     </div>
     <label class="sr" for="avis-${d.n}">Commentaire de la journée</label>
     <textarea id="avis-${d.n}" data-avis="${d.n}" placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
+    <p class="soir-modif">${mien && (mien.note || (mien.txt || "").trim())
+      ? "Vous avez déjà noté cette journée — réécrivez le texte ou touchez une autre étoile pour corriger ; retoucher l'étoile allumée efface la note."
+      : "Touchez une étoile pour noter, écrivez si vous voulez. C'est enregistré tout seul."}</p>
     ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}</p>`; })()}
     ${autres.length ? `<div class="autresavis">
       ${autres.map(([id, a]) => `<div class="unavis">
@@ -2838,7 +2890,7 @@ function renderFoot(){
 }
 function render(){
   const actif = document.activeElement;
-  const saisie = actif && actif.id && actif.matches && actif.matches("textarea")
+  const saisie = actif && actif.id && actif.matches && actif.matches("textarea, #codenaiss")
     ? { id:actif.id, v:actif.value, d:actif.selectionStart, f:actif.selectionEnd } : null;
   const searching = state.view === "day" && state.query.trim().length > 0;
   document.getElementById("dayView").hidden    = state.view !== "day" || searching;
@@ -2895,9 +2947,14 @@ document.getElementById("viewChrono").addEventListener("click", () => { state.vi
    ferait perdre le curseur au milieu d'une phrase. */
 let saveT;
 document.addEventListener("click", e => {
-  const q = e.target.closest(".qui");
-  if (q){ QUI = q.dataset.qui; try { localStorage.setItem(QUI_STORE, QUI); } catch {} render(); return; }
-  if (e.target.closest(".changequi")){ QUI = null; try { localStorage.removeItem(QUI_STORE); } catch {} render(); return; }
+  const q = e.target.closest(".qui[data-qui]");
+  if (q){ CANDIDAT = q.dataset.qui; ERREUR_CODE = ""; render();
+          const ch = document.getElementById("codenaiss"); if (ch) ch.focus(); return; }
+  if (e.target.closest(".changequi")){
+    QUI = null; CANDIDAT = null; ERREUR_CODE = "";
+    try { localStorage.removeItem(QUI_STORE); } catch {}
+    render(); return;
+  }
   const et = e.target.closest(".etoile");
   if (et){
     const j = et.dataset.jour, n = +et.dataset.note;
@@ -2906,6 +2963,35 @@ document.addEventListener("click", e => {
     render();
   }
   if (e.target.closest("#journalBtn")) envoyerJournal();
+});
+
+/* Confirmation du prénom par la date de naissance. On compare des empreintes :
+   la date saisie est hachée dans le navigateur et confrontée à celle inscrite
+   dans la page. Le calcul n'existe qu'en contexte sûr — https ou localhost. */
+async function empreinte(txt){
+  const o = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt));
+  return [...new Uint8Array(o)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+document.addEventListener("submit", async e => {
+  if (!e.target.closest("[data-codeform]")) return;
+  e.preventDefault();
+  const champ = document.getElementById("codenaiss");
+  const code = (champ ? champ.value : "").replace(/\D/g, "");
+  const f = FAMILLE.find(x => x.id === CANDIDAT);
+  if (!f) return;
+  if (code.length !== 8){ ERREUR_CODE = "Il faut les huit chiffres : jour, mois, année."; render(); return; }
+  if (!(window.crypto && crypto.subtle)){
+    ERREUR_CODE = "Vérification impossible sur cette adresse — ouvrez le site en https."; render(); return;
+  }
+  if (await empreinte(code) === f.h){
+    QUI = f.id; CANDIDAT = null; ERREUR_CODE = "";
+    try { localStorage.setItem(QUI_STORE, QUI); } catch {}
+    render();
+  } else {
+    ERREUR_CODE = "Ce n'est pas la bonne date. Réessayez, ou revenez à la liste.";
+    render();
+    const c = document.getElementById("codenaiss"); if (c){ c.value = ""; c.focus(); }
+  }
 });
 
 document.addEventListener("input", e => {
