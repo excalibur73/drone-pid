@@ -22,6 +22,7 @@ import { getStore } from "@netlify/blobs";
 const QUI_VALIDES = ["hilal", "layal", "sana", "papa"];
 const depot = () => getStore({ name: "codes-athenes-2026", consistency: "strong" });
 const empreinteValide = (h) => typeof h === "string" && /^[0-9a-f]{64}$/.test(h);
+const MOT_DE_REMISE = "sounion-2026-remise-a-zero";
 
 const tous = async (store) =>
   Object.fromEntries(await Promise.all(QUI_VALIDES.map(async (q) =>
@@ -46,7 +47,8 @@ export default async (req) => {
     catch { return new Response("Corps illisible", { status: 400 }); }
 
     const { action, qui, h } = corps || {};
-    if (!empreinteValide(h)) return new Response("Empreinte invalide", { status: 400 });
+    if (action !== "reinitialiser" && !empreinteValide(h))
+      return new Response("Empreinte invalide", { status: 400 });
 
     if (action === "inscrire") {
       if (!QUI_VALIDES.includes(qui)) return new Response("Prénom inconnu", { status: 400 });
@@ -59,6 +61,17 @@ export default async (req) => {
         return Response.json({ erreur: "doublon" }, { status: 409 });
       await store.setJSON(qui, { h, le: new Date().toISOString() });
       return Response.json({ ok: true, qui });
+    }
+
+    /* Un code oublié bloquerait son propriétaire pour de bon : on peut libérer
+       une place, mais seulement en connaissant le mot ci-dessous. Il ne figure
+       que dans ce fichier — le code des fonctions n'est pas servi aux
+       visiteurs, contrairement à la page. */
+    if (action === "reinitialiser") {
+      if (corps.mot !== MOT_DE_REMISE) return new Response("Non autorisé", { status: 403 });
+      if (!QUI_VALIDES.includes(qui)) return new Response("Prénom inconnu", { status: 400 });
+      await store.delete(qui);
+      return Response.json({ ok: true, libere: qui });
     }
 
     if (action === "entrer") {
