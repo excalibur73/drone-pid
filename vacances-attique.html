@@ -978,9 +978,17 @@ const DAYS = [
     aprem:[ {t:"travel", ttl:"BA 630 · Londres → Athènes",
              det:"Embarquement 11 h 55, heure de Londres — Heathrow, terminal 5",
              note:"Correspondance à Heathrow : les deux vols sont au terminal 5, pas de terminal à changer"},
-            {t:"travel", ttl:"Atterrissage à Athènes", when:"18 h 30"} ],
-    soir:[ {t:"plain", ttl:"Transfert & installation"},
-           {t:"food", ttl:"Dîner à la marina d'Alimos"} ] },
+            {t:"travel", ttl:"Atterrissage à Athènes", when:"19 h 30",
+             note:"Retard d'une heure — l'horaire initial était 18 h 30"} ],
+    /* Soirée recalée sur l'atterrissage retardé. Les durées sont des estimations
+       honnêtes, pas des horaires fermes : contrôle des passeports (vol hors
+       Schengen), bagages, puis 35 km jusqu'à Alimos par l'Attiki Odos. */
+    soir:[ {t:"plain", ttl:"Transfert & installation", when:"19 h 30 – 21 h",
+            det:"Passeports et bagages ≈ 40 min, puis taxi jusqu'à l'hôtel ≈ 40 min",
+            note:"Arrivée à l'hôtel possible à toute heure — la réception ne ferme pas"},
+           {t:"food", ttl:"Dîner à la marina d'Alimos", when:"21 h 15",
+            det:"Les tavernes de la marina servent tard : rien ne presse",
+            note:"À 500 m de l'hôtel, à pied le long de la mer"} ] },
 
   { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9747,23.7218"),
