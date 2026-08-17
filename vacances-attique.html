@@ -646,7 +646,14 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 }
 .soir textarea::placeholder{color:var(--ink-3); font-style:italic}
 .soir textarea:focus{outline:none; border-style:solid; border-color:var(--sea); background:var(--surface)}
-.etatsync{margin-top:10px; font-family:var(--mono); font-size:.72rem; color:var(--ink-3)}
+.etatsync{margin-top:10px; font-family:var(--mono); font-size:.72rem; color:var(--ink-3); line-height:1.9}
+.rafraichir{
+  margin-left:6px; padding:5px 11px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2);
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.04em;
+}
+.rafraichir:hover{border-color:var(--sea); color:var(--sea)}
+.rafraichir[disabled]{opacity:.5}
 .etatsync.ok{color:var(--sea)}
 .etatsync.local{color:var(--ochre)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
@@ -2300,7 +2307,8 @@ function avisHTML(d){
     <p class="soir-modif">${mien && (mien.note || (mien.txt || "").trim())
       ? "Vous avez déjà noté cette journée — réécrivez le texte ou touchez une autre étoile pour corriger ; retoucher l'étoile allumée efface la note."
       : "Touchez une étoile pour noter, écrivez si vous voulez. C'est enregistré tout seul."}</p>
-    ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}</p>`; })()}
+    ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}
+      <button type="button" class="rafraichir"${LECTURE_EN_COURS ? " disabled" : ""}>Actualiser</button></p>`; })()}
     ${autres.length ? `<div class="autresavis">
       ${autres.map(([id, a]) => `<div class="unavis">
         <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
@@ -2325,9 +2333,17 @@ function etatPartage(){
       ENATTENTE.length ? ` ${ENATTENTE.length} en attente.` : ""}` };
   if (ENATTENTE.length)
     return { c:"local", t:`Envoi en cours — ${ENATTENTE.length} en attente.` };
-  if (dernierEchange === "ok") return { c:"ok", t:"Partagé avec les autres téléphones." };
+  if (dernierEchange === "ok") return { c:"ok", t:`Partagé avec les autres téléphones.${depuisLecture()}` };
   if (dernierEchange === "echec") return { c:"local", t:"Serveur injoignable : enregistré ici seulement." };
   return { c:"", t:"Mise en commun en cours…" };
+}
+/* Depuis quand l'écran dit-il la vérité ? Sans cette mention, « partagé »
+   pourrait dater d'une heure sans qu'on le sache. */
+function depuisLecture(){
+  if (LECTURE_EN_COURS) return " Relecture…";
+  if (!DERNIERE_LECTURE) return "";
+  const m = Math.floor((Date.now() - DERNIERE_LECTURE) / 60000);
+  return m < 1 ? " Relu à l'instant." : ` Relu il y a ${m} min.`;
 }
 
 const garderAttente = () => { try { localStorage.setItem(ATTENTE_STORE, JSON.stringify(ENATTENTE)); } catch {} };
@@ -2337,18 +2353,32 @@ const garderAttente = () => { try { localStorage.setItem(ATTENTE_STORE, JSON.str
    curseur là où ils étaient. Sauter le rendu laissait un état périmé. */
 function renderSiLibre(){ render(); }
 
+let DERNIERE_LECTURE = 0, LECTURE_EN_COURS = false;
+
 async function lireAvis(){
-  if (!navigator.onLine) { dernierEchange = "echec"; return; }
+  if (LECTURE_EN_COURS) return;
+  if (!navigator.onLine) { dernierEchange = "echec"; renderSiLibre(); return; }
+  LECTURE_EN_COURS = true;
   try {
     const r = await fetch("/api/avis", { cache:"no-store" });
     if (!r.ok) throw new Error(r.status);
     const distant = await r.json();
     Object.keys(AVIS).forEach(k => delete AVIS[k]);
     Object.assign(AVIS, distant);
+    /* Ce qui attend d'être envoyé est plus récent que ce que le serveur
+       renvoie : on le repose par-dessus. Sans cela, une phrase écrite dans
+       une crique disparaissait de l'écran à la première relecture, alors
+       qu'elle était bien en file d'attente. */
+    ENATTENTE.forEach(e => {
+      AVIS[e.jour] = AVIS[e.jour] || {};
+      AVIS[e.jour][e.qui] = { note:e.note, txt:e.txt };
+    });
     noteEcrire(AVIS_STORE, AVIS);
     dernierEchange = "ok";
-    renderSiLibre();
+    DERNIERE_LECTURE = Date.now();
   } catch { dernierEchange = "echec"; }
+  LECTURE_EN_COURS = false;
+  renderSiLibre();
 }
 
 async function poussserUn(e){
@@ -2997,6 +3027,7 @@ document.addEventListener("click", e => {
     enregistrerAvis(j, { note: actuel === n ? 0 : n });   // retoucher efface
     render();
   }
+  if (e.target.closest(".rafraichir")){ lireAvis(); return; }
   if (e.target.closest("#journalBtn")) envoyerJournal();
 });
 
@@ -3242,8 +3273,17 @@ if (!fromHash()){
   if (t0 >= 0) state.day = t0;
 }
 render();
+/* Relecture des avis. On ne compte pas sur un geste : la page se remet à jour
+   d'elle-même à chaque occasion — ouverture, retour au premier plan, sortie de
+   veille, retour du réseau — et toutes les minutes tant qu'elle est à l'écran.
+   Écran éteint, plus rien ne part : inutile de vider la batterie sur une plage.
+   Le bouton « Actualiser » du mot du soir reste là pour qui veut forcer. */
 lireAvis();
 document.addEventListener("visibilitychange", () => { if (!document.hidden) lireAvis(); });
+addEventListener("pageshow", () => lireAvis());
+addEventListener("focus", () => lireAvis());
+addEventListener("online", lireAvis);
+setInterval(() => { if (!document.hidden) lireAvis(); }, 60000);
 chargerMeteo();
 chargerMer();
 chargerMerHoraire();
