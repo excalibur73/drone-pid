@@ -354,6 +354,21 @@ mark{background:color-mix(in oklab,var(--sea) 26%,transparent); color:inherit; b
 #savoir .regarder{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:11px}
 #savoir .regarder li{font-size:.91rem; line-height:1.6; color:var(--ink-2)}
 #savoir .regarder li::marker{color:var(--stone); font-family:var(--mono); font-size:.8rem}
+#savoir .renvois{
+  margin-top:20px; padding-top:16px; border-top:1px solid var(--line-soft);
+  display:flex; gap:9px; align-items:center; flex-wrap:wrap;
+}
+#savoir .rlab{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); margin-right:2px;
+}
+#savoir .renvois a{
+  display:inline-flex; align-items:center; min-height:38px; padding:0 14px;
+  border:1px solid var(--line); border-radius:99px; text-decoration:none;
+  font-size:.83rem; font-weight:600; color:var(--ink-2);
+  transition:color .18s, border-color .18s;
+}
+#savoir .renvois a:hover{color:var(--sea); border-color:var(--sea)}
 #savoir .mot{
   margin-top:20px; padding:13px 16px; border-radius:var(--r-sm);
   background:var(--stone-soft); color:var(--ink); font-family:var(--serif);
@@ -1538,6 +1553,39 @@ const SAVOIRS = {
 };
 const savoirDe = it => SAVOIRS[it.ttl] || null;
 
+/* ── Pour aller plus loin ──
+   L'encyclopédie est visée par une recherche plutôt que par une adresse
+   d'article : un titre exact y mène directement, un titre approximatif
+   donne des résultats. Aucun lien mort, jamais. */
+const wiki = terme => "https://fr.wikipedia.org/w/index.php?search=" + encodeURIComponent(terme);
+const RECHERCHE = {
+  "Snorkeling tôt":"Limanakia Vouliagméni",
+  "Journée à la mer dans la baie":"Porto Rafti",
+  "Criques du KAPE":"Cap Sounion",
+  "Croisière au couchant":"Golfe Saronique",
+  "Croisière de Porto Rafti":"Porto Rafti",
+  "Palea Fokea":"Palaia Fokaia",
+  "Agora antique":"Agora d'Athènes",
+  "Musée de l'Acropole":"Musée de l'Acropole d'Athènes",
+  "Acropole & Parthénon":"Parthénon",
+  "Colline de Philopappos":"Monument de Philopappos",
+  "Temple de Zeus olympien":"Olympiéion Athènes",
+  "Agora romaine":"Tour des Vents",
+  "Plaka & Anafiotika":"Anafiotika",
+  "Temple de Poséidon":"Cap Sounion",
+  "Relève des evzones":"Evzones",
+  "SNFCC":"Centre culturel Stavros Niarchos"
+};
+const SANS_RENVOI = new Set(["Déjeuner", "Pique-nique", "Courses pour la semaine"]);
+/* Seuls figurent ici les sites officiels dont j'ai vérifié qu'ils répondent.
+   Le portail du ministère de la culture et celui du SNFCC sont injoignables
+   depuis ce réseau : plutôt que d'expédier vers un lien mort, on s'en tient
+   au renvoi encyclopédique, qui lui ne casse jamais. */
+const OFFICIELS = {
+  "Musée de l'Acropole":{ t:"Site du musée", u:"https://www.theacropolismuseum.gr/" },
+  "Stade panathénaïque":{ t:"Site du stade", u:"https://www.panathenaicstadium.gr/" }
+};
+
 function ouvrirSavoir(titre){
   const s = SAVOIRS[titre];
   if (!s) return;
@@ -1558,6 +1606,11 @@ function ouvrirSavoir(titre){
       <h3>À regarder</h3>
       <ol class="regarder">${s.regarder.map(x => `<li>${esc(x)}</li>`).join("")}</ol>
       <p class="mot">${esc(s.mot)}</p>
+      ${SANS_RENVOI.has(titre) ? "" : `<div class="renvois">
+        <span class="rlab">Pour aller plus loin</span>
+        <a href="${wiki(RECHERCHE[titre] || titre)}" target="_blank" rel="noopener noreferrer">Encyclopédie</a>
+        ${OFFICIELS[titre] ? `<a href="${OFFICIELS[titre].u}" target="_blank" rel="noopener noreferrer">${esc(OFFICIELS[titre].t)}</a>` : ""}
+      </div>`}
     </div>`;
   dlg.querySelector(".fermer").addEventListener("click", () => dlg.close());
   dlg.showModal();
@@ -1600,11 +1653,11 @@ function texteDuJour(d){
   return lignes.join("\n");
 }
 async function partagerJour(d){
-  const url = location.origin + location.pathname + `#j${d.n}`;
-  const data = { title:`Jour ${d.n} — ${d.title}`, text:texteDuJour(d), url };
+  /* Sans lien : le message se lit tel quel, y compris par qui n'a pas l'appli. */
+  const data = { title:`Jour ${d.n} — ${d.title}`, text:texteDuJour(d) };
   try {
     if (navigator.share){ await navigator.share(data); return; }
-    await navigator.clipboard.writeText(`${data.text}\n\n${url}`);
+    await navigator.clipboard.writeText(data.text);
     toast("Programme du jour copié");
   } catch (e){
     if (e && e.name === "AbortError") return;          // partage annulé, rien à dire
@@ -2086,7 +2139,8 @@ const BASES = {
              "Petit-déjeuner 7 h – 10 h · restaurant et bar au 1er, vue mer",
              "Arrivée à partir de 15 h · départ avant 11 h",
              "Tram « Zefiros » à 50 m, marina d'Alimos à 500 m"],
-      reserve:"Relevé sur les fiches publiques de l'hôtel, à confirmer à l'arrivée." },
+      reserve:"Relevé sur les fiches publiques de l'hôtel, à confirmer à l'arrivée.",
+      lien:{ t:"Fiche de l'hôtel", u:"https://www.booking.com/hotel/gr/tropical.html" } },
   2:{ nom:"Saronida", quoi:"Waterfront Penthouse", adresse:"47 Μυτιλήνης (Mytilinis), Saronida",
       map:"https://www.google.com/maps/search/?api=1&query=47+Mytilinis+Saronida+Greece",
       quand:"22 → 27 août · 4 adultes",
@@ -2503,8 +2557,10 @@ function renderCarnet(){
             <p style="font-size:.86rem;color:var(--ink-2)">${esc(BASES[ph].adresse)}</p>
             ${BASES[ph].infos ? `<ul class="equip">${BASES[ph].infos.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
             ${BASES[ph].reserve ? `<p class="areserver">${esc(BASES[ph].reserve)}</p>` : ""}
-            <a class="maplink" style="align-self:flex-start;margin-top:4px" href="${BASES[ph].map}"
-               target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Y aller</a>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <a class="maplink" href="${BASES[ph].map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>
+              ${BASES[ph].lien ? `<a class="maplink" href="${BASES[ph].lien.u}" target="_blank" rel="noopener noreferrer">${esc(BASES[ph].lien.t)}</a>` : ""}
+            </div>
           </div>`).join("")}
         </div>
       </article>
