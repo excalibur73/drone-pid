@@ -983,9 +983,7 @@ function meteoHTML(d){
 function meteoAlerte(d){
   const w = meteoDe(d);
   if (!w || w.v < 30) return "";
-  const items = allItems(d).map(x => x.it);
-  const mer = items.some(i => i.t === "swim" || /croisi/i.test(i.ttl));
-  if (!mer) return "";
+  if (!journeeDeMer(d)) return "";
   /* Ne renvoyer vers Saronida que les jours où l'on y est. */
   const replis = SPOTS[d.n]
     ? "Le classement des criques, plus bas, dit lesquelles seront à l'abri."
@@ -1053,6 +1051,7 @@ const CARDINAL = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO"
 const cap = deg => deg == null ? "—" : CARDINAL[Math.round(deg / 22.5) % 16];
 
 function merHTML(d){
+  if (!journeeDeMer(d)) return "";
   const m = merDe(d);
   if (!m || m.h == null) return "";
   const e = etatMer(m.h), w = meteoDe(d);
@@ -1081,21 +1080,20 @@ function merHTML(d){
    Réserve honnête : la grille du modèle est maillée large et se cale sur la mer
    ouverte — l'écart au point demandé est affiché, et dans une baie fermée la
    réalité sera plus calme que la prévision.                                    */
+/* La mer n'est un sujet que si elle est l'activité : une croisière, ou du
+   snorkeling sur fonds rocheux. Un bain de détente après les musées n'appelle
+   ni courbe de houle ni alerte de vent. */
+const journeeDeMer = d => allItems(d).map(x => x.it)
+  .some(i => i.gear === true || /croisi/i.test(i.ttl));
+
 const MER_H_STORE = "attique2026:merh";
 const COURBES = new Map();          // identifiant du graphe → points, pour le survol
 const MER_SPOTS = {
-  2:[{ n:"Plage d'Alimos", lat:37.9075, lon:23.7150, de:14, a:19 }],
-  3:[{ n:"Plage d'Alimos", lat:37.9075, lon:23.7150, de:14, a:19 }],
-  4:[{ n:"Plage d'Alimos", lat:37.9075, lon:23.7150, de:13, a:16 },
-     { n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
-  6:[{ n:"Plage de Saronida", lat:37.7440, lon:23.9050, de:15, a:20 }],
+  4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
   7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:8, a:18 }],
   8:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:18 }],
-  9:[{ n:"Plage de Saronida", lat:37.7440, lon:23.9050, de:9, a:12 },
-     { n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
-  10:[{ n:"Palea Fokea", lat:37.7180, lon:23.9450, de:10, a:14 },
-      { n:"Plage d'Anavyssos", lat:37.7300, lon:23.9300, de:15, a:19 }],
-  11:[{ n:"Plage de Saronida", lat:37.7440, lon:23.9050, de:9, a:12 }]
+  9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
+  10:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:10, a:14 }]
 };
 const TOUS_SPOTS = (() => {
   const vus = new Map();
