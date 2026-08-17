@@ -846,10 +846,15 @@ function packFor(day){
    événement avec une alarme dix minutes avant, et porte son lien d'itinéraire.
    Les heures sont écrites en UTC (la Grèce est à UTC+3 en août), ce qui évite
    d'embarquer une définition de fuseau.                                       */
+/* Heures « flottantes » : écrites sans fuseau, donc affichées telles quelles
+   quel que soit le réglage du téléphone. Une heure ancrée en UTC s'afficherait
+   à 6 h 45 depuis la France pour un départ grec de 7 h 45 — juste dans l'absolu,
+   mais illisible. Ici, 7 h 45 reste 7 h 45, et l'alarme sonne à 7 h 45 sur un
+   téléphone réglé sur la Grèce. */
 function icsStamp(dateISO, minutes){
   const [y, mo, d] = dateISO.split("-").map(Number);
-  const t = new Date(Date.UTC(y, mo - 1, d, 0, minutes) - 3 * 3600000);
-  return t.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const t = new Date(Date.UTC(y, mo - 1, d, 0, minutes));
+  return t.toISOString().slice(0, 19).replace(/[-:]/g, "");
 }
 const icsEsc = s => String(s).replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
 function icsFold(line){                      // 75 octets par ligne, repli normalisé
@@ -894,8 +899,12 @@ function buildICS(){
       if (it.t === "depart"){
         const m = toMinutes(it.when);
         if (m === null) return;
+        /* Nommer le départ par sa destination, sinon les deux départs d'une même
+           journée portent le même titre et paraissent faire double emploi. */
+        const suite = itemsOf(d, slot).slice(i + 1).find(x => x.t !== "depart");
+        const vers = suite ? suite.ttl : d.title;
         push(uid, icsStamp(d.date, m), icsStamp(d.date, m + 15),
-          `Départ — ${d.title}`,
+          `Départ — ${vers}`,
           [`On quitte ${maison}.`,
            it.corrige,
            /* le point de rendez-vous du jour voyage avec l'alarme du départ */
