@@ -703,7 +703,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       <span id="doneCount">0 étape cochée</span>
       <button id="resetBtn">tout décocher</button>
       <button id="printBtn">imprimer les 11 jours</button>
-      <button id="icsFoot" hidden>calendrier des départs</button>
+      <button id="icsFoot" hidden>télécharger le calendrier</button>
       <span class="off" id="offlineFlag" hidden><svg><use href="#i-offline"/></svg>disponible hors connexion</span>
       <span class="hint">← → changer de jour · glisser du doigt sur mobile</span>
     </footer>
@@ -1554,9 +1554,12 @@ function renderRail(){
 }
 
 /* ════════════════════════════  VUE JOUR  ════════════════════════════ */
-function itemHTML(day, slot, it, i){
+function itemHTML(day, slot, it, i, vedette){
   const k = keyOf(day.n, slot, i);
   const done = !!state.done[k];
+  /* La carte du haut porte déjà l'itinéraire de cette étape : inutile de le
+     répéter à un écran d'écart. */
+  const repete = vedette === `${slot}.${i}`;
   return `<div class="item${done ? " done" : ""}${matches(it) ? "" : " dim"}" data-t="${it.t}">
     <span class="mark"><svg><use href="#${ICON[it.t]}"/></svg></span>
     <div class="body">
@@ -1567,7 +1570,7 @@ function itemHTML(day, slot, it, i){
       ${it.sunset ? `<span class="note"><svg><use href="#i-sunset"/></svg>Coucher du soleil ${hhmm(day.sunT.set)}</span>` : ""}
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       <div class="acts">
-        ${it.map ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
+        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
         <button class="tick" data-k="${k}" aria-pressed="${done}"><svg><use href="#i-check"/></svg>${done ? "Fait" : "Cocher"}</button>
       </div>
     </div>
@@ -1578,19 +1581,23 @@ function dayHTML(d, { live }){
   const ph = PHASES[d.phase];
   const cur = live ? currentSlot() : null;
   const m = nowMin();
-  const departs = allItems(d).map(x => x.it).filter(it => it.t === "depart" && toMinutes(it.when) !== null);
-  const next = live ? departs.find(it => toMinutes(it.when) > m) : departs[0];
+  /* On garde la référence complète (créneau + rang) pour savoir quelle étape
+     la carte du haut met en avant. */
+  const departs = allItems(d).filter(x => x.it.t === "depart" && toMinutes(x.it.when) !== null);
+  const nextRef = live ? departs.find(x => toMinutes(x.it.when) > m) : departs[0];
+  const next = nextRef ? nextRef.it : null;
 
-  let alarm = "";
+  let alarm = "", vedette = null;
   if (live){
     /* Aujourd'hui : une seule carte répond à « et maintenant ? ». */
     const { encours, suivant, reste } = prochaineEtape(d);
-    const vedette = suivant || encours;
-    if (vedette){
-      const dep = vedette.it.t === "depart";
+    const aMontrer = suivant || encours;
+    if (aMontrer){
+      const carte = suivant || encours;
+      const enCours = !suivant;
+      const dep = carte.it.t === "depart";
       const urgent = suivant && reste <= 90;
-      const carte = encours && !suivant ? encours : (suivant || encours);
-      const enCours = carte === encours && !suivant;
+      vedette = `${carte.slot}.${carte.i}`;
       alarm = `<div class="suite${urgent ? " imminent" : ""}${dep ? " depart" : ""}">
         <div class="sq">
           <span class="lab">${enCours ? "En ce moment" : suivant ? "Prochaine étape" : "En ce moment"}</span>
@@ -1603,10 +1610,11 @@ function dayHTML(d, { live }){
           ${carte.it.rdv ? `<p>${esc(carte.it.rdv)}</p>` : ""}
         </div>
         ${carte.it.map ? `<a class="sgo" href="${carte.it.map}" target="_blank" rel="noopener noreferrer">
-          <svg><use href="#i-map"/></svg>Y aller</a>` : ""}
+          <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
       </div>`;
     }
   } else if (next){
+    vedette = `${nextRef.slot}.${nextRef.i}`;
     alarm = `<div class="suite depart">
       <div class="sq">
         <span class="lab">Premier départ</span>
@@ -1614,7 +1622,7 @@ function dayHTML(d, { live }){
       </div>
       <div class="sc"><b>On quitte ${ph.home}</b>${next.map ? "" : ""}</div>
       ${next.map ? `<a class="sgo" href="${next.map}" target="_blank" rel="noopener noreferrer">
-        <svg><use href="#i-map"/></svg>Y aller</a>` : ""}
+        <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
     </div>`;
   }
 
@@ -1650,7 +1658,7 @@ function dayHTML(d, { live }){
           </header>
           <div class="items">
             ${items.length
-              ? items.map((it, i) => itemHTML(d, s.k, it, i)).join("")
+              ? items.map((it, i) => itemHTML(d, s.k, it, i, vedette)).join("")
               : `<p class="empty">Rien de prévu — ${s.k === "soir" ? "vous serez déjà dans l'avion." : "au gré de l'envie."}</p>`}
           </div>
         </article>`;
