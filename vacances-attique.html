@@ -263,6 +263,13 @@ main{padding-bottom:64px}
 .item[data-t="swim"] .mark{color:var(--sea); border-color:color-mix(in oklab,var(--sea) 34%,var(--line)); background:var(--sea-soft)}
 .item[data-t="depart"] .mark{color:var(--ochre); border-color:color-mix(in oklab,var(--ochre) 40%,var(--line)); background:var(--ochre-soft)}
 .item[data-t="travel"] .mark,.item[data-t="food"] .mark,.item[data-t="plain"] .mark{color:var(--ink-3)}
+.item[data-t="repas"] .mark{color:var(--ochre); border-color:color-mix(in oklab,var(--ochre) 34%,var(--line)); background:var(--ochre-soft)}
+.sacre{
+  display:inline-block; margin-left:8px; vertical-align:2px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ochre); border:1px solid currentColor; border-radius:99px; padding:2px 7px;
+}
+.ci[data-t="repas"] svg{color:var(--ochre)}
 
 .body{min-width:0}
 .ttl{font-weight:600; font-size:.98rem; letter-spacing:-.005em}
@@ -731,7 +738,7 @@ const DAYS = [
 
   { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9747,23.7218"),
-             corrige:"Petit-déjeuner de 7 h à 10 h : vous n'avez que 45 min. Descendez à l'ouverture."},
+},
             {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale"},
             {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides", note:"Arriver 10 h 45 — guichet jeunes"} ],
     aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"},
@@ -743,7 +750,7 @@ const DAYS = [
 
   { n:3, date:"2026-08-19", dow:"Mer", dm:"19 août", phase:1, title:"Zeus olympien & Lycabette", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9693,23.7331"),
-             corrige:"Petit-déjeuner de 7 h à 10 h : 45 min avant de partir."},
+},
             {t:"site", ttl:"Temple de Zeus olympien", when:"8 h – 9 h", det:"Porte d'Hadrien"},
             {t:"site", ttl:"Agora romaine", when:"10 h – 11 h", det:"Tour des Vents"} ],
     aprem:[ {t:"site", ttl:"Psiri", det:"Quartier street art"},
@@ -846,7 +853,7 @@ const SLOTS = [
   { k:"aprem", label:"Après-midi", icon:"i-noon", from:12*60, to:17*60 },
   { k:"soir",  label:"Soir", icon:"i-sunset", from:17*60, to:24*60 }
 ];
-const ICON = { site:"i-site", swim:"i-swim", depart:"i-depart", travel:"i-travel", food:"i-food", plain:"i-plain" };
+const ICON = { site:"i-site", swim:"i-swim", depart:"i-depart", travel:"i-travel", food:"i-food", plain:"i-plain", repas:"i-food" };
 const DOW_FULL = { Lun:"Lundi", Mar:"Mardi", Mer:"Mercredi", Jeu:"Jeudi", Ven:"Vendredi", Sam:"Samedi", Dim:"Dimanche" };
 
 /* ════════════════════════════  SOLEIL  ════════════════════════════
@@ -873,8 +880,49 @@ function sunTimes(dateISO, [lat, lon]){
 const hhmm = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
 DAYS.forEach(d => { d.sunT = sunTimes(d.date, d.sun); });
 
+/* ════════════════════════════  LE PETIT-DÉJEUNER  ════════════════════════════
+   Sacré : c'est le repas qu'on sacrifie quand on est pressé, et celui qui
+   manque le plus à 11 h devant une colonne. On le calcule à rebours du départ
+   — fin dix minutes avant, pour avoir le temps de monter chercher un sac.
+   À l'hôtel le service ouvre à 7 h et ferme à 10 h ; au penthouse, c'est vous
+   qui décidez, donc une heure suffit.                                          */
+const SERVICE_HOTEL = { de:7 * 60, a:10 * 60 };
+const fmtH = m => `${Math.floor(m / 60)} h${m % 60 ? " " + String(m % 60).padStart(2, "0") : ""}`;
+
+function petitDejeuner(d){
+  if (d.n === 1) return null;                       // arrivée à 18 h 30, pas de matin
+  /* Où l'on a dormi, pas où l'on va : le 22 au matin on est encore à l'hôtel,
+     on n'en part qu'à 9 h 15 pour récupérer la voiture. */
+  const hotel = d.n <= 6;
+  const dep = (d.matin || []).find(i => i.t === "depart" && toMinutes(i.when) !== null);
+  const heureDep = dep ? toMinutes(dep.when) : null;
+  const duree = hotel ? 75 : 60;
+  let de, a, det;
+
+  if (heureDep !== null){
+    a = heureDep - 10;
+    de = Math.max(hotel ? SERVICE_HOTEL.de : 0, a - duree);
+    if (hotel && a > SERVICE_HOTEL.a) a = SERVICE_HOTEL.a;
+    det = hotel
+      ? (de <= SERVICE_HOTEL.de ? "Au 1er étage, dès l'ouverture — vous n'avez pas de marge." : "Au 1er étage, vue mer.")
+      : "Sur la terrasse, avant de charger la voiture.";
+  } else {
+    de = hotel ? SERVICE_HOTEL.de + 60 : 8 * 60;
+    a = hotel ? SERVICE_HOTEL.a : 9 * 60 + 30;
+    det = hotel ? "Au 1er étage, sans se presser." : "Sur la terrasse, sans se presser.";
+  }
+  const serre = a - de <= 40;
+  return {
+    t:"repas", sacre:true, ttl:"Petit-déjeuner", when:`${fmtH(de)} – ${fmtH(a)}`, det,
+    note: serre ? "Créneau court : descendez à l'ouverture." : null
+  };
+}
+/* On l'insère en tête de matinée : tout le reste — calendrier, prochaine
+   étape, recherche, vue parallèle — le voit alors comme une étape ordinaire. */
+DAYS.forEach(d => { const p = petitDejeuner(d); if (p) d.matin = [p, ...(d.matin || [])]; });
+
 /* ════════════════════════════  ÉTAT  ════════════════════════════ */
-const STORE = "attique2026:v1";
+const STORE = "attique2026:v2";
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state.done)); } catch {} };
 
@@ -1023,7 +1071,8 @@ function buildICS(){
       icsFold(`SUMMARY:${icsEsc(summary)}`),
       desc ? icsFold(`DESCRIPTION:${icsEsc(desc)}`) : null,
       url ? icsFold(`URL:${url}`) : null,
-      ...(alarm ? ["BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER:-PT10M",
+      ...(alarm ? ["BEGIN:VALARM", "ACTION:DISPLAY",
+                   `TRIGGER:-PT${/Petit-déjeuner/.test(alarm) ? 0 : 10}M`,
                    icsFold(`DESCRIPTION:${icsEsc(alarm)}`), "END:VALARM"] : []),
       "END:VEVENT"
     );
@@ -1051,7 +1100,8 @@ function buildICS(){
         const r = whenRange(it.when, 60);
         if (!r) return;
         push(uid, icsStamp(d.date, r.start), icsStamp(d.date, r.end),
-          it.ttl, [it.rdv, it.det, it.note].filter(Boolean).join("\n"), null, null);
+          it.ttl, [it.rdv, it.det, it.note].filter(Boolean).join("\n"), null,
+          it.sacre ? "Petit-déjeuner — on ne le saute pas" : null);
       }
     });
   });
@@ -1563,7 +1613,8 @@ function itemHTML(day, slot, it, i, vedette){
   return `<div class="item${done ? " done" : ""}${matches(it) ? "" : " dim"}" data-t="${it.t}">
     <span class="mark"><svg><use href="#${ICON[it.t]}"/></svg></span>
     <div class="body">
-      <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}</div>
+      <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}${
+        it.sacre ? `<span class="sacre">sacré</span>` : ""}</div>
       ${it.det ? `<p class="det">${highlight(it.det)}</p>` : ""}
       ${it.rdv ? `<span class="note rdv"><svg><use href="#i-map"/></svg>${esc(it.rdv)}</span>` : ""}
       ${it.corrige ? `<span class="note corr"><svg><use href="#i-info"/></svg>${esc(it.corrige)}</span>` : ""}
