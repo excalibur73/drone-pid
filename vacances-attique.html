@@ -2212,10 +2212,7 @@ function avisHTML(d){
     </div>
     <label class="sr" for="avis-${d.n}">Commentaire de la journée</label>
     <textarea id="avis-${d.n}" data-avis="${d.n}" placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
-    <p class="etatsync ${etatSync}">${
-      etatSync === "ok" ? "Partagé avec les autres téléphones."
-      : etatSync === "local" ? "Hors connexion : enregistré ici, envoyé dès que le réseau revient."
-      : "Mise en commun en cours…"}${ENATTENTE.length ? ` ${ENATTENTE.length} en attente.` : ""}</p>
+    ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}</p>`; })()}
     ${autres.length ? `<div class="autresavis">
       ${autres.map(([id, a]) => `<div class="unavis">
         <span class="ai"><b>${esc(nomDe(id))}</b>${a.note ? ` · ${a.note}/5` : ""}</span>
@@ -2230,12 +2227,30 @@ function avisHTML(d){
    la modification attend dans une file et repart à la première occasion. */
 const ATTENTE_STORE = "attique2026:enattente";
 let ENATTENTE = (() => { try { return JSON.parse(localStorage.getItem(ATTENTE_STORE)) || []; } catch { return []; } })();
-let etatSync = "inconnu";           // inconnu · ok · local
+let dernierEchange = "inconnu";     // inconnu · ok · echec
+
+/* L'état se constate au moment de l'affichage : le réseau peut tomber entre
+   deux rendus, et une variable mémorisée mentirait. */
+function etatPartage(){
+  if (!navigator.onLine)
+    return { c:"local", t:`Hors connexion : enregistré ici, envoyé dès que le réseau revient.${
+      ENATTENTE.length ? ` ${ENATTENTE.length} en attente.` : ""}` };
+  if (ENATTENTE.length)
+    return { c:"local", t:`Envoi en cours — ${ENATTENTE.length} en attente.` };
+  if (dernierEchange === "ok") return { c:"ok", t:"Partagé avec les autres téléphones." };
+  if (dernierEchange === "echec") return { c:"local", t:"Serveur injoignable : enregistré ici seulement." };
+  return { c:"", t:"Mise en commun en cours…" };
+}
 
 const garderAttente = () => { try { localStorage.setItem(ATTENTE_STORE, JSON.stringify(ENATTENTE)); } catch {} };
 
+/* Redessiner pendant qu'on écrit recréerait le champ et emporterait la
+   phrase en cours : on rend quand même, mais en remettant la saisie et le
+   curseur là où ils étaient. Sauter le rendu laissait un état périmé. */
+function renderSiLibre(){ render(); }
+
 async function lireAvis(){
-  if (!navigator.onLine) { etatSync = "local"; return; }
+  if (!navigator.onLine) { dernierEchange = "echec"; return; }
   try {
     const r = await fetch("/api/avis", { cache:"no-store" });
     if (!r.ok) throw new Error(r.status);
@@ -2243,9 +2258,9 @@ async function lireAvis(){
     Object.keys(AVIS).forEach(k => delete AVIS[k]);
     Object.assign(AVIS, distant);
     noteEcrire(AVIS_STORE, AVIS);
-    etatSync = "ok";
-    render();
-  } catch { etatSync = "local"; }
+    dernierEchange = "ok";
+    renderSiLibre();
+  } catch { dernierEchange = "echec"; }
 }
 
 async function poussserUn(e){
@@ -2260,9 +2275,9 @@ async function viderAttente(){
   const file = [...ENATTENTE];
   for (const e of file){
     try { await poussserUn(e); ENATTENTE.shift(); garderAttente(); }
-    catch { etatSync = "local"; return; }
+    catch { dernierEchange = "echec"; return; }
   }
-  etatSync = "ok";
+  dernierEchange = "ok";
   await lireAvis();
 }
 
@@ -2276,7 +2291,7 @@ function enregistrerAvis(jour, champs){
   ENATTENTE = ENATTENTE.filter(x => !(x.jour === env.jour && x.qui === env.qui));
   ENATTENTE.push(env);
   garderAttente();
-  viderAttente();
+  viderAttente().then(renderSiLibre);
 }
 
 addEventListener("online", viderAttente);
@@ -2822,6 +2837,9 @@ function renderFoot(){
     : "l'avancement suit l'heure d'Athènes";
 }
 function render(){
+  const actif = document.activeElement;
+  const saisie = actif && actif.id && actif.matches && actif.matches("textarea")
+    ? { id:actif.id, v:actif.value, d:actif.selectionStart, f:actif.selectionEnd } : null;
   const searching = state.view === "day" && state.query.trim().length > 0;
   document.getElementById("dayView").hidden    = state.view !== "day" || searching;
   document.getElementById("searchView").hidden = !searching;
@@ -2837,6 +2855,15 @@ function render(){
   const h = state.view === "grid" ? "#tableau" : state.view === "carnet" ? "#carnet"
           : state.view === "chrono" ? "#chronologie" : `#j${DAYS[state.day].n}`;
   if (location.hash !== h) history.replaceState(null, "", h);
+
+  if (saisie){
+    const n = document.getElementById(saisie.id);
+    if (n){
+      n.value = saisie.v;
+      n.focus();
+      try { n.setSelectionRange(saisie.d, saisie.f); } catch {}
+    }
+  }
 }
 function goToDay(i){
   state.day = Math.max(0, Math.min(DAYS.length - 1, i));
