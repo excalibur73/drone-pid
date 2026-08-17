@@ -722,13 +722,6 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
 @media (prefers-reduced-motion:reduce){
   *{transition-duration:.01ms !important; animation:none !important; scroll-behavior:auto !important}
 }
-@media print{
-  .railbar,.toolbar,.iconbtn,.acts,footer,.alarm,.pack{display:none}
-  body{background:#fff}
-  .slot,.scroller{box-shadow:none; break-inside:avoid}
-  .printday{break-before:page}
-  .printday:first-of-type{break-before:auto}
-}
 </style>
 
 <svg class="sr" aria-hidden="true"><defs>
@@ -853,7 +846,6 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
 
     <footer>
       <span id="doneCount">—</span>
-      <button id="printBtn">imprimer les 11 jours</button>
       <button id="icsFoot" hidden>télécharger le calendrier</button>
       <span class="off" id="offlineFlag" hidden><svg><use href="#i-offline"/></svg>disponible hors connexion</span>
       <span class="hint">← → changer de jour · glisser du doigt sur mobile</span>
@@ -2248,7 +2240,7 @@ function dayHTML(d, { live }){
   }
 
   const pack = packFor(d);
-  return `<div class="printday">
+  return `<div class="journee">
     <div class="dayhead">
       <h2>${esc(d.title)}</h2>
       <span class="tag p${d.phase}">${esc(ph.short)} · ${esc(ph.mode)}</span>
@@ -2612,20 +2604,6 @@ let qt;
 document.getElementById("q").addEventListener("input", e => {
   clearTimeout(qt);
   qt = setTimeout(() => { state.query = e.target.value; render(); }, 120);
-});
-document.getElementById("printBtn").addEventListener("click", () => {
-  const prev = state.view, keep = document.getElementById("dayView").innerHTML;
-  document.getElementById("dayView").innerHTML = DAYS.map(d => dayHTML(d, { live:false })).join("");
-  document.getElementById("dayView").hidden = false;
-  document.getElementById("searchView").hidden = true;
-  document.getElementById("gridView").hidden = true;
-  const restore = () => {
-    document.getElementById("dayView").innerHTML = keep;
-    state.view = prev; render();
-    window.removeEventListener("afterprint", restore);
-  };
-  window.addEventListener("afterprint", restore);
-  print();
 });
 document.getElementById("themeBtn").addEventListener("click", () => {
   const root = document.documentElement;
