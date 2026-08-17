@@ -469,6 +469,11 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 
 .note.rdv{color:var(--sea)}
 .note.corr{color:var(--ochre)}
+.note.alerte{
+  color:var(--ochre); background:var(--ochre-soft); border-radius:var(--r-sm);
+  padding:6px 10px; align-items:flex-start; line-height:1.45; font-family:var(--sans); font-size:.83rem;
+}
+.note.alerte svg{margin-top:3px}
 
 /* ─────────────────────────────  AUTOUR  ───────────────────────────── */
 .autour{
@@ -908,7 +913,8 @@ const DAYS = [
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true,
             rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
-            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris."},
+            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris.",
+            alerte:"Barbecue grec : prévenez l'opérateur pour un repas sans porc, avant le jour même."},
            {t:"swim", ttl:"Baignade Hydrousa + Varkiza", det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
@@ -1322,6 +1328,7 @@ const SAVOIRS = {
     regarder:[
       "Le petit-déjeuner : café ou thé, lait, pain ou biscottes, yaourt grec et miel — le vrai, celui de thym —, fruits de saison, œufs, jus. Comptez large : les pêches et les figues d'août ne survivent pas à cinq jours.",
       "Le pique-nique du 24 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace, la voiture restera au soleil pendant la croisière.",
+      "Sans porc : évitez le rayon charcuterie, où presque tout en contient — ζαμπόν (jambon), λουκάνικο (saucisse), μπέικον. Le poulet (κοτόπουλο), l'agneau (αρνί) et le poisson (ψάρι) sont partout, et les mezze végétariens aussi.",
       "L'eau : prévoyez de grosses bouteilles. Vous en boirez plus que vous ne pensez par 35°, et les criques n'ont pas de buvette."
     ],
     mot:"Les grandes enseignes grecques — Sklavenitis, AB, Lidl, My Market — ont des magasins le long de la côte vers Anavyssos."
@@ -1402,7 +1409,7 @@ const SAVOIRS = {
     quoi:"Départ de la marina Delta, à Kallithea, sur un caïque traditionnel en bois. Deux mouillages, un barbecue à bord, et le retour au couchant le long de la Riviera athénienne. Le golfe Saronique est une mer fermée et abritée — c'est là que la flotte perse fut détruite à Salamine en 480 av. J.-C.",
     regarder:[
       "Premier arrêt, l'îlot d'Hydrousa : inhabité, sans construction, eaux claires. Baignade et masque — le matériel est fourni à bord, inutile d'emporter le vôtre.",
-      "Puis le barbecue grec en naviguant, avec buffet de spécialités. Vin blanc, bière, boissons et eau sont compris et servis sans compter : c'est votre dîner, ne mangez pas avant.",
+      "Puis le barbecue grec en naviguant, avec buffet de spécialités. C'est votre dîner, ne mangez pas avant — mais prévenez l'opérateur : en Grèce la viande grillée est le plus souvent du porc, et une demande sans porc se prépare en cuisine, pas à bord. Les boissons sans alcool et l'eau sont comprises au même titre que le reste.",
       "Deuxième arrêt, la baie de Varkiza : eaux calmes, dernière baignade. Puis retour vers Kallithea à la musique, face à la côte — l'angle sous lequel les Athéniens voyaient leur ville en rentrant de la mer."
     ],
     mot:"Embarquement 15 h 45 ; le soleil se couche à 20 h 13 ce soir-là, en mer."
@@ -1993,6 +2000,9 @@ const LEXIQUE = [
   { g:"Νερό",         p:"né-RO",           f:"De l'eau" },
   { g:"Φρέντο εσπρέσο", p:"FRÉ-do es-PRÈ-so", f:"Le café glacé du pays" },
   { g:"Χωρίς αλκοόλ", p:"kho-RISS al-ko-OL", f:"Sans alcool" },
+  { g:"Χωρίς χοιρινό", p:"kho-RISS khi-ri-NO", f:"Sans porc" },
+  { g:"Έχει χοιρινό;", p:"É-khi khi-ri-NO", f:"Est-ce qu'il y a du porc dedans ?" },
+  { g:"Ψάρι ή κοτόπουλο;", p:"PSA-ri i ko-TO-pou-lo", f:"Du poisson ou du poulet ?" },
   { g:"Πού είναι η τουαλέτα;", p:"POU I-né i toua-LÉ-ta", f:"Où sont les toilettes ?" },
   { g:"Γεια μας",     p:"YA mass",         f:"Santé ! — on trinque avec ce qu'on veut" },
   { g:"Πολύ νόστιμο", p:"po-LI NO-sti-mo", f:"C'est délicieux" },
@@ -2137,6 +2147,7 @@ function itemHTML(day, slot, it, i, vedette){
       <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}${
         it.sacre ? `<span class="sacre">sacré</span>` : ""}</div>
       ${it.det ? `<p class="det">${highlight(it.det)}</p>` : ""}
+      ${it.alerte ? `<span class="note alerte"><svg><use href="#i-info"/></svg>${esc(it.alerte)}</span>` : ""}
       ${it.rdv ? `<span class="note rdv"><svg><use href="#i-map"/></svg>${esc(it.rdv)}</span>` : ""}
       ${it.corrige ? `<span class="note corr"><svg><use href="#i-info"/></svg>${esc(it.corrige)}</span>` : ""}
       ${it.sunset ? `<span class="note"><svg><use href="#i-sunset"/></svg>Coucher du soleil ${hhmm(day.sunT.set)}</span>` : ""}
@@ -2365,6 +2376,32 @@ function renderCarnet(){
           <div class="chiffres-gr">
             ${CHIFFRES.map(([n, g, p]) => `<button type="button" class="dire-chiffre" data-dire="${esc(g)}"
               aria-label="Écouter ${esc(g)}"><b>${n}</b> ${esc(g)} <i>${esc(p)}</i></button>`).join("")}
+          </div>
+        </div>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <header>
+          <h3>Manger sans porc ni alcool</h3>
+          <p>La cuisine grecque s'y prête bien — encore faut-il savoir où se cachent les exceptions.</p>
+        </header>
+        <div class="inner">
+          <div class="fld">
+            <span>Ce qui va de soi</span>
+            <p style="font-size:.88rem;color:var(--ink-2)">Le poisson et les fruits de mer, omniprésents sur votre côte — vos trois dîners réservés sont d'ailleurs des grillades de poisson. Le poulet (κοτόπουλο) et l'agneau (αρνί), très courants. Et tous les mezze végétariens : fava, gigantes, dolmades, tzatziki, melitzanosalata, horiatiki, spanakopita.</p>
+          </div>
+          <div class="fld">
+            <span>Ce qui contient du porc sans le dire</span>
+            <p style="font-size:.88rem;color:var(--ink-2)">Le <b>gyros</b> et le <b>souvláki</b> sont au porc par défaut : demandez-les κοτόπουλο. Le <b>loukániko</b> est une saucisse de porc. Certaines tourtes salées cachent du jambon. Au supermarché, tout le rayon charcuterie est à éviter.</p>
+          </div>
+          <div class="fld">
+            <span>La phrase qui règle tout</span>
+            <p style="font-size:.98rem"><b>Χωρίς χοιρινό, παρακαλώ</b> — <span style="font-family:var(--mono);color:var(--sea)">kho-RISS khi-ri-NO, paraka-LO</span></p>
+            <p style="font-size:.86rem;color:var(--ink-2)">« Sans porc, s'il vous plaît. » Elle est dans le lexique avec le son, comme « Έχει χοιρινό ; » pour demander ce qu'il y a dedans.</p>
+          </div>
+          <div class="fld">
+            <span>À faire avant jeudi</span>
+            <p style="font-size:.88rem;color:var(--ink-2)">Prévenir l'opérateur de la croisière du 20 : le barbecue à bord est préparé à l'avance, une demande sans porc se traite en cuisine, pas au moment de servir.</p>
           </div>
         </div>
       </article>
