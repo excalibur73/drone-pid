@@ -611,7 +611,6 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 }
 .qui:hover{border-color:var(--sea); color:var(--sea)}
 .qui.primaire{background:var(--sea); border-color:var(--sea); color:#fff; flex:0 0 auto}
-.qui.primaire.large{flex:1 1 100%}
 .qui.primaire:hover{color:#fff; filter:brightness(1.08)}
 .soir-q{margin-top:12px; font-size:.9rem; color:var(--ink)}
 .codeligne{display:flex; gap:9px; margin-top:10px; flex-wrap:wrap}
@@ -2286,7 +2285,7 @@ function baignadeHTML(d){
 /* La clé a changé de nom : les téléphones qui avaient déjà choisi un prénom
    sans le confirmer repartent d'une page blanche, et l'ancienne valeur est
    effacée au passage. */
-const QUI_STORE = "attique2026:qui3", AVIS_STORE = "attique2026:avis";
+const QUI_STORE = "attique2026:qui4", AVIS_STORE = "attique2026:avis";
 /* On s'annonce par sa date de naissance, pas en se désignant dans une liste :
    la date dit qui écrit, et la liste ne servait qu'à donner un nom à quelqu'un
    qui n'avait rien prouvé. Elle ne reparaît que dans le seul cas où la date ne
@@ -2305,15 +2304,15 @@ const FAMILLE = [
 ];
 let QUI = (() => {
   try {
-    localStorage.removeItem("attique2026:qui");   // choix jamais confirmé
-    localStorage.removeItem("attique2026:qui2");  // confirmé par la seule date de naissance
+    ["attique2026:qui", "attique2026:qui2", "attique2026:qui3"]
+      .forEach(k => localStorage.removeItem(k));   // essais précédents, tous périmés
     return localStorage.getItem(QUI_STORE) || null;
   } catch { return null; }
 })();
-/* Étape en cours : « entrer » avec son code, ou « creer » le sien la première
-   fois. CHOIX est le prénom retenu dans la liste de création, INSCRITS ceux
-   qui ont déjà un code — le serveur le dit sans livrer aucune empreinte. */
-let ETAPE = "entrer", CHOIX = null, ERREUR_CODE = "", INSCRITS = null;
+/* Étape en cours de l'identification : RECONNUS vaut null tant que la date
+   n'a pas été reconnue, puis la liste des prénoms qu'elle désigne — un seul,
+   sauf pour les deux nés le même jour. CHOIX est celui retenu dans la liste. */
+let RECONNUS = null, CHOIX = null, ERREUR_CODE = "";
 /* Lecture autonome : « lire » est déclaré plus bas, et une constante ne
    s'utilise pas avant sa déclaration. */
 const AVIS = (() => { try { return JSON.parse(localStorage.getItem(AVIS_STORE)) || {}; } catch { return {}; } })();
@@ -2331,67 +2330,44 @@ function avisHTML(d){
     Une note comme un commentaire se modifient autant de fois qu'on veut.</p>`;
 
   if (!QUI){
-    /* Création d'un code : on se réclame d'un prénom, on le prouve par la date
-       de naissance — qui écarte un inconnu, pas un frère — puis on choisit le
-       secret qui, lui, protège vraiment. */
-    if (ETAPE === "creer"){
-      const libres = FAMILLE.filter(f => !(INSCRITS || []).includes(f.id));
+    /* Deuxième temps : la date est reconnue, on l'associe à un prénom. */
+    if (RECONNUS){
+      const seul = RECONNUS.length === 1 ? FAMILLE.find(f => f.id === RECONNUS[0]) : null;
       return `<section class="soir">
         <h4>Le mot du soir</h4>
         ${aQuoiCaSert}
-        <form class="codeform" data-creerform>
-          <p class="soir-q">Première fois : choisissez le code que vous serez seul à connaître.</p>
-          ${libres.length ? `
+        <form class="codeform" data-quiform>
+          <p class="soir-q">Date reconnue.${seul ? "" : " Deux personnes de la famille sont nées ce jour-là."}</p>
+          ${seul
+            ? `<p class="soir-vous">Vous êtes <b>${esc(seul.nom)}</b>.</p>`
+            : `<div class="codeligne">
+                 <label for="quiselect">Qui êtes-vous ?</label>
+                 <select id="quiselect">
+                   ${RECONNUS.map(id => `<option value="${id}"${id === CHOIX ? " selected" : ""}>${esc(nomDe(id))}</option>`).join("")}
+                 </select>
+               </div>`}
           <div class="codeligne">
-            <label for="quiselect">Vous êtes</label>
-            <select id="quiselect">
-              ${libres.map(f => `<option value="${f.id}"${f.id === CHOIX ? " selected" : ""}>${esc(f.nom)}</option>`).join("")}
-            </select>
+            <button type="submit" class="qui primaire">Valider</button>
+            <button type="button" class="changequi recommencer">← ce n'est pas moi</button>
           </div>
-          <div class="codeligne">
-            <label class="sr" for="codenaiss">Votre date de naissance, huit chiffres</label>
-            <input id="codenaiss" type="password" inputmode="numeric" autocomplete="off"
-                   maxlength="8" placeholder="Votre date : JJMMAAAA">
-          </div>
-          <div class="codeligne">
-            <label class="sr" for="codeneuf">Votre nouveau code</label>
-            <input id="codeneuf" type="password" autocomplete="new-password"
-                   maxlength="24" placeholder="Votre code, 4 caractères au moins">
-          </div>
-          <div class="codeligne">
-            <label class="sr" for="codeneuf2">Le même, pour vérifier</label>
-            <input id="codeneuf2" type="password" autocomplete="new-password"
-                   maxlength="24" placeholder="Le même, pour vérifier">
-          </div>
-          <div class="codeligne">
-            <button type="submit" class="qui primaire large">Créer mon code</button>
-          </div>` : `<p class="soir-vous">Les quatre codes sont déjà créés.</p>`}
-          <p class="codeaide${ERREUR_CODE ? " faux" : ""}">${
-            ERREUR_CODE ? esc(ERREUR_CODE)
-            : "Ne le dites à personne — c'est ce qui empêche les autres d'entrer sous votre nom et de savoir quel avis est le vôtre."}</p>
-          <button type="button" class="changequi recommencer">← j'ai déjà un code</button>
         </form>
       </section>`;
     }
-    /* Entrée courante : le code seul suffit, il ne désigne qu'une personne. */
+    /* Premier temps : la date, et rien d'autre. */
     return `<section class="soir">
       <h4>Le mot du soir</h4>
       ${aQuoiCaSert}
       <form class="codeform" data-codeform>
-        <p class="soir-q">Votre code personnel.</p>
+        <p class="soir-q">Pour écrire ici, annoncez-vous : votre date de naissance.</p>
         <div class="codeligne">
-          <label class="sr" for="codeperso">Votre code</label>
-          <input id="codeperso" type="password" autocomplete="current-password"
-                 maxlength="24" placeholder="Votre code" aria-describedby="codeaide">
+          <label class="sr" for="codenaiss">Date de naissance, huit chiffres</label>
+          <input id="codenaiss" type="password" inputmode="numeric" autocomplete="off"
+                 maxlength="8" placeholder="JJMMAAAA" aria-describedby="codeaide">
           <button type="submit" class="qui primaire">Entrer</button>
         </div>
         <p id="codeaide" class="codeaide${ERREUR_CODE ? " faux" : ""}">${
           ERREUR_CODE ? esc(ERREUR_CODE)
-          : `Une seule fois : ce téléphone s'en souviendra.${
-              INSCRITS && INSCRITS.length < FAMILLE.length
-                ? ` Encore sans code : ${FAMILLE.filter(f => !INSCRITS.includes(f.id)).map(f => f.nom).join(", ")}.`
-                : ""}`}</p>
-        <button type="button" class="changequi creerlien">Première fois ? Créer mon code →</button>
+          : "Huit chiffres à la suite, sans séparateur — le 3 février 1990 s'écrit 03021990. Une seule fois : ce téléphone s'en souviendra."}</p>
       </form>
     </section>`;
   }
@@ -2418,7 +2394,7 @@ function avisHTML(d){
       if (!liste.length) return "";
       return `<div class="autresavis">
         <p class="anontitre">${liste.length} avis pour cette journée${
-          REVELER ? "" : " — à vous de deviner qui a écrit quoi"}</p>
+          REVELER ? "" : " — à vous de deviner qui a écrit quoi. On joue franc jeu : la date de naissance ouvre l'accès, et chacun connaît celle des autres"}</p>
         ${liste.map((x, i) => `<div class="unavis${x.id === QUI ? " mien" : ""}">
           <span class="ai"><b>${REVELER ? esc(nomDe(x.id)) : `Avis ${i + 1}`}</b>${
             x.id === QUI ? ` · vous` : ""}${x.a.note ? ` · ${x.a.note}/5` : ""}</span>
@@ -2432,8 +2408,16 @@ function avisHTML(d){
 }
 
 /* ── Anonymat ──
-   Les avis s'affichent sans nom : on lit, on devine, on rit. Deux précautions
-   pour que le jeu tienne.
+   Les avis s'affichent sans nom : on lit, on devine, on rit.
+
+   Il repose sur la bonne foi, et cela se dit franchement : la date de
+   naissance ouvre l'accès, or chacun connaît celle des autres. Qui voudrait
+   tricher entrerait sous un autre prénom et lirait son avis dans l'éditeur.
+   Un code personnel fermait cette porte ; il a été écarté — retenir un secret
+   de plus en vacances coûtait plus cher que le jeu ne rapporte. L'anonymat
+   protège donc de l'inattention, pas de la curiosité déterminée.
+
+   Deux précautions tout de même, contre ce qui trahirait sans qu'on le veuille.
 
    L'ordre d'abord. Le serveur rend toujours la famille dans le même ordre, si
    bien que la première place trahirait son auteur. On range donc par une
@@ -3153,12 +3137,11 @@ document.getElementById("viewChrono").addEventListener("click", () => { state.vi
    ferait perdre le curseur au milieu d'une phrase. */
 let saveT;
 document.addEventListener("click", e => {
-  if (e.target.closest(".creerlien")){ ETAPE = "creer"; ERREUR_CODE = ""; render(); return; }
   if (e.target.closest(".changequi")){
-    QUI = null; ETAPE = "entrer"; CHOIX = null; ERREUR_CODE = "";
+    QUI = null; RECONNUS = null; CHOIX = null; ERREUR_CODE = "";
     try { localStorage.removeItem(QUI_STORE); } catch {}
     render();
-    const ch = document.getElementById("codeperso"); if (ch) ch.focus();
+    const ch = document.getElementById("codenaiss"); if (ch) ch.focus();
     return;
   }
   const et = e.target.closest(".etoile");
@@ -3178,103 +3161,51 @@ document.addEventListener("click", e => {
   if (e.target.closest("#journalBtn")) envoyerJournal();
 });
 
-/* Identification. Deux clés, deux rôles distincts : la date de naissance dit
-   de quel membre de la famille on se réclame — toute la famille la connaît,
-   elle n'écarte qu'un inconnu — et le code personnel, choisi une fois, est le
-   seul à protéger d'un frère ou d'une sœur. Sans lui, il suffisait d'entrer
-   sous le nom d'un autre pour voir quel avis portait la mention « vous ».
-
-   Le code ne quitte jamais le téléphone : on n'envoie que son empreinte salée,
-   et le serveur ne rend jamais celles qu'il garde. Le calcul n'existe qu'en
-   contexte sûr — https ou localhost. */
+/* Identification par la date de naissance. On compare des empreintes : la date
+   saisie est hachée dans le navigateur et confrontée à celles inscrites dans la
+   page. Le calcul n'existe qu'en contexte sûr — https ou localhost. */
 async function empreinte(txt){
   const o = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt));
   return [...new Uint8Array(o)].map(b => b.toString(16).padStart(2, "0")).join("");
 }
-const SEL = "athenes-2026|";        // sale l'empreinte : un code court n'est pas un mot connu
-const empreinteCode = c => empreinte(SEL + c);
-
-async function chargerInscrits(){
-  try {
-    const r = await fetch("/api/qui", { cache:"no-store" });
-    if (!r.ok) throw new Error(r.status);
-    INSCRITS = (await r.json()).inscrits || [];
-    if (!QUI) render();
-  } catch { /* sans réseau on n'affiche simplement pas qui manque */ }
-}
-
+/* La liste ne propose que les prénoms que la date désigne : sans cela, une
+   date valable ouvrirait le carnet sous n'importe quel nom. */
 document.addEventListener("change", e => {
   if (e.target.id === "quiselect") CHOIX = e.target.value;
 });
-
-const sansCrypto = () => {
-  if (window.crypto && crypto.subtle) return false;
-  ERREUR_CODE = "Vérification impossible sur cette adresse — ouvrez le site en https.";
-  render();
-  return true;
-};
-const retenir = (id) => {
-  QUI = id; ETAPE = "entrer"; CHOIX = null; ERREUR_CODE = "";
-  try { localStorage.setItem(QUI_STORE, QUI); } catch {}
-  render();
-};
-
 document.addEventListener("submit", async e => {
-  /* Création : prénom revendiqué, date de naissance pour le prouver, code choisi. */
-  if (e.target.closest("[data-creerform]")){
+  /* Deuxième temps : on retient le prénom associé à la date reconnue. */
+  if (e.target.closest("[data-quiform]")){
     e.preventDefault();
-    if (sansCrypto()) return;
     const sel = document.getElementById("quiselect");
-    const id = sel ? sel.value : null;
-    const f = FAMILLE.find(x => x.id === id);
-    const ne = (document.getElementById("codenaiss") || {}).value || "";
-    const c1 = (document.getElementById("codeneuf") || {}).value || "";
-    const c2 = (document.getElementById("codeneuf2") || {}).value || "";
-    const raz = () => { ["codeneuf", "codeneuf2"].forEach(k => { const n = document.getElementById(k); if (n) n.value = ""; }); };
-
-    if (!f){ ERREUR_CODE = "Choisissez un prénom."; render(); return; }
-    if (await empreinte(ne.replace(/\D/g, "")) !== f.h){
-      ERREUR_CODE = `Ce n'est pas la date de naissance de ${f.nom}.`; render();
-      const n = document.getElementById("codenaiss"); if (n){ n.value = ""; n.focus(); }
-      return;
-    }
-    if (c1.length < 4){ ERREUR_CODE = "Quatre caractères au moins, pour que ce soit un secret."; render(); raz(); return; }
-    if (c1 !== c2){ ERREUR_CODE = "Les deux codes ne sont pas identiques."; render(); raz(); return; }
-
-    try {
-      const r = await fetch("/api/qui", { method:"POST", headers:{ "content-type":"application/json" },
-        body: JSON.stringify({ action:"inscrire", qui:id, h: await empreinteCode(c1) }) });
-      const rep = await r.json().catch(() => ({}));
-      if (r.ok){ await chargerInscrits(); retenir(id); return; }
-      ERREUR_CODE = rep.erreur === "pris"
-        ? `${f.nom} a déjà un code. Si c'est le vôtre et que vous l'avez oublié, il faut le remettre à zéro.`
-        : rep.erreur === "doublon"
-          ? "Ce code est déjà pris par quelqu'un d'autre — choisissez-en un autre."
-          : "Enregistrement impossible pour l'instant. Réessayez.";
-      render(); raz();
-    } catch {
-      ERREUR_CODE = "Serveur injoignable : impossible de créer un code sans réseau."; render();
-    }
+    const id = sel ? sel.value : RECONNUS && RECONNUS[0];
+    if (!RECONNUS || !RECONNUS.includes(id)) return;
+    QUI = id; RECONNUS = null; CHOIX = null;
+    try { localStorage.setItem(QUI_STORE, QUI); } catch {}
+    render();
     return;
   }
-
-  /* Entrée courante : le code désigne à lui seul son propriétaire. */
   if (!e.target.closest("[data-codeform]")) return;
   e.preventDefault();
-  if (sansCrypto()) return;
-  const champ = document.getElementById("codeperso");
-  const code = champ ? champ.value : "";
-  if (code.length < 4){ ERREUR_CODE = "Il manque des caractères."; render(); return; }
-  try {
-    const r = await fetch("/api/qui", { method:"POST", headers:{ "content-type":"application/json" },
-      body: JSON.stringify({ action:"entrer", h: await empreinteCode(code) }) });
-    if (r.ok){ retenir((await r.json()).qui); return; }
-    ERREUR_CODE = "Ce code n'est celui de personne. Réessayez, ou créez le vôtre.";
-  } catch {
-    ERREUR_CODE = "Serveur injoignable : la première entrée demande du réseau.";
+  const champ = document.getElementById("codenaiss");
+  const code = (champ ? champ.value : "").replace(/\D/g, "");
+  if (code.length !== 8){ ERREUR_CODE = "Il faut les huit chiffres : jour, mois, année."; render(); return; }
+  if (!(window.crypto && crypto.subtle)){
+    ERREUR_CODE = "Vérification impossible sur cette adresse — ouvrez le site en https."; render(); return;
   }
-  render();
-  const c = document.getElementById("codeperso"); if (c){ c.value = ""; c.focus(); }
+  const emp = await empreinte(code);
+  const trouves = FAMILLE.filter(f => f.h === emp).map(f => f.id);
+  if (trouves.length){
+    ERREUR_CODE = "";
+    /* Un seul prénom : on demande quand même de valider, pour que personne ne
+       se retrouve engagé sous un nom qu'il n'a pas lu. */
+    RECONNUS = trouves; CHOIX = trouves[0];
+    render();
+  } else {
+    ERREUR_CODE = "Cette date ne correspond à personne de la famille. Réessayez.";
+    render();
+    const c = document.getElementById("codenaiss"); if (c){ c.value = ""; c.focus(); }
+  }
 });
 
 document.addEventListener("input", e => {
@@ -3478,7 +3409,6 @@ render();
    Écran éteint, plus rien ne part : inutile de vider la batterie sur une plage.
    Le bouton « Actualiser » du mot du soir reste là pour qui veut forcer. */
 lireAvis();
-chargerInscrits();
 document.addEventListener("visibilitychange", () => { if (!document.hidden) lireAvis(); });
 addEventListener("pageshow", () => lireAvis());
 addEventListener("focus", () => lireAvis());
