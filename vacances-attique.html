@@ -991,7 +991,9 @@ const DAYS = [
             note:"À 500 m de l'hôtel, à pied le long de la mer"} ] },
 
   { n:2, date:"2026-08-18", dow:"Mar", dm:"18 août", phase:1, title:"Agora antique & musée de l'Acropole", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9747,23.7218"),
+    /* Décalé d'une demi-heure après l'arrivée retardée du 17. La limite n'est
+       pas le départ mais le portail de l'Agora, à franchir avant 9 h. */
+    matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(ALIMOS, "37.9747,23.7218"),
 },
             {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale",
              note:"8 h – 9 h est l'heure d'entrée, pas la durée : franchissez le portail avant 9 h et restez ensuite le temps que vous voulez. Pièces d'identité sur vous — les entrées gratuites des moins de 25 ans se justifient au contrôle"},
@@ -1162,8 +1164,13 @@ function petitDejeuner(d){
     a = heureDep - 10;
     de = Math.max(hotel ? SERVICE_HOTEL.de : 0, a - duree);
     if (hotel && a > SERVICE_HOTEL.a) a = SERVICE_HOTEL.a;
+    /* Commencer à l'ouverture ne veut pas dire manquer de temps : on ne le
+       signale que si le créneau est effectivement court. */
     det = hotel
-      ? (de <= SERVICE_HOTEL.de ? "Au 1er étage, dès l'ouverture — vous n'avez pas de marge." : "Au 1er étage, vue mer.")
+      ? (de <= SERVICE_HOTEL.de
+          ? (a - de <= 50 ? "Au 1er étage, dès l'ouverture — vous n'avez pas de marge."
+                          : "Au 1er étage, dès l'ouverture, vue mer.")
+          : "Au 1er étage, vue mer.")
       : "Sur la terrasse, avec les provisions du 22.";
   } else {
     de = hotel ? SERVICE_HOTEL.de + 60 : 8 * 60;
