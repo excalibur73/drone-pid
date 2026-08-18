@@ -2020,16 +2020,16 @@ const AGE_MAX = 15 * 60 * 1000;
 async function chargerPrevisions(force){
   if (PREVISIONS_EN_COURS) return;
   if (!force && PREVU_LE && Date.now() - PREVU_LE < AGE_MAX) return;
-  if (!navigator.onLine) { if (force) render(); return; }
+  if (!navigator.onLine) { if (force) renderSiLibre(); return; }
   PREVISIONS_EN_COURS = true;
-  if (force) render();
+  if (force) renderSiLibre();
   const r = await Promise.all([chargerMeteo(), chargerMer(), chargerMerHoraire()]);
   if (r.some(Boolean)){
     PREVU_LE = Date.now();
     try { localStorage.setItem(PREVU_STORE, String(PREVU_LE)); } catch {}
   }
   PREVISIONS_EN_COURS = false;
-  render();
+  renderSiLibre();
 }
 
 /* Ce que l'écran affiche vaut ce que vaut son âge : on le dit, plutôt que de
@@ -2508,10 +2508,27 @@ function depuisLecture(){
 
 const garderAttente = () => { try { localStorage.setItem(ATTENTE_STORE, JSON.stringify(ENATTENTE)); } catch {} };
 
-/* Redessiner pendant qu'on écrit recréerait le champ et emporterait la
-   phrase en cours : on rend quand même, mais en remettant la saisie et le
-   curseur là où ils étaient. Sauter le rendu laissait un état périmé. */
-function renderSiLibre(){ render(); }
+/* Redessiner pendant qu'on écrit détruit le champ et le recrée : la valeur
+   et le curseur étaient bien remis, mais le navigateur ramenait le champ
+   dans la vue en reprenant le focus — l'écran sautait au milieu d'une
+   phrase, toutes les minutes. On diffère donc le rendu tant qu'un champ est
+   actif, et on le rattrape dès qu'il est quitté : l'écran ne bouge plus, et
+   rien ne reste périmé longtemps. */
+let RENDU_DIFFERE = false;
+const enSaisie = () => {
+  const a = document.activeElement;
+  return !!(a && a.matches && a.matches("textarea, input:not([type=button])"));
+};
+function renderSiLibre(){
+  if (enSaisie()){ RENDU_DIFFERE = true; return; }
+  RENDU_DIFFERE = false;
+  render();
+}
+/* Le champ quitté, on rattrape ce qui a été mis de côté. */
+document.addEventListener("focusout", () => {
+  if (!RENDU_DIFFERE) return;
+  setTimeout(() => { if (RENDU_DIFFERE && !enSaisie()) renderSiLibre(); }, 60);
+});
 
 let DERNIERE_LECTURE = 0, LECTURE_EN_COURS = false;
 
@@ -3144,7 +3161,7 @@ function render(){
     const n = document.getElementById(saisie.id);
     if (n){
       n.value = saisie.v;
-      n.focus();
+      n.focus({ preventScroll:true });   // sans quoi le navigateur ramène le champ dans la vue
       try { n.setSelectionRange(saisie.d, saisie.f); } catch {}
     }
   }
