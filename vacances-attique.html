@@ -708,6 +708,20 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   font-family:var(--mono); font-size:.62rem; letter-spacing:.05em; color:#fff;
   background:linear-gradient(transparent,rgba(0,0,0,.62));
 }
+.vignette img{cursor:zoom-in}
+.retirer{
+  position:absolute; top:5px; right:5px; width:30px; height:30px; border-radius:50%;
+  display:grid; place-items:center; z-index:2;
+  border:1px solid rgba(255,255,255,.5); background:rgba(0,0,0,.55); color:#fff;
+  font-size:.82rem; line-height:1; backdrop-filter:blur(3px);
+}
+.retirer:hover{background:#9b1c1c; border-color:#9b1c1c}
+.vignette.cassee{display:grid; place-items:center; aspect-ratio:1}
+.vignette.cassee img{display:none}
+.vignette.cassee::after{
+  content:"image indisponible"; padding:0 10px; text-align:center;
+  font-family:var(--mono); font-size:.62rem; color:var(--ink-3);
+}
 .albumvide{margin-top:11px; font-size:.85rem; color:var(--ink-3)}
 .quota{
   margin-top:12px; padding:9px 12px; border-radius:var(--r-sm);
@@ -2714,6 +2728,8 @@ async function envoyerPhotos(jour, fichiers){
 }
 
 async function supprimerPhoto(id){
+  /* Sans retour possible : on demande, une fois. */
+  if (!confirm("Retirer cette photo ? Elle sera effacée pour tout le monde, et la place se libérera.")) return;
   try {
     const r = await fetch(`/api/photos?id=${id}&qui=${QUI}`, { method:"DELETE" });
     if (!r.ok) throw new Error();
@@ -2734,10 +2750,15 @@ function photosHTML(d){
   const reste = PHOTOS.quota - miennes;
   return `<section class="album">
     <h4>Portfolio du jour${mes.length ? ` <span class="compte">${mes.length} photo${mes.length > 1 ? "s" : ""}</span>` : ""}</h4>
+    ${mes.some(p => p.qui === QUI) ? `<p class="albumaide">Touchez la croix d'une de vos photos pour la retirer.</p>` : ""}
     ${mes.length ? `<div class="grillephotos">
-      ${mes.map(p => `<figure class="vignette" data-voir="${p.id}"${p.w && p.h ? ` style="aspect-ratio:${p.w}/${p.h}"` : ""}>
-        <img src="/api/photos?id=${p.id}" alt="Photo du ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}, par ${esc(nomDe(p.qui))}" loading="lazy">
+      ${mes.map(p => `<figure class="vignette${p.qui === QUI ? " mienne" : ""}"${p.w && p.h ? ` style="aspect-ratio:${p.w}/${p.h}"` : ""}>
+        <img src="/api/photos?id=${p.id}" data-voir="${p.id}"
+             alt="Photo du ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}, par ${esc(nomDe(p.qui))}"
+             loading="lazy" onerror="this.closest('.vignette').classList.add('cassee')">
         <figcaption>${esc(nomDe(p.qui))}</figcaption>
+        ${p.qui === QUI ? `<button type="button" class="retirer" data-suppr="${p.id}"
+          aria-label="Retirer cette photo" title="Retirer cette photo">✕</button>` : ""}
       </figure>`).join("")}
     </div>` : `<p class="albumvide">${
       aVenir ? "Cette journée n'a pas encore eu lieu."
@@ -3731,10 +3752,15 @@ document.addEventListener("click", e => {
     try { localStorage.setItem(ANON_STORE, REVELER ? "oui" : "non"); } catch {}
     render(); return;
   }
+  const sup = e.target.closest("[data-suppr]");
+  if (sup){
+    const dlg = document.getElementById("visionneuse");
+    if (dlg && dlg.open) dlg.close();
+    supprimerPhoto(sup.dataset.suppr);
+    return;
+  }
   const vig = e.target.closest("[data-voir]");
   if (vig){ ouvrirPhoto(vig.dataset.voir); return; }
-  const sup = e.target.closest("[data-suppr]");
-  if (sup){ document.getElementById("visionneuse").close(); supprimerPhoto(sup.dataset.suppr); return; }
   if (e.target.closest(".vfermer")){ document.getElementById("visionneuse").close(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }

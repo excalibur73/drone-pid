@@ -41,12 +41,15 @@ export default async (req) => {
     /* Une image précise : on la sert telle quelle, à garder longtemps. */
     if (id) {
       if (!/^[0-9a-z]{6,40}$/.test(id)) return new Response("Identifiant invalide", { status: 400 });
-      const octets = await images().get(id, { type: "arrayBuffer" });
-      if (!octets) return new Response("Introuvable", { status: 404 });
-      const meta = (await inventaire()).find((p) => p.id === id);
+      /* Le type est rangé avec l'image : inutile d'ouvrir les quatre
+         inventaires pour servir une vignette — la galerie en demande
+         plusieurs dizaines d'affilée. */
+      const res = await images().getWithMetadata(id, { type: "arrayBuffer" });
+      if (!res || !res.data) return new Response("Introuvable", { status: 404 });
+      const octets = res.data;
       return new Response(octets, {
         headers: {
-          "content-type": meta ? meta.type : "image/jpeg",
+          "content-type": (res.metadata && res.metadata.type) || "image/jpeg",
           "cache-control": "public, max-age=31536000, immutable"
         }
       });
