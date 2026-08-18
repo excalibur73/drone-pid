@@ -15,6 +15,11 @@ import { getStore } from "@netlify/blobs";
 const QUI_VALIDES = ["hilal", "layal", "sana", "papa"];
 const TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const POIDS_MAX = 4 * 1024 * 1024;
+/* Cinq photos par personne pour tout le séjour : le but est un best-of, pas
+   une sauvegarde de pellicule. La contrainte oblige à choisir, ce qui est
+   l'intérêt de la chose. Elle est tenue ici et non seulement à l'écran :
+   une limite qu'on peut contourner en rechargeant la page n'en est pas une. */
+const QUOTA = 5;
 
 const images = () => getStore({ name: "photos-athenes-2026", consistency: "strong" });
 const listes = () => getStore({ name: "photos-index-2026", consistency: "strong" });
@@ -46,7 +51,8 @@ export default async (req) => {
         }
       });
     }
-    return Response.json({ photos: await inventaire() }, { headers: { "cache-control": "no-store" } });
+    return Response.json({ photos: await inventaire(), quota: QUOTA },
+      { headers: { "cache-control": "no-store" } });
   }
 
   if (req.method === "POST") {
@@ -70,6 +76,8 @@ export default async (req) => {
 
     const dep = listes();
     const sien = (await dep.get(qui, { type: "json" })) || [];
+    if (sien.length >= QUOTA)
+      return Response.json({ erreur: "quota", quota: QUOTA, deposees: sien.length }, { status: 409 });
     sien.push({
       id, jour, type, ts: new Date().toISOString(),
       w: +url.searchParams.get("w") || null,
