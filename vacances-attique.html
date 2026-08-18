@@ -2069,7 +2069,7 @@ const CARDINAL = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO"
 const cap = deg => deg == null ? "—" : CARDINAL[Math.round(deg / 22.5) % 16];
 
 function merHTML(d){
-  if (!journeeDeMer(d)) return "";
+  if (!baignadeDuJour(d)) return "";
   const m = merDe(d);
   if (!m || m.h == null) return "";
   const e = etatMer(m.h), w = meteoDe(d);
@@ -2103,6 +2103,12 @@ function merHTML(d){
    ni courbe de houle ni alerte de vent. */
 const journeeDeMer = d => allItems(d).map(x => x.it)
   .some(i => i.gear === true || /croisi/i.test(i.ttl));
+/* Une baignade de détente ne demande ni courbe de houle ni alerte de vent,
+   mais elle mérite quand même l'état de l'eau : on se met à l'eau, autant
+   savoir si elle est plate et à quelle température. La carte s'affiche donc
+   dès qu'on se baigne ; le détail heure par heure reste réservé aux journées
+   où la mer est l'activité. */
+const baignadeDuJour = d => allItems(d).map(x => x.it).some(i => i.t === "swim") || journeeDeMer(d);
 
 const MER_H_STORE = "attique2026:merh";
 const COURBES = new Map();          // identifiant du graphe → points, pour le survol
