@@ -1023,7 +1023,7 @@ const DAYS = [
     soir:[ {t:"plain", ttl:"Navette privée jusqu'à l'hôtel", when:"19 h 15 – 20 h 35",
             det:"Passeports et bagages ≈ 40 min, puis ≈ 40 min de route par l'Attiki Odos",
             note:"Le chauffeur attend en salle des arrivées, panneau au nom. Vérifiez qu'il a bien le numéro de vol BA 630 : les navettes suivent alors le retard toutes seules"},
-           {t:"food", ttl:"Dîner à la marina d'Alimos", when:"20 h 50",
+           {t:"food", ttl:"Dîner à la marina d'Alimos", ll:"37.9106,23.7022", when:"20 h 50",
             det:"Les tavernes de la marina servent tard : rien ne presse",
             note:"À 500 m de l'hôtel, à pied le long de la mer"} ] },
 
@@ -1033,20 +1033,20 @@ const DAYS = [
        franchir avant 9 h — on y sera avec une large avance. */
     matin:[ {t:"depart", ttl:"Taxi réservé", when:"8 h", map:dir(ALIMOS, "37.9747,23.7218"),
              note:"Rendez-vous fixé à 8 h précises : soyez devant l'hôtel à 7 h 55. Un taxi commandé n'attend que quelques minutes"},
-            {t:"site", ttl:"Agora antique", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale",
+            {t:"site", ttl:"Agora antique", ll:"37.9755,23.7225", when:"8 h – 9 h", det:"Temple d'Héphaïstos, stoa d'Attale",
              note:"8 h – 9 h est l'heure d'entrée, pas la durée : franchissez le portail avant 9 h et restez ensuite le temps que vous voulez. Pièces d'identité sur vous — les entrées gratuites des moins de 25 ans se justifient au contrôle"},
-            {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides",
+            {t:"site", ttl:"Musée de l'Acropole", ll:"37.9686,23.7286", when:"11 h – 12 h", det:"Les caryatides",
              note:"Billets des adultes déjà pris. Ceux de Hilal et Layal restent à retirer au guichet avant d'entrer : gratuits pour les moins de 25 ans de l'Union, mais la pièce d'identité est exigée. Arriver 10 h 45, billetterie indépendante de celle de l'Acropole"} ],
     /* La journée s'est passée en ville : le retour à Alimos pour un bain
        n'a pas eu lieu, et le programme ne doit pas prétendre le contraire. */
-    aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"} ],
-    soir:[ {t:"plain", ttl:"Montée à pied vers l'entrée", when:"17 h 15",
+    aprem:[ {t:"site", ttl:"Plaka & Anafiotika", ll:"37.9724,23.7302", det:"Ruelles cycladiques sous le rocher"} ],
+    soir:[ {t:"plain", ttl:"Montée à pied vers l'entrée", ll:"37.9715,23.7257", when:"17 h 15",
             det:"Depuis Plaka par l'allée Dionysiou Areopagitou, ombragée — 10 à 15 min",
             map:"https://www.google.com/maps/dir/?api=1&destination=37.9715,23.7257&travelmode=walking"},
-           {t:"site", ttl:"Acropole & Parthénon", when:"17 h 30 – 18 h 35",
+           {t:"site", ttl:"Acropole & Parthénon", ll:"37.9715,23.7257", when:"17 h 30 – 18 h 35",
             det:"Propylées, Nikè, Parthénon, caryatides de l'Érechthéion",
             note:"Une heure suffit : le Parthénon ne se visite pas de l'intérieur et les caryatides de l'Érechthéion sont des copies — vous avez vu les vraies au musée ce matin. Propylées, temple d'Athéna Nikè, tour du Parthénon par la droite, Érechthéion, belvédère est pour finir. Toilettes et point d'eau à l'entrée seulement, rien là-haut : passez-y avant les tourniquets. Aucune ombre sur le rocher, et ne vous attardez pas au soleil de 17 h. Semelles crantées, le marbre est glissant à la descente"},
-           {t:"site", ttl:"Colline de Philopappos", when:"19 h – 20 h 45", sunset:true,
+           {t:"site", ttl:"Colline de Philopappos", ll:"37.9663,23.7215", when:"19 h – 20 h 45", sunset:true,
             det:"Le point de vue sur le Parthénon au couchant — coucher du soleil à 20 h 15",
             map:"https://www.google.com/maps/dir/?api=1&destination=37.9663,23.7215&travelmode=walking",
             note:"Accès libre, sans billet ni horaire, 25 min de marche par l'allée Dionysiou Areopagitou, ombragée. C'est ici qu'on attend le couchant, pas sur le rocher : la colline a de vrais pins, de l'ombre et une brise. Arriver tôt vaut mieux que bien viser — à 18 h 40 vous choisissez votre place, à 19 h 45 vous la disputez. Visez les dalles plates en contrebas du monument, côté Pnyx. Et restez après le coucher : le marbre passe de l'or au rose une demi-heure durant"} ] },
@@ -1055,39 +1055,39 @@ const DAYS = [
     matin:[ {t:"depart", ttl:"Départ", when:"8 h 05", map:dir(ALIMOS, "37.9693,23.7331"),
             det:"11 km depuis l'hôtel par Poseidonos puis Syngrou — 25 à 30 min en taxi le matin, soit le portail vers 8 h 35",
             note:"Le tram « Zefiros », à 50 m de l'hôtel, y va aussi mais demande 45 à 50 min : trop lent pour un créneau à 8 h"},
-            {t:"site", ttl:"Temple de Zeus olympien", when:"8 h – 9 h",
+            {t:"site", ttl:"Temple de Zeus olympien", ll:"37.9693,23.7331", when:"8 h – 9 h",
              det:"Angle des avenues Vasilissis Olgas et Amalias, au pied sud-est du rocher. Porte d'Hadrien juste à côté",
              note:"8 h – 9 h est l'heure d'entrée, pas la durée : franchissez le portail avant 9 h et restez ensuite le temps que vous voulez. Tous les billets sont pris. Pièces d'identité tout de même : un billet gratuit « moins de 25 ans » se justifie au contrôle"},
-            {t:"site", ttl:"Agora romaine", when:"10 h – 11 h", det:"Tour des Vents"} ],
-    aprem:[ {t:"site", ttl:"Psiri", det:"Quartier street art"},
-            {t:"swim", ttl:"Plage d'Alimos"} ],
+            {t:"site", ttl:"Agora romaine", ll:"37.9744,23.7261", when:"10 h – 11 h", det:"Tour des Vents"} ],
+    aprem:[ {t:"site", ttl:"Psiri", ll:"37.9789,23.7237", det:"Quartier street art"},
+            {t:"swim", ttl:"Plage d'Alimos", ll:"37.9007,23.7060"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"17 h 45", map:dir(ALIMOS, "37.9819,23.744")},
-           {t:"site", ttl:"Colline du Lycabette", when:"19 h", det:"Vue à 360°, montée en funiculaire", sunset:true},
-           {t:"food", ttl:"Dîner à Kolonaki"} ] },
+           {t:"site", ttl:"Colline du Lycabette", ll:"37.9819,23.7440", when:"19 h", det:"Vue à 360°, montée en funiculaire", sunset:true},
+           {t:"food", ttl:"Dîner à Kolonaki", ll:"37.9787,23.7419"} ] },
 
   { n:4, date:"2026-08-20", dow:"Jeu", dm:"20 août", phase:1, title:"Stade panathénaïque & croisière", sun:ATHENES,
     /* Le stade ne vend qu'au guichet : rien à réserver la veille, mais il
        faut le temps d'acheter sur place. D'où un départ plus tardif, qui
        rallonge d'autant le petit-déjeuner. */
     matin:[ {t:"depart", ttl:"Départ", when:"8 h 45", map:dir(ALIMOS, "37.9683,23.741")},
-            {t:"site", ttl:"Stade panathénaïque", when:"9 h 15 – 10 h 30",
+            {t:"site", ttl:"Stade panathénaïque", ll:"37.9683,23.7410", when:"9 h 15 – 10 h 30",
              det:"Les premiers JO modernes, 1896 — audioguide compris dans le billet",
              note:"Billets à prendre sur place, au guichet du stade : ils ne se vendent pas en ligne. 10 € plein tarif, 5 € tarif réduit sur présentation d'une carte d'étudiant. Espèces ou carte bancaire. Ouvert dès 8 h, donc aucune file à cette heure"},
-            {t:"site", ttl:"Relève des evzones", when:"11 h", det:"Place Syntagma — la relève se fait à chaque heure pile",
+            {t:"site", ttl:"Relève des evzones", ll:"37.9755,23.7348", when:"11 h", det:"Place Syntagma — la relève se fait à chaque heure pile",
              note:"Dix minutes à pied depuis le stade en traversant le Jardin national, à l'ombre"} ],
-    aprem:[ {t:"swim", ttl:"Plage d'Alimos"} ],
+    aprem:[ {t:"swim", ttl:"Plage d'Alimos", ll:"37.9007,23.7060"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
-           {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true,
+           {t:"site", ttl:"Croisière au couchant", ll:"37.9382,23.6852", note:"Réservée", sunset:true,
             rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
             det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris.",
             sac:"bateau"},
-           {t:"swim", ttl:"Baignade Hydrousa + Varkiza", det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
+           {t:"swim", ttl:"Baignade Hydrousa + Varkiza", parBateau:true, det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
     matin:[ {t:"plain", ttl:"Matinée libre", det:"Plage, ou les puces de Monastiraki"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"17 h", map:dir(ALIMOS, "37.9403,23.6929")},
-            {t:"site", ttl:"SNFCC", det:"Fondation Niarchos — toit-belvédère et jardins", sunset:true} ],
+            {t:"site", ttl:"SNFCC", ll:"37.9403,23.6926", det:"Fondation Niarchos — toit-belvédère et jardins", sunset:true} ],
     soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
 
   { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", sun:SARO,
@@ -1100,25 +1100,25 @@ const DAYS = [
              det:"Cinq petits-déjeuners au penthouse et le pique-nique du 24 : il n'y a plus d'hôtel pour vous nourrir.",
              note:"Prochaine occasion pratique : Markopoulo, le 24 au retour de Porto Rafti",
              map:"https://www.google.com/maps/search/?api=1&query=supermarket+Saronida+Anavyssos+Greece"},
-            {t:"swim", ttl:"Plage de Saronida"} ],
-    soir:[ {t:"food", ttl:"Dîner au Lavraki", det:"Front de mer — ou terrasse du penthouse"} ] },
+            {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
+    soir:[ {t:"food", ttl:"Dîner au Lavraki", ll:"37.7445,23.9020", det:"Front de mer — ou terrasse du penthouse"} ] },
 
   { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Criques de Limanakia", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"8 h", map:dir(SARONIDA,"37.8065,23.7785")},
-            {t:"swim", ttl:"Snorkeling tôt", det:"Criques de Limanakia — fonds rocheux", gear:true} ],
-    aprem:[ {t:"swim", ttl:"Suite des criques", det:"Limanakia, ou les pointes ouest de Varkiza", gear:true} ],
+            {t:"swim", ttl:"Snorkeling tôt", ll:"37.8065,23.7785", det:"Criques de Limanakia — fonds rocheux", gear:true} ],
+    aprem:[ {t:"swim", ttl:"Suite des criques", ll:"37.8065,23.7785", det:"Limanakia, ou les pointes ouest de Varkiza", gear:true} ],
     soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
-            {t:"site", ttl:"Croisière de Porto Rafti", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
+            {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
-    aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", gear:true,
+    aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", parBateau:true, gear:true,
              det:"Erotospilia, Avlaki — criques et grotte-abri, pique-nique, sans précipitation. On ne repasse pas par Saronida."} ],
     soir:[ {t:"depart", ttl:"Départ", when:"~18 h", map:dir("37.8868674,24.0143872",SARONIDA)},
            {t:"plain", ttl:"Retour à Saronida en fin de journée"},
-           {t:"food", ttl:"Dîner Stou Stavrou"} ],
+           {t:"food", ttl:"Dîner Stou Stavrou", ll:"37.7440,23.9050"} ],
     autour:{
       titre:"Autour de Porto Rafti",
       intro:"Hors programme — la journée entière se passe ici. Si la mer est trop agitée pour en profiter, voilà le repli, tout à moins de 20 min du terminal.",
@@ -1140,21 +1140,21 @@ const DAYS = [
     } },
 
   { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", sun:SOUNION,
-    matin:[ {t:"swim", ttl:"Plage de Saronida"} ],
+    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
-            {t:"swim", ttl:"Criques du KAPE", det:"Fonds rocheux — masque et tuba", gear:true} ],
+            {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true} ],
     soir:[ {t:"depart", ttl:"Départ", when:"17 h 15", map:dir("37.672,23.988","37.6503,24.0247")},
-           {t:"site", ttl:"Temple de Poséidon", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true} ] },
+           {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true} ] },
 
   { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Palea Fokea", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(SARONIDA,"37.718,23.945")},
-            {t:"site", ttl:"Palea Fokea", det:"Chapelle Agios Nikolaos"},
-            {t:"swim", ttl:"Rochers & faune", gear:true} ],
-    aprem:[ {t:"swim", ttl:"Plage d'Anavyssos", det:"Détente, sable — ou Lavrio, ou Glyfada"} ],
-    soir:[ {t:"food", ttl:"Dîner Porto ou Galene", det:"Grill de poisson — ou terrasse"} ] },
+            {t:"site", ttl:"Palea Fokea", ll:"37.7180,23.9450", det:"Chapelle Agios Nikolaos"},
+            {t:"swim", ttl:"Rochers & faune", ll:"37.7180,23.9450", gear:true} ],
+    aprem:[ {t:"swim", ttl:"Plage d'Anavyssos", ll:"37.7290,23.9330", det:"Détente, sable — ou Lavrio, ou Glyfada"} ],
+    soir:[ {t:"food", ttl:"Dîner Porto ou Galene", ll:"37.7290,23.9330", det:"Grill de poisson — ou terrasse"} ] },
 
   { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"Dernier bain, puis l'aéroport", sun:SARO,
-    matin:[ {t:"swim", ttl:"Plage de Saronida", det:"Jusqu'à 12 h"} ],
+    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", det:"Jusqu'à 12 h"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"13 h", map:dir(SARONIDA,"37.9364,23.9445")},
             {t:"plain", ttl:"Restitution de la voiture", when:"13 h 30"},
             {t:"travel", ttl:"Décollage", when:"16 h 20"} ],
@@ -1239,6 +1239,54 @@ function petitDejeuner(d){
     note: serre ? "Créneau court : descendez à l'ouverture." : null
   };
 }
+/* ── Les itinéraires, enchaînés ──
+   Un itinéraire ne part pas toujours de l'hôtel : à midi on vient du musée,
+   le soir on vient de la table du déjeuner. Chaque étape localisée reçoit
+   donc son lien depuis la précédente, et non depuis la base.
+
+   La durée annoncée est une estimation, pas un calcul de circulation : la
+   distance à vol d'oiseau, majorée d'un tiers pour le tracé réel des rues,
+   divisée par une vitesse moyenne selon le mode. On l'affiche arrondie et
+   précédée d'un « ≈ » — Google Maps donnera le vrai chiffre au moment du
+   trajet, avec le trafic du jour.
+
+   Une étape qui suit immédiatement un départ n'affiche rien : le départ
+   porte déjà le même trajet, et deux boutons identiques avaient été
+   signalés comme un doublon. */
+const VITESSE = { pied: 4.5, ville: 22, route: 45 };
+/* Distance orthodromique — « distKm » existe plus bas, pour les courbes de
+   mer, mais une constante ne s'utilise pas avant sa déclaration. */
+const kmEntre = (a, b, c, d) => {
+  const r = Math.PI / 180, h = Math.sin((c - a) * r / 2) ** 2 +
+    Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+};
+function estimer(a, b, phase){
+  const [la, lo] = a.split(",").map(Number), [lb, ln] = b.split(",").map(Number);
+  const km = kmEntre(la, lo, lb, ln) * 1.3;
+  const pied = km <= 1.8;
+  const v = pied ? VITESSE.pied : phase === 1 ? VITESSE.ville : VITESSE.route;
+  const min = Math.round(km / v * 60 / 5) * 5;
+  return { km, pied, min: Math.max(5, min) };
+}
+DAYS.forEach(d => {
+  let ici = d.phase === 1 ? ALIMOS : SARONIDA;
+  let dejaMontre = false;                 // un départ vient-il d'afficher ce trajet ?
+  SLOTS.forEach(sl => (d[sl.k] || []).forEach(it => {
+    if (it.t === "depart"){ dejaMontre = true; return; }
+    if (it.parBateau){ dejaMontre = false; return; }   // on y va par la mer
+    if (!it.ll){ return; }
+    if (it.ll !== ici && !dejaMontre){
+      const e = estimer(ici, it.ll, d.phase);
+      /* Un lien posé à la main garde sa destination : on n'ajoute que la durée. */
+      if (!it.map) it.map = dir(ici, it.ll, e.pied ? "pied" : "voiture");
+      it.trajet = `≈ ${e.min} min ${e.pied ? "à pied" : "en voiture"}`;
+    }
+    ici = it.ll;
+    dejaMontre = false;
+  }));
+});
+
 /* On l'insère en tête de matinée : tout le reste — calendrier, prochaine
    étape, recherche, vue parallèle — le voit alors comme une étape ordinaire. */
 DAYS.forEach(d => { const p = petitDejeuner(d); if (p) d.matin = [p, ...(d.matin || [])]; });
@@ -2923,7 +2971,7 @@ function itemHTML(day, slot, it, i, vedette){
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       ${it.bonplan ? `<p class="bonplan"><b>Bon plan</b> ${esc(it.bonplan)}</p>` : ""}
       <div class="acts">
-        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
+        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire${it.trajet ? ` · ${esc(it.trajet)}` : ""}</a>` : ""}
         ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
       </div>
     </div>
