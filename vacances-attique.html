@@ -2664,7 +2664,7 @@ function baignadeHTML(d){
    L'orientation vient des métadonnées EXIF, que le redimensionnement
    effacerait : on la laisse au navigateur, qui applique déjà la rotation à
    l'affichage — d'où le dessin sur une toile aux dimensions déjà tournées. */
-const PHOTOS = { liste: [], lu: false, quota: 5 };
+const PHOTOS = { liste: [], lu: false, quota: 5, echec: false };
 const COTE_MAX = 1600;
 
 /* ── La date de prise de vue ──
@@ -2752,9 +2752,14 @@ async function lirePhotos(){
     const rep = await r.json();
     PHOTOS.liste = rep.photos || [];
     if (rep.quota) PHOTOS.quota = rep.quota;
-    PHOTOS.lu = true;
+    PHOTOS.lu = true; PHOTOS.echec = false;
     renderSiLibre();
-  } catch { PHOTOS.lu = true; }
+  } catch {
+    /* Sans cette distinction, une lecture ratée s'affichait « aucune photo » :
+       on croyait l'album vide alors qu'il était seulement injoignable. */
+    PHOTOS.lu = true; PHOTOS.echec = true;
+    renderSiLibre();
+  }
 }
 
 let ENVOI = null;                       // { faits, total } pendant un envoi
@@ -2790,6 +2795,7 @@ async function envoyerPhotos(jour, fichiers){
 
   ENVOI = { faits: 0, total: bons.length };
   render();
+  const rates = [];
   for (const { f, prise } of bons){
     try {
       const { blob, w, h } = await reduire(f);
@@ -2804,15 +2810,16 @@ async function envoyerPhotos(jour, fichiers){
       }
       ENVOI.faits++;
     } catch (e){
-      ENVOI = null; render();
-      toast("Envoi impossible : " + String(e.message || e).slice(0, 70));
-      await lirePhotos();
-      return;
+      /* On continue avec les suivantes : une photo refusée ou un réseau qui
+         cligne ne doit pas emporter tout un envoi. Le compte est dit à la fin. */
+      rates.push(String(e.message || e).slice(0, 70));
     }
     render();
   }
   ENVOI = null;
-  if (sansDate) toast(`${sansDate} photo${sansDate > 1 ? "s" : ""} sans date d'appareil : rangée${sansDate > 1 ? "s" : ""} sur votre parole`);
+  if (rates.length) toast(rates.length === 1 ? "Une photo n'est pas passée : " + rates[0]
+    : `${rates.length} photos ne sont pas passées — ${rates[0]}`);
+  else if (sansDate) toast(`${sansDate} photo${sansDate > 1 ? "s" : ""} sans date d'appareil : rangée${sansDate > 1 ? "s" : ""} sur votre parole`);
   await lirePhotos();
 }
 
@@ -2840,6 +2847,8 @@ function photosHTML(d){
   return `<section class="album">
     <h4>Portfolio du jour${mes.length ? ` <span class="compte">${mes.length} photo${mes.length > 1 ? "s" : ""}</span>` : ""}</h4>
     ${mes.some(p => p.qui === QUI) ? `<p class="albumaide">Touchez la croix d'une de vos photos pour la retirer.</p>` : ""}
+    ${PHOTOS.echec && !mes.length ? `<p class="albumvide alerte">Photos injoignables pour l'instant —
+      ce n'est pas qu'il n'y en a pas. <button type="button" class="rafraichir" data-photos-maj>Réessayer</button></p>` : ""}
     ${mes.length ? `<div class="grillephotos">
       ${mes.map(p => `<figure class="vignette${p.qui === QUI ? " mienne" : ""}"${p.w && p.h ? ` style="aspect-ratio:${p.w}/${p.h}"` : ""}>
         <img src="/api/photos?id=${p.id}" data-voir="${p.id}"
@@ -2851,6 +2860,7 @@ function photosHTML(d){
       </figure>`).join("")}
     </div>` : `<p class="albumvide">${
       aVenir ? "Cette journée n'a pas encore eu lieu."
+      : PHOTOS.echec ? ""
       : PHOTOS.lu ? "Aucune photo pour l'instant. La première est la plus difficile."
       : "Chargement…"}</p>`}
     ${aVenir ? "" : !QUI
@@ -3113,7 +3123,9 @@ const garderAttente = () => { try { localStorage.setItem(ATTENTE_STORE, JSON.str
 let RENDU_DIFFERE = false;
 const enSaisie = () => {
   const a = document.activeElement;
-  return !!(a && a.matches && a.matches("textarea, input:not([type=button])"));
+  /* Seuls les champs où l'on tape : un sélecteur de fichiers ou une case ne
+     doivent pas retenir le rafraîchissement de la page. */
+  return !!(a && a.matches && a.matches("textarea, input:is([type=text],[type=password],[type=search],[type=number],[type=email],[type=tel],:not([type]))"));
 };
 function renderSiLibre(){
   if (enSaisie()){ RENDU_DIFFERE = true; return; }
@@ -3853,6 +3865,7 @@ document.addEventListener("click", e => {
   const vig = e.target.closest("[data-voir]");
   if (vig){ ouvrirPhoto(vig.dataset.voir); return; }
   if (e.target.closest(".vfermer")){ document.getElementById("visionneuse").close(); return; }
+  if (e.target.closest(".rafraichir[data-photos-maj]")){ lirePhotos(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
   if (e.target.closest("#journalBtn")) envoyerJournal();
@@ -4118,8 +4131,10 @@ lirePhotos();
 document.addEventListener("visibilitychange", () => { if (!document.hidden){ lireAvis(); lirePhotos(); } });
 addEventListener("pageshow", () => lireAvis());
 addEventListener("focus", () => lireAvis());
-addEventListener("online", lireAvis);
-setInterval(() => { if (!document.hidden) lireAvis(); }, 60000);
+addEventListener("pageshow", () => { lireAvis(); lirePhotos(); });
+addEventListener("focus", () => { lireAvis(); lirePhotos(); });
+addEventListener("online", () => { lireAvis(); lirePhotos(); });
+setInterval(() => { if (!document.hidden){ lireAvis(); lirePhotos(); } }, 60000);
 
 /* Les prévisions suivent le même rythme d'occasions, mais ne repartent
    chercher que si elles ont vieilli — sauf au retour du réseau, où la
