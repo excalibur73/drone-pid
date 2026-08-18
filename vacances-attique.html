@@ -681,6 +681,30 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .unavis .ai b{color:var(--sea); font-size:.9rem}
 .unavis p{margin-top:2px; font-size:.89rem; color:var(--ink-2)}
 
+/* ─────────────────────────  LE SAC DU BATEAU  ───────────────────────── */
+.sacbateau{
+  margin-top:16px; padding:15px 17px; border-radius:var(--r);
+  border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+}
+.sacbateau header{display:flex; align-items:center; gap:9px; margin-bottom:10px}
+.sacbateau header svg{width:17px; height:17px; color:var(--sea); flex:0 0 auto}
+.sacbateau h3{
+  font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2);
+}
+.sacliste{list-style:none; display:flex; flex-direction:column; gap:7px}
+.sacliste li{
+  position:relative; padding-left:16px; font-size:.88rem; line-height:1.55; color:var(--ink-2);
+}
+.sacliste li::before{content:"·"; position:absolute; left:5px; color:var(--sea); font-weight:700}
+.sacliste b{color:var(--ink)}
+.rincage{
+  margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
+  background:color-mix(in oklab,var(--sea) 8%,transparent);
+  font-size:.85rem; line-height:1.6; color:var(--ink-2);
+}
+.rincage svg{width:14px; height:14px; color:var(--sea); vertical-align:-2px; margin-right:6px}
+.rincage b{color:var(--ink)}
+
 /* ─────────────────────────────  NOTES DU JOUR  ───────────────────────────── */
 .notes{margin-top:16px}
 .notes label{
@@ -1056,7 +1080,8 @@ const DAYS = [
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", note:"Réservée", sunset:true,
             rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
-            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris."},
+            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris.",
+            sac:"bateau"},
            {t:"swim", ttl:"Baignade Hydrousa + Varkiza", det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
@@ -1087,7 +1112,7 @@ const DAYS = [
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
-            {t:"site", ttl:"Croisière de Porto Rafti", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
+            {t:"site", ttl:"Croisière de Porto Rafti", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", gear:true,
              det:"Erotospilia, Avlaki — criques et grotte-abri, pique-nique, sans précipitation. On ne repasse pas par Saronida."} ],
@@ -1285,7 +1310,7 @@ function finEtape(it, slot){
   return r ? r.end : FIN_CRENEAU[slot];
 }
 function etatEtape(day, slot, it){
-  const auj = athensNow().toISOString().slice(0, 10);
+  const auj = dateVecue();
   if (day.date < auj) return "passe";
   if (day.date > auj) return "avenir";
   const m = nowMin(), fin = finEtape(it, slot);
@@ -2068,6 +2093,42 @@ function etatMer(h){
 const CARDINAL = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO","O","ONO","NO","NNO"];
 const cap = deg => deg == null ? "—" : CARDINAL[Math.round(deg / 22.5) % 16];
 
+/* ── Le sac du bateau ──
+   Une sortie en mer ne se prépare pas comme une plage : on ne revient pas
+   se changer, et le sel sèche sur la peau pendant des heures. Le rinçage
+   est le point qu'on oublie — d'où les endroits précis où trouver de l'eau
+   douce, et la solution de repli quand il n'y en a pas. */
+const SAC_BATEAU = {
+  4:{ ou:"Marina Delta, Kallithea",
+      bord:"Le caïque n'a pas de douche : une seule vanne d'eau douce sur le pont arrière, pour rincer les masques. Demandez à Michalis avant de vous en servir.",
+      quai:"Douches de plage gratuites à la plage municipale d'Alimos, à 2 km de la marina — sur le chemin du retour.",
+      repli:"Sinon : toilettes publiques de la marina, remplissez-y une bouteille de 1,5 L vide avant d'embarquer." },
+  8:{ ou:"Port de Porto Rafti",
+      bord:"Petite sortie, pas de douche à bord. Rinçage des masques à l'eau de mer seulement.",
+      quai:"Douches à la plage d'Avlaki, au fond de la baie, à 700 m du quai.",
+      repli:"Sinon : les tavernes du port acceptent qu'on remplisse une bouteille — demandez avant de commander, pas après." }
+};
+function sacBateauHTML(d){
+  const s = SAC_BATEAU[d.n];
+  if (!s) return "";
+  return `<article class="sacbateau">
+    <header><svg><use href="#i-swim"/></svg><h3>Le sac du bateau — ${esc(s.ou)}</h3></header>
+    <ul class="sacliste">
+      <li><b>Sur vous</b> : maillot déjà mis sous les vêtements, on ne se change pas à bord sans gêne.</li>
+      <li><b>Palmes et tuba</b> si vous les avez — sinon les masques sont fournis. Chaussons pour les rochers.</li>
+      <li><b>Crème solaire résistante à l'eau</b>, à remettre après chaque bain : en mer, le soleil frappe deux fois, du ciel et de l'eau.</li>
+      <li><b>Serviette par personne</b>, plus une pour s'asseoir : le pont est brûlant l'après-midi.</li>
+      <li><b>Affaires de rechange complètes</b>, dans un sac plastique fermé — ce qui revient du bateau revient mouillé.</li>
+      <li><b>Chapeau et coupe-vent</b> : il fait dix degrés de moins au retour, une fois le soleil couché.</li>
+    </ul>
+    <p class="rincage"><svg><use href="#i-info"/></svg><b>Se rincer après le bain — le point qu'on oublie.</b>
+      Le sel sèche et démange pendant des heures si l'on ne fait rien.<br>
+      <b>À bord</b> : ${esc(s.bord)}<br>
+      <b>Sur le quai</b> : ${esc(s.quai)}<br>
+      <b>À défaut</b> : ${esc(s.repli)}</p>
+  </article>`;
+}
+
 function merHTML(d){
   if (!baignadeDuJour(d)) return "";
   const m = merDe(d);
@@ -2752,13 +2813,41 @@ const CHAMPS = [
 ];
 
 /* ════════════════════════════  TEMPS  ════════════════════════════ */
-/* Heure d'Athènes (UTC+3 en août) quel que soit le fuseau du téléphone. */
-function athensNow(){
-  const now = new Date();
-  return new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 3 * 3600000);
+/* Heure d'Athènes, quel que soit le fuseau du téléphone.
+   L'ancienne version décalait un horodatage puis lisait tantôt des getters
+   locaux, tantôt UTC : le résultat dépendait du fuseau de l'appareil, et la
+   date basculait avec trois heures de retard sur un téléphone réglé sur
+   Athènes. On demande donc l'heure au système, qui connaît le fuseau et ses
+   changements d'heure. */
+const FMT_ATHENES = new Intl.DateTimeFormat("fr-CA", {
+  timeZone: "Europe/Athens", year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", hour12: false
+});
+function athenes(){
+  const p = {};
+  for (const x of FMT_ATHENES.formatToParts(new Date())) p[x.type] = x.value;
+  return { date: `${p.year}-${p.month}-${p.day}`, h: +p.hour % 24, m: +p.minute };
 }
-const nowMin = () => { const a = athensNow(); return a.getHours() * 60 + a.getMinutes(); };
-const dayIndexToday = () => DAYS.findIndex(d => d.date === athensNow().toISOString().slice(0, 10));
+
+/* La journée vécue ne se termine pas à minuit. À une heure du matin on est
+   encore dans la soirée de la veille : basculer à ce moment-là ouvrait le
+   programme du lendemain, où plus rien n'était barré puisque rien n'avait eu
+   lieu — et l'avis du soir se retrouvait déclaré « pas encore eu lieu ».
+   On change donc de jour à 4 h, et les minutes d'après minuit se comptent
+   au-delà de 24 h pour que la veille reste bien derrière. */
+const BASCULE = 4;
+const nowMin = () => {
+  const a = athenes();
+  return a.h * 60 + a.m + (a.h < BASCULE ? 24 * 60 : 0);
+};
+const dateVecue = () => {
+  const a = athenes();
+  if (a.h >= BASCULE) return a.date;
+  const v = new Date(a.date + "T12:00:00Z");
+  v.setUTCDate(v.getUTCDate() - 1);
+  return v.toISOString().slice(0, 10);
+};
+const dayIndexToday = () => DAYS.findIndex(d => d.date === dateVecue());
 const currentSlot = () => { const m = nowMin(); return (SLOTS.find(s => m >= s.from && m < s.to) || SLOTS[2]).k; };
 
 function renderStatus(){
@@ -2908,6 +2997,7 @@ function dayHTML(d, { live }){
     ${meteoAlerte(d)}
     ${alarm}
     ${merHTML(d)}
+    ${sacBateauHTML(d)}
     ${prevuHTML()}
     <div class="slots">
       ${SLOTS.map(s => {
