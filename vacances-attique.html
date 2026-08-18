@@ -1042,9 +1042,15 @@ const DAYS = [
            {t:"food", ttl:"Dîner à Kolonaki"} ] },
 
   { n:4, date:"2026-08-20", dow:"Jeu", dm:"20 août", phase:1, title:"Stade panathénaïque & croisière", sun:ATHENES,
-    matin:[ {t:"depart", ttl:"Départ", when:"8 h 15", map:dir(ALIMOS, "37.9683,23.741")},
-            {t:"site", ttl:"Stade panathénaïque", det:"Les premiers JO modernes, 1896"},
-            {t:"site", ttl:"Relève des evzones", det:"Place Syntagma"} ],
+    /* Le stade ne vend qu'au guichet : rien à réserver la veille, mais il
+       faut le temps d'acheter sur place. D'où un départ plus tardif, qui
+       rallonge d'autant le petit-déjeuner. */
+    matin:[ {t:"depart", ttl:"Départ", when:"8 h 45", map:dir(ALIMOS, "37.9683,23.741")},
+            {t:"site", ttl:"Stade panathénaïque", when:"9 h 15 – 10 h 30",
+             det:"Les premiers JO modernes, 1896 — audioguide compris dans le billet",
+             note:"Billets à prendre sur place, au guichet du stade : ils ne se vendent pas en ligne. 10 € plein tarif, 5 € tarif réduit sur présentation d'une carte d'étudiant. Espèces ou carte bancaire. Ouvert dès 8 h, donc aucune file à cette heure"},
+            {t:"site", ttl:"Relève des evzones", when:"11 h", det:"Place Syntagma — la relève se fait à chaque heure pile",
+             note:"Dix minutes à pied depuis le stade en traversant le Jardin national, à l'ombre"} ],
     aprem:[ {t:"swim", ttl:"Plage d'Alimos"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
