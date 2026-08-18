@@ -25,6 +25,10 @@ const QUI_VALIDES = ["hilal", "layal", "sana", "papa"];
 const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const TYPE = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" };
 const POIDS_MAX = 4 * 1024 * 1024;
+/* Une vraie photo fait au moins quelques centaines de pixels. En deçà, c'est
+   une icône, une image d'essai ou un fichier abîmé : refusé plutôt que rangé
+   dans l'album, où l'on ne verrait qu'un rectangle de couleur. */
+const COTE_MIN = 200;
 /* Cinq photos par personne et par journée — cinquante-cinq au plus sur les
    onze jours. Tenu ici et pas seulement à l'écran : une limite qu'on
    contourne en rechargeant la page n'en est pas une. */
@@ -102,6 +106,8 @@ export default async (req) => {
       .map((b) => b.toString(36).padStart(2, "0")).join("").slice(0, 20);
     const w = Math.max(0, parseInt(url.searchParams.get("w"), 10) || 0);
     const h = Math.max(0, parseInt(url.searchParams.get("h"), 10) || 0);
+    if (Math.max(w, h) < COTE_MIN)
+      return Response.json({ erreur: "trop-petite", minimum: COTE_MIN, recu: `${w}x${h}` }, { status: 422 });
 
     await images().set(id2, octets, { metadata: { type } });
     const cle = `idx/${qui}/${jour}/${new Date().toISOString()}/${w}x${h}/${EXT[type]}/${id2}`;
