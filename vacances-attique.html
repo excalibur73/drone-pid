@@ -1015,11 +1015,19 @@ const DAYS = [
              note:"Billets des adultes déjà pris. Ceux de Hilal et Layal restent à retirer au guichet avant d'entrer : gratuits pour les moins de 25 ans de l'Union, mais la pièce d'identité est exigée. Arriver 10 h 45, billetterie indépendante de celle de l'Acropole"} ],
     aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"},
             {t:"swim", ttl:"Plage d'Alimos"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"16 h 40", map:dir(ALIMOS, "37.9715,23.7257"),
-            corrige:"Serré : 20 à 30 min de trajet aux heures chargées pour un créneau à 17 h. Commandez le taxi avant de descendre."},
-           {t:"site", ttl:"Acropole & Parthénon", when:"17 h – 18 h",
-            note:"Créneau réservé. Semelles crantées et bride au talon : le rocher est du calcaire poli et les marches des Propylées du marbre usé — c'est glissant, surtout à la descente. Les claquettes restent à l'hôtel"},
-           {t:"site", ttl:"Colline de Philopappos", det:"Le point de vue sur le Parthénon au couchant", sunset:true} ] },
+    soir:[ {t:"depart", ttl:"Départ", when:"17 h 05", map:dir(ALIMOS, "37.9715,23.7257"),
+            corrige:"20 à 30 min de trajet aux heures chargées. Commandez le taxi avant de descendre."},
+           /* Le créneau réservé court de 17 h à 18 h, mais c'est une heure
+              d'entrée : on choisit d'y entrer tard. Le soleil est alors bas,
+              les groupes sont partis, et la sortie tombe à l'heure dorée —
+              juste ce qu'il faut pour rejoindre Philopappos avant 20 h 15. */
+           {t:"site", ttl:"Acropole & Parthénon", when:"17 h 45 – 19 h 20",
+            det:"Propylées, Nikè, Parthénon, caryatides de l'Érechthéion",
+            note:"Créneau réservé 17 h – 18 h : c'est l'heure d'entrée, pas la durée. Entrez vers 17 h 45 — le rocher se vide et la lumière descend. Dernière admission 19 h 30, fermeture 20 h : les gardiens font évacuer à partir de 19 h 40, sortez de vous-mêmes vers 19 h 20. Semelles crantées et bride au talon : calcaire poli et marbre usé, c'est glissant à la descente"},
+           {t:"site", ttl:"Colline de Philopappos", when:"19 h 45 – 20 h 45", sunset:true,
+            det:"Le point de vue sur le Parthénon au couchant — coucher du soleil à 20 h 15",
+            map:"https://www.google.com/maps/dir/?api=1&destination=37.9663,23.7215&travelmode=walking",
+            note:"25 min depuis la sortie de l'Acropole, montée comprise. Accès libre, sans billet ni horaire. Le meilleur moment vient après le coucher : le marbre passe de l'or au rose une demi-heure durant"} ] },
 
   { n:3, date:"2026-08-19", dow:"Mer", dm:"19 août", phase:1, title:"Zeus olympien & Lycabette", sun:ATHENES,
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(ALIMOS, "37.9693,23.7331"),
