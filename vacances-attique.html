@@ -1013,14 +1013,12 @@ const DAYS = [
              note:"8 h – 9 h est l'heure d'entrée, pas la durée : franchissez le portail avant 9 h et restez ensuite le temps que vous voulez. Pièces d'identité sur vous — les entrées gratuites des moins de 25 ans se justifient au contrôle"},
             {t:"site", ttl:"Musée de l'Acropole", when:"11 h – 12 h", det:"Les caryatides",
              note:"Billets des adultes déjà pris. Ceux de Hilal et Layal restent à retirer au guichet avant d'entrer : gratuits pour les moins de 25 ans de l'Union, mais la pièce d'identité est exigée. Arriver 10 h 45, billetterie indépendante de celle de l'Acropole"} ],
-    aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"},
-            {t:"swim", ttl:"Plage d'Alimos"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"17 h 05", map:dir(ALIMOS, "37.9715,23.7257"),
-            corrige:"20 à 30 min de trajet aux heures chargées. Commandez le taxi avant de descendre."},
-           /* Le créneau réservé court de 17 h à 18 h, mais c'est une heure
-              d'entrée : on choisit d'y entrer tard. Le soleil est alors bas,
-              les groupes sont partis, et la sortie tombe à l'heure dorée —
-              juste ce qu'il faut pour rejoindre Philopappos avant 20 h 15. */
+    /* La journée s'est passée en ville : le retour à Alimos pour un bain
+       n'a pas eu lieu, et le programme ne doit pas prétendre le contraire. */
+    aprem:[ {t:"site", ttl:"Plaka & Anafiotika", det:"Ruelles cycladiques sous le rocher"} ],
+    soir:[ {t:"plain", ttl:"Montée à pied vers l'entrée", when:"17 h 15",
+            det:"Depuis Plaka par l'allée Dionysiou Areopagitou, ombragée — 10 à 15 min",
+            map:"https://www.google.com/maps/dir/?api=1&destination=37.9715,23.7257&travelmode=walking"},
            {t:"site", ttl:"Acropole & Parthénon", when:"17 h 30 – 18 h 35",
             det:"Propylées, Nikè, Parthénon, caryatides de l'Érechthéion",
             note:"Une heure suffit : le Parthénon ne se visite pas de l'intérieur et les caryatides de l'Érechthéion sont des copies — vous avez vu les vraies au musée ce matin. Propylées, temple d'Athéna Nikè, tour du Parthénon par la droite, Érechthéion, belvédère est pour finir. Toilettes et point d'eau à l'entrée seulement, rien là-haut : passez-y avant les tourniquets. Aucune ombre sur le rocher, et ne vous attardez pas au soleil de 17 h. Semelles crantées, le marbre est glissant à la descente"},
