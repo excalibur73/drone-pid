@@ -681,6 +681,95 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .unavis .ai b{color:var(--sea); font-size:.9rem}
 .unavis p{margin-top:2px; font-size:.89rem; color:var(--ink-2)}
 
+/* ─────────────────────────  PORTFOLIO PHOTO  ───────────────────────── */
+.album{
+  margin-top:16px; padding:15px 17px; border-radius:var(--r);
+  border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+}
+.album h4{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
+}
+.album .compte{
+  font-family:var(--sans); font-size:.8rem; letter-spacing:0; text-transform:none; color:var(--ink-3);
+}
+.grillephotos{
+  margin-top:12px; display:grid; gap:6px;
+  grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
+}
+.vignette{
+  position:relative; margin:0; overflow:hidden; border-radius:var(--r-sm);
+  background:var(--surface-2); aspect-ratio:1; cursor:zoom-in;
+}
+.vignette img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .25s}
+.vignette:hover img{transform:scale(1.05)}
+.vignette figcaption{
+  position:absolute; left:0; right:0; bottom:0; padding:12px 7px 4px;
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.05em; color:#fff;
+  background:linear-gradient(transparent,rgba(0,0,0,.62));
+}
+.albumvide{margin-top:11px; font-size:.85rem; color:var(--ink-3)}
+.albumaide{margin-top:8px; font-size:.76rem; color:var(--ink-3); line-height:1.5}
+.ajouter{
+  display:inline-flex; align-items:center; gap:8px; margin-top:12px;
+  min-height:46px; padding:0 18px; border-radius:99px; cursor:pointer;
+  border:1px dashed var(--line); background:var(--surface-2); color:var(--ink);
+  font-size:.9rem; font-weight:600;
+}
+.ajouter:hover{border-style:solid; border-color:var(--sea); color:var(--sea)}
+.ajouter svg{width:16px; height:16px}
+
+#visionneuse{
+  border:none; padding:0; background:transparent; max-width:96vw; max-height:94vh;
+}
+#visionneuse::backdrop{background:rgba(0,0,0,.86)}
+#visionneuse img{
+  display:block; max-width:96vw; max-height:80vh; border-radius:var(--r); object-fit:contain;
+}
+.vbarre{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between;
+  margin-top:10px; font-family:var(--mono); font-size:.74rem; color:#fff;
+}
+.vbarre button{
+  min-height:40px; padding:0 15px; border-radius:99px; color:#fff;
+  border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.08);
+  font-family:var(--mono); font-size:.72rem;
+}
+.vbarre .vsuppr{border-color:rgba(255,140,140,.6); color:#ffbdbd}
+
+/* ─────────────────────────────  FEU MÉTÉO  ───────────────────────────── */
+.feu{
+  display:flex; align-items:flex-start; gap:9px; flex-wrap:wrap;
+  margin-top:12px; padding:11px 14px; border-radius:var(--r-sm);
+  font-size:.86rem; line-height:1.55; border:1px solid;
+}
+.feu .pastille{
+  width:11px; height:11px; border-radius:50%; flex:0 0 auto; margin-top:5px;
+  box-shadow:0 0 0 3px color-mix(in oklab,currentColor 22%,transparent);
+}
+.feu b{font-weight:700}
+.feu.vert{
+  color:#1a6b45; border-color:color-mix(in oklab,#1a6b45 32%,transparent);
+  background:color-mix(in oklab,#1a6b45 8%,transparent);
+}
+.feu.orange{
+  color:#8a5200; border-color:color-mix(in oklab,#8a5200 34%,transparent);
+  background:color-mix(in oklab,#b06f00 12%,transparent);
+}
+.feu.rouge{
+  color:#9b1c1c; border-color:color-mix(in oklab,#9b1c1c 36%,transparent);
+  background:color-mix(in oklab,#9b1c1c 11%,transparent);
+}
+.feu .pastille{background:currentColor}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .feu.vert{color:#6ee7b7}
+  :root:not([data-theme="light"]) .feu.orange{color:#fcd34d}
+  :root:not([data-theme="light"]) .feu.rouge{color:#fca5a5}
+}
+:root[data-theme="dark"] .feu.vert{color:#6ee7b7}
+:root[data-theme="dark"] .feu.orange{color:#fcd34d}
+:root[data-theme="dark"] .feu.rouge{color:#fca5a5}
+
 /* ─────────────────────────  LE SAC DU BATEAU  ───────────────────────── */
 .sacbateau{
   margin-top:16px; padding:15px 17px; border-radius:var(--r);
@@ -2023,16 +2112,58 @@ function meteoHTML(d){
   </span>`;
 }
 /* Avertissement seulement les jours où le vent gêne vraiment : mer et bateau. */
+/* ── Le feu météo ──
+   Trois niveaux, et une couleur qui se lit d'un coup d'œil sans lire le
+   texte : vert quand rien ne gêne, orange quand il faut adapter, rouge
+   quand l'activité prévue devient déraisonnable. Le niveau retenu est le
+   pire des trois motifs — chaleur, vent, état de la mer — et chacun est
+   nommé, pour qu'on sache ce qui déclenche l'alerte plutôt que de subir une
+   pastille sans explication.
+
+   Les seuils de mer ne comptent que les jours où l'on se baigne : 25 km/h
+   de vent sur un jour de musée n'est qu'un temps agréable. */
+const SEUILS = {
+  chaleur: { orange: 35, rouge: 39 },
+  vent:    { orange: 25, rouge: 35 },
+  vagues:  { orange: 0.5, rouge: 1.0 }
+};
+function niveauMeteo(d){
+  const w = meteoDe(d), m = merDe(d), eau = baignadeDuJour(d);
+  const motifs = [];
+  let pire = "vert";
+  const monte = (n) => { if (n === "rouge" || (n === "orange" && pire === "vert")) pire = n; };
+
+  if (w){
+    if (w.t >= SEUILS.chaleur.rouge){ monte("rouge"); motifs.push(`${w.t} °C : chaleur dangereuse aux heures creuses`); }
+    else if (w.t >= SEUILS.chaleur.orange){ monte("orange"); motifs.push(`${w.t} °C : cherchez l'ombre entre 12 h et 16 h`); }
+    if (eau){
+      if (w.v >= SEUILS.vent.rouge){ monte("rouge"); motifs.push(`vent ${w.v} km/h : mer hachée, sorties compromises`); }
+      else if (w.v >= SEUILS.vent.orange){ monte("orange"); motifs.push(`vent ${w.v} km/h : l'eau se trouble sur les fonds rocheux`); }
+    }
+  }
+  if (eau && m && m.h != null){
+    if (m.h >= SEUILS.vagues.rouge){ monte("rouge"); motifs.push(`vagues ${m.h.toFixed(1)} m : baignade déconseillée aux enfants`); }
+    else if (m.h >= SEUILS.vagues.orange){ monte("orange"); motifs.push(`vagues ${m.h.toFixed(1)} m : ça remue, masque peu utile`); }
+  }
+  return { n: pire, motifs, eau };
+}
 function meteoAlerte(d){
   const w = meteoDe(d);
-  if (!w || w.v < 30) return "";
-  if (!journeeDeMer(d)) return "";
+  if (!w) return "";
+  const { n, motifs, eau } = niveauMeteo(d);
+  const titre = { vert:"Conditions favorables", orange:"Vigilance", rouge:"Conditions difficiles" }[n];
+
+  if (n === "vert"){
+    return `<p class="feu vert"><span class="pastille"></span><b>${titre}</b> —
+      ${w.t} °C, vent ${w.v} km/h${eau && merDe(d) && merDe(d).h != null ? `, vagues ${merDe(d).h.toFixed(1)} m` : ""}.
+      Rien à adapter au programme.</p>`;
+  }
   /* Ne renvoyer vers Saronida que les jours où l'on y est. */
-  const replis = SPOTS[d.n]
-    ? "Le classement des criques, plus bas, dit lesquelles seront à l'abri."
-    : "Les plages de sable abritées — Saronida, Anavyssos — restent agréables ; le snorkeling, beaucoup moins.";
-  return `<p class="wxwarn"><b>Vent annoncé à ${w.v} km/h.</b> Au-delà de 30, l'eau se trouble sur
-    les fonds rocheux et le bateau secoue. ${replis}</p>`;
+  const replis = !eau ? ""
+    : SPOTS[d.n] ? " Le classement des criques, plus bas, dit lesquelles seront à l'abri."
+    : " Les plages de sable abritées — Saronida, Anavyssos — restent agréables ; le snorkeling, beaucoup moins.";
+  return `<p class="feu ${n}"><span class="pastille"></span><b>${titre}</b> —
+    ${esc(motifs.join(" · "))}.${replis}</p>`;
 }
 
 /* ════════════════════════════  MÉTÉO MARINE  ════════════════════════════
@@ -2416,6 +2547,127 @@ function baignadeHTML(d){
     </div>
     <p class="ventnote"><svg><use href="#i-info"/></svg>Orientations approximatives : ce classement indique où chercher l'abri, pas où se garer. Sur place, la règle tient en une phrase — si le vent vous vient de la terre, l'eau sera plate.</p>
   </article>`;
+}
+
+/* ════════════════════════════  PORTFOLIO PHOTO  ════════════════════════════
+   Une galerie par journée, alimentée depuis les téléphones.
+
+   L'image est réduite dans le navigateur avant d'être envoyée : 1600 pixels
+   au plus grand côté, en JPEG. Une photo d'iPhone passe ainsi de quatre
+   mégaoctets à trois cents kilooctets — sur un forfait en itinérance, la
+   différence n'est pas cosmétique, et l'écran d'un téléphone n'en montrera
+   jamais davantage.
+
+   L'orientation vient des métadonnées EXIF, que le redimensionnement
+   effacerait : on la laisse au navigateur, qui applique déjà la rotation à
+   l'affichage — d'où le dessin sur une toile aux dimensions déjà tournées. */
+const PHOTOS = { liste: [], lu: false };
+const COTE_MAX = 1600;
+
+async function reduire(fichier){
+  const bitmap = await createImageBitmap(fichier, { imageOrientation: "from-image" });
+  const f = Math.min(1, COTE_MAX / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * f), h = Math.round(bitmap.height * f);
+  const toile = document.createElement("canvas");
+  toile.width = w; toile.height = h;
+  toile.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+  bitmap.close();
+  const blob = await new Promise(r => toile.toBlob(r, "image/jpeg", 0.82));
+  return { blob, w, h };
+}
+
+async function lirePhotos(){
+  try {
+    const r = await fetch("/api/photos", { cache:"no-store" });
+    if (!r.ok) throw new Error(r.status);
+    PHOTOS.liste = (await r.json()).photos || [];
+    PHOTOS.lu = true;
+    renderSiLibre();
+  } catch { PHOTOS.lu = true; }
+}
+
+let ENVOI = null;                       // { faits, total } pendant un envoi
+async function envoyerPhotos(jour, fichiers){
+  if (!QUI || !fichiers.length) return;
+  ENVOI = { faits: 0, total: fichiers.length };
+  render();
+  for (const f of fichiers){
+    try {
+      const { blob, w, h } = await reduire(f);
+      const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}`, {
+        method:"POST", headers:{ "content-type":"image/jpeg" }, body:blob
+      });
+      if (!r.ok) throw new Error(await r.text());
+      ENVOI.faits++;
+    } catch (e){
+      ENVOI = null; render();
+      toast("Envoi impossible : " + String(e.message || e).slice(0, 60));
+      await lirePhotos();
+      return;
+    }
+    render();
+  }
+  ENVOI = null;
+  await lirePhotos();
+}
+
+async function supprimerPhoto(id){
+  try {
+    const r = await fetch(`/api/photos?id=${id}&qui=${QUI}`, { method:"DELETE" });
+    if (!r.ok) throw new Error();
+    PHOTOS.liste = PHOTOS.liste.filter(p => p.id !== id);
+    render();
+  } catch { toast("Suppression impossible"); }
+}
+
+const photosDuJour = d => PHOTOS.liste.filter(p => +p.jour === d.n);
+
+function photosHTML(d){
+  const mes = photosDuJour(d);
+  const auj = dayIndexToday();
+  const aVenir = auj >= 0 && d.n > DAYS[auj].n;
+  return `<section class="album">
+    <h4>Portfolio du jour${mes.length ? ` <span class="compte">${mes.length} photo${mes.length > 1 ? "s" : ""}</span>` : ""}</h4>
+    ${mes.length ? `<div class="grillephotos">
+      ${mes.map(p => `<figure class="vignette" data-voir="${p.id}"${p.w && p.h ? ` style="aspect-ratio:${p.w}/${p.h}"` : ""}>
+        <img src="/api/photos?id=${p.id}" alt="Photo du ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}, par ${esc(nomDe(p.qui))}" loading="lazy">
+        <figcaption>${esc(nomDe(p.qui))}</figcaption>
+      </figure>`).join("")}
+    </div>` : `<p class="albumvide">${
+      aVenir ? "Cette journée n'a pas encore eu lieu."
+      : PHOTOS.lu ? "Aucune photo pour l'instant. La première est la plus difficile."
+      : "Chargement…"}</p>`}
+    ${aVenir ? "" : !QUI
+      ? `<p class="albumvide">Identifiez-vous dans « Le mot du soir » pour ajouter les vôtres.</p>`
+      : ENVOI
+        ? `<p class="albumvide">Envoi en cours — ${ENVOI.faits} sur ${ENVOI.total}…</p>`
+        : `<label class="ajouter">
+             <input type="file" accept="image/*" multiple data-photo="${d.n}" hidden>
+             <svg><use href="#i-partage"/></svg>Ajouter des photos
+           </label>
+           <p class="albumaide">Réduites avant l'envoi — comptez 300 Ko par photo, pas 4 Mo.
+             Vous pouvez retirer les vôtres en les ouvrant.</p>`}
+  </section>`;
+}
+
+/* Ouverture en grand, au clavier comme au doigt. */
+function ouvrirPhoto(id){
+  const p = PHOTOS.liste.find(x => x.id === id);
+  if (!p) return;
+  let dlg = document.getElementById("visionneuse");
+  if (!dlg){
+    dlg = document.createElement("dialog");
+    dlg.id = "visionneuse";
+    document.body.appendChild(dlg);
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  }
+  dlg.innerHTML = `<img src="/api/photos?id=${p.id}" alt="">
+    <div class="vbarre">
+      <span>${esc(nomDe(p.qui))} · ${esc(new Date(p.ts).toLocaleString("fr-FR", { dateStyle:"short", timeStyle:"short" }))}</span>
+      ${p.qui === QUI ? `<button type="button" class="vsuppr" data-suppr="${p.id}">Retirer</button>` : ""}
+      <button type="button" class="vfermer">Fermer</button>
+    </div>`;
+  dlg.showModal();
 }
 
 /* ════════════════════════════  LE MOT DU SOIR  ════════════════════════════
@@ -3090,6 +3342,7 @@ function dayHTML(d, { live }){
       <span class="lbl">À prendre</span>
       <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
     </div>` : ""}
+    ${photosHTML(d)}
     ${avisHTML(d)}
   </div>`;
 }
@@ -3367,6 +3620,11 @@ document.addEventListener("click", e => {
     try { localStorage.setItem(ANON_STORE, REVELER ? "oui" : "non"); } catch {}
     render(); return;
   }
+  const vig = e.target.closest("[data-voir]");
+  if (vig){ ouvrirPhoto(vig.dataset.voir); return; }
+  const sup = e.target.closest("[data-suppr]");
+  if (sup){ document.getElementById("visionneuse").close(); supprimerPhoto(sup.dataset.suppr); return; }
+  if (e.target.closest(".vfermer")){ document.getElementById("visionneuse").close(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
   if (e.target.closest("#journalBtn")) envoyerJournal();
@@ -3417,6 +3675,14 @@ document.addEventListener("submit", async e => {
     render();
     const c = document.getElementById("codenaiss"); if (c){ c.value = ""; c.focus(); }
   }
+});
+
+document.addEventListener("change", e => {
+  const ch = e.target.closest("input[data-photo]");
+  if (!ch || !ch.files || !ch.files.length) return;
+  const fichiers = [...ch.files];
+  ch.value = "";                       // pour pouvoir reprendre la même photo
+  envoyerPhotos(+ch.dataset.photo, fichiers);
 });
 
 document.addEventListener("input", e => {
@@ -3620,7 +3886,8 @@ render();
    Écran éteint, plus rien ne part : inutile de vider la batterie sur une plage.
    Le bouton « Actualiser » du mot du soir reste là pour qui veut forcer. */
 lireAvis();
-document.addEventListener("visibilitychange", () => { if (!document.hidden) lireAvis(); });
+lirePhotos();
+document.addEventListener("visibilitychange", () => { if (!document.hidden){ lireAvis(); lirePhotos(); } });
 addEventListener("pageshow", () => lireAvis());
 addEventListener("focus", () => lireAvis());
 addEventListener("online", lireAvis);
