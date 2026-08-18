@@ -2667,6 +2667,72 @@ function baignadeHTML(d){
 const PHOTOS = { liste: [], lu: false, quota: 5 };
 const COTE_MAX = 1600;
 
+/* ── La date de prise de vue ──
+   Elle est inscrite par l'appareil dans l'en-tête EXIF du fichier, que le
+   redimensionnement efface : on la lit donc sur le fichier d'origine, avant
+   toute transformation.
+
+   On cherche le segment APP1, on y suit l'en-tête TIFF — dont l'ordre des
+   octets varie selon le constructeur — jusqu'aux étiquettes 36867
+   (« date de prise de vue ») ou 306 (« date du fichier »). La valeur est
+   une chaîne « AAAA:MM:JJ hh:mm:ss », sans fuseau : c'est l'heure qu'avait
+   l'appareil, donc l'heure d'Athènes pour nos téléphones.
+
+   Une capture d'écran, une image reçue par messagerie ou un fichier HEIC
+   n'ont pas cet en-tête. On rend alors null, et l'on ne prétend pas savoir. */
+async function dateDePriseDeVue(fichier){
+  try {
+    const buf = await fichier.slice(0, 256 * 1024).arrayBuffer();
+    const v = new DataView(buf);
+    if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return null;   // pas un JPEG
+    let p = 2, tiff = -1;
+    while (p + 4 < v.byteLength){
+      if (v.getUint8(p) !== 0xFF) break;
+      const marqueur = v.getUint8(p + 1), taille = v.getUint16(p + 2);
+      if (marqueur === 0xE1 && v.getUint32(p + 4) === 0x45786966){ tiff = p + 10; break; }
+      if (marqueur === 0xDA) break;                                   // début de l'image
+      p += 2 + taille;
+    }
+    if (tiff < 0 || tiff + 8 > v.byteLength) return null;
+    const petitBoutiste = v.getUint16(tiff) === 0x4949;
+    const u16 = (o) => v.getUint16(o, petitBoutiste);
+    const u32 = (o) => v.getUint32(o, petitBoutiste);
+    if (u16(tiff + 2) !== 42) return null;
+
+    const texte = (o, n) => {
+      let s = "";
+      for (let i = 0; i < n && v.getUint8(o + i); i++) s += String.fromCharCode(v.getUint8(o + i));
+      return s;
+    };
+    const parcourir = (ifd, cibles) => {
+      if (ifd + 2 > v.byteLength) return {};
+      const n = u16(ifd), trouve = {};
+      for (let i = 0; i < n; i++){
+        const e = ifd + 2 + i * 12;
+        if (e + 12 > v.byteLength) break;
+        const tag = u16(e);
+        if (!cibles.includes(tag)) continue;
+        const nb = u32(e + 4), val = u32(e + 8);
+        trouve[tag] = u16(e + 2) === 2 ? texte(tiff + val, Math.min(nb, 32)) : val;
+      }
+      return trouve;
+    };
+    const ifd0 = parcourir(tiff + u32(tiff + 4), [0x8769, 0x0132]);
+    let brut = ifd0[0x0132];
+    if (ifd0[0x8769]){
+      const exif = parcourir(tiff + ifd0[0x8769], [0x9003, 0x9004]);
+      brut = exif[0x9003] || exif[0x9004] || brut;
+    }
+    const m = String(brut || "").match(/^(\d{4}):(\d{2}):(\d{2})[ T](\d{2})/);
+    if (!m) return null;
+    /* Même règle que le reste de l'application : une photo prise à 1 h du
+       matin appartient à la soirée de la veille. */
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4]));
+    if (+m[4] < BASCULE) d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  } catch { return null; }
+}
+
 async function reduire(fichier){
   const bitmap = await createImageBitmap(fichier, { imageOrientation: "from-image" });
   const f = Math.min(1, COTE_MAX / Math.max(bitmap.width, bitmap.height));
@@ -2694,36 +2760,59 @@ async function lirePhotos(){
 let ENVOI = null;                       // { faits, total } pendant un envoi
 async function envoyerPhotos(jour, fichiers){
   if (!QUI || !fichiers.length) return;
-  const place = PHOTOS.quota - PHOTOS.liste.filter(p => p.qui === QUI).length;
-  if (place <= 0){ toast(`Vos ${PHOTOS.quota} photos sont déjà déposées`); return; }
+  const jourDit = DAYS.find(x => x.n === jour);
+  const place = PHOTOS.quota - photosDe(QUI, jour).length;
+  if (place <= 0){ toast(`Vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`); return; }
   if (fichiers.length > place){
-    toast(`${place} place${place > 1 ? "s" : ""} restante${place > 1 ? "s" : ""} : les premières seulement`);
+    toast(`${place} place${place > 1 ? "s" : ""} restante${place > 1 ? "s" : ""} ce jour-là : les premières seulement`);
     fichiers = fichiers.slice(0, place);
   }
-  ENVOI = { faits: 0, total: fichiers.length };
+  /* On écarte d'abord ce qui ne va pas, pour ne pas commencer un envoi qui
+     s'arrêtera en chemin. Une photo sans date reconnaissable passe : on ne
+     peut pas affirmer qu'elle est du mauvais jour. */
+  ENVOI = { faits: 0, total: fichiers.length, verif: true };
   render();
+  const bons = [], ecartes = [];
+  let sansDate = 0;
   for (const f of fichiers){
+    const prise = await dateDePriseDeVue(f);
+    if (!prise) sansDate++;
+    if (prise && prise !== jourDit.date) ecartes.push({ f, prise });
+    else bons.push({ f, prise });
+  }
+  if (ecartes.length){
+    const p = ecartes[0].prise, autre = DAYS.find(x => x.date === p);
+    toast(ecartes.length === 1
+      ? `Photo du ${p.slice(8)}/${p.slice(5, 7)} refusée ici${autre ? ` — elle va au ${autre.dm}` : " : hors séjour"}`
+      : `${ecartes.length} photos écartées : prises un autre jour`);
+  }
+  if (!bons.length){ ENVOI = null; render(); return; }
+
+  ENVOI = { faits: 0, total: bons.length };
+  render();
+  for (const { f, prise } of bons){
     try {
       const { blob, w, h } = await reduire(f);
-      const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}`, {
+      const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}${prise ? `&pris=${prise}` : ""}`, {
         method:"POST", headers:{ "content-type":"image/jpeg" }, body:blob
       });
       if (!r.ok){
         const t = await r.text();
-        throw new Error(t.includes("quota")
-          ? `vous avez déjà déposé vos ${PHOTOS.quota} photos`
+        throw new Error(t.includes("quota") ? `vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`
+          : t.includes("jour") ? "cette photo n'a pas été prise ce jour-là"
           : t.slice(0, 60));
       }
       ENVOI.faits++;
     } catch (e){
       ENVOI = null; render();
-      toast("Envoi impossible : " + String(e.message || e).slice(0, 60));
+      toast("Envoi impossible : " + String(e.message || e).slice(0, 70));
       await lirePhotos();
       return;
     }
     render();
   }
   ENVOI = null;
+  if (sansDate) toast(`${sansDate} photo${sansDate > 1 ? "s" : ""} sans date d'appareil : rangée${sansDate > 1 ? "s" : ""} sur votre parole`);
   await lirePhotos();
 }
 
@@ -2739,14 +2828,14 @@ async function supprimerPhoto(id){
 }
 
 const photosDuJour = d => PHOTOS.liste.filter(p => +p.jour === d.n);
+const photosDe = (qui, n) => PHOTOS.liste.filter(p => p.qui === qui && +p.jour === n);
 
 function photosHTML(d){
   const mes = photosDuJour(d);
   const auj = dayIndexToday();
   const aVenir = auj >= 0 && d.n > DAYS[auj].n;
-  /* Cinq par personne pour tout le séjour : on compte donc sur l'ensemble
-     des journées, pas sur celle qu'on regarde. */
-  const miennes = QUI ? PHOTOS.liste.filter(p => p.qui === QUI).length : 0;
+  /* Cinq par personne et par journée : le compte est celui du jour affiché. */
+  const miennes = QUI ? photosDe(QUI, d.n).length : 0;
   const reste = PHOTOS.quota - miennes;
   return `<section class="album">
     <h4>Portfolio du jour${mes.length ? ` <span class="compte">${mes.length} photo${mes.length > 1 ? "s" : ""}</span>` : ""}</h4>
@@ -2767,18 +2856,20 @@ function photosHTML(d){
     ${aVenir ? "" : !QUI
       ? `<p class="albumvide">Identifiez-vous dans « Le mot du soir » pour ajouter les vôtres.</p>`
       : ENVOI
-        ? `<p class="albumvide">Envoi en cours — ${ENVOI.faits} sur ${ENVOI.total}…</p>`
+        ? `<p class="albumvide">${ENVOI.verif ? "Lecture des dates de prise de vue…"
+             : `Envoi en cours — ${ENVOI.faits} sur ${ENVOI.total}…`}</p>`
         : `<p class="quota${reste <= 0 ? " plein" : ""}">
-             <b>${miennes} sur ${PHOTOS.quota}</b> — ${
-               reste <= 0 ? "votre sélection est complète. Pour en changer une, ouvrez-la et retirez-la."
-               : reste === 1 ? "il vous reste une place pour tout le séjour."
-               : `il vous reste ${reste} places pour tout le séjour.`}</p>
+             <b>${miennes} sur ${PHOTOS.quota}</b> pour cette journée — ${
+               reste <= 0 ? "c'est complet. Retirez-en une pour libérer la place."
+               : reste === 1 ? "il vous reste une place."
+               : `il vous reste ${reste} places.`}</p>
            ${reste > 0 ? `<label class="ajouter">
              <input type="file" accept="image/*" multiple data-photo="${d.n}" hidden>
              <svg><use href="#i-partage"/></svg>Ajouter ${reste === 1 ? "une photo" : "des photos"}
            </label>` : ""}
-           <p class="albumaide">Cinq photos chacun pour les onze jours : de quoi faire un best-of,
-             pas une sauvegarde. Elles sont réduites avant l'envoi — 300 Ko, pas 4 Mo.</p>`}
+           <p class="albumaide">Cinq photos par personne et par journée, soit cinquante-cinq au plus
+             chacun sur le séjour. La date de l'appareil est vérifiée : une photo prise un autre
+             jour est refusée ici. Elles sont réduites avant l'envoi — 300 Ko, pas 4 Mo.</p>`}
   </section>`;
 }
 

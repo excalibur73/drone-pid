@@ -25,10 +25,12 @@ const QUI_VALIDES = ["hilal", "layal", "sana", "papa"];
 const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const TYPE = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" };
 const POIDS_MAX = 4 * 1024 * 1024;
-/* Cinq photos par personne pour tout le séjour : le but est un best-of, pas
-   une sauvegarde de pellicule. Tenu ici et pas seulement à l'écran — une
-   limite qu'on contourne en rechargeant la page n'en est pas une. */
+/* Cinq photos par personne et par journée — cinquante-cinq au plus sur les
+   onze jours. Tenu ici et pas seulement à l'écran : une limite qu'on
+   contourne en rechargeant la page n'en est pas une. */
 const QUOTA = 5;
+const JOUR1 = Date.UTC(2026, 7, 17);            // 17 août 2026
+const dateDuJour = (n) => new Date(JOUR1 + (n - 1) * 86400000).toISOString().slice(0, 10);
 
 const images = () => getStore({ name: "photos-athenes-2026", consistency: "strong" });
 const index  = () => getStore({ name: "photos-index-2026", consistency: "strong" });
@@ -77,9 +79,18 @@ export default async (req) => {
     if (!(+jour >= 1 && +jour <= 11)) return new Response("Jour hors séjour", { status: 400 });
     if (!EXT[type]) return new Response("Format non accepté", { status: 415 });
 
-    const deja = await inventaire(`idx/${qui}/`);
+    /* Le cliché doit appartenir à la journée sous laquelle on le range.
+       La date vient des métadonnées de l'appareil, lues par le navigateur
+       avant le redimensionnement — qui les efface. Absente, on ne peut rien
+       affirmer : on accepte, en le disant. Présente et discordante, on
+       refuse, en nommant la bonne journée. */
+    const pris = url.searchParams.get("pris");
+    if (pris && /^\d{4}-\d{2}-\d{2}$/.test(pris) && pris !== dateDuJour(+jour))
+      return Response.json({ erreur: "jour", prise: pris, attendu: dateDuJour(+jour) }, { status: 409 });
+
+    const deja = await inventaire(`idx/${qui}/${jour}/`);
     if (deja.length >= QUOTA)
-      return Response.json({ erreur: "quota", quota: QUOTA, deposees: deja.length }, { status: 409 });
+      return Response.json({ erreur: "quota", quota: QUOTA, jour, deposees: deja.length }, { status: 409 });
 
     const octets = await req.arrayBuffer();
     if (!octets.byteLength) return new Response("Image vide", { status: 400 });
@@ -98,11 +109,11 @@ export default async (req) => {
 
     /* Deux envois partis ensemble ont pu passer le contrôle du quota tous
        les deux. On recompte après coup : le dernier arrivé se retire. */
-    const apres = await inventaire(`idx/${qui}/`);
+    const apres = await inventaire(`idx/${qui}/${jour}/`);
     if (apres.length > QUOTA && apres[apres.length - 1].id === id2){
       await index().delete(cle);
       await images().delete(id2);
-      return Response.json({ erreur: "quota", quota: QUOTA, deposees: QUOTA }, { status: 409 });
+      return Response.json({ erreur: "quota", quota: QUOTA, jour, deposees: QUOTA }, { status: 409 });
     }
     return Response.json({ ok: true, id: id2, jour });
   }
