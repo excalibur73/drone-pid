@@ -604,6 +604,11 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .changequi{font-size:.76rem; color:var(--ink-3); text-decoration:underline; text-underline-offset:3px; font-weight:400}
 .changequi:hover{color:var(--sea)}
 .soir-intro{margin-top:8px; font-size:.87rem; color:var(--ink-2)}
+.soir.avenir{border-style:dashed; background:var(--surface-2); box-shadow:none}
+.allerauj{
+  color:var(--sea); font-weight:600; text-decoration:underline; text-underline-offset:3px;
+  font-size:inherit; padding:0;
+}
 .qui{
   min-height:46px; padding:0 20px; border-radius:99px;
   border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
@@ -2381,10 +2386,28 @@ function avisHTML(d){
       </form>
     </section>`;
   }
+  /* On note la journée qu'on a vécue, pas celle qu'on consulte. Rien ne le
+     disait : un avis écrit le soir du 17 en feuilletant le programme du 18
+     se rangeait au 18. La date est donc inscrite dans le titre, et une
+     journée à venir ne se note pas — elle renvoie à celle d'aujourd'hui. */
+  const auj = dayIndexToday();
+  const aVenir = auj >= 0 && d.n > DAYS[auj].n;
+  const dateDite = `${DOW_FULL[d.dow]} ${d.dm}`;
+
+  if (aVenir){
+    return `<section class="soir avenir">
+      <h4>Le mot du soir · ${esc(dateDite)}<span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
+      <p class="soir-intro">Cette journée n'a pas encore eu lieu — il n'y a rien à en dire.
+        ${auj >= 0 ? `Pour noter celle d'aujourd'hui, <button type="button" class="allerauj" data-i="${auj}">allez au ${esc(DOW_FULL[DAYS[auj].dow])} ${esc(DAYS[auj].dm)}</button>.` : ""}</p>
+    </section>`;
+  }
+
   return `<section class="soir">
-    <h4>Le mot du soir <span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
-    <p class="soir-intro"><b>Notez la journée qui vient de s'écouler</b> — une note sur cinq, et un mot
-      si le cœur vous en dit. Rien d'autre : ce n'est ni un pense-bête, ni la liste du lendemain.</p>
+    <h4>Le mot du soir · ${esc(dateDite)}<span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
+    <p class="soir-intro"><b>Vous notez le ${esc(dateDite)}</b>${
+      auj < 0 ? "" : d.n === DAYS[auj].n ? ", la journée en cours"
+                                         : " — une journée passée, que vous pouvez encore commenter"}.
+      Une note sur cinq, et un mot si le cœur vous en dit. Ce n'est ni un pense-bête, ni la liste du lendemain.</p>
     <div class="notes-etoiles" role="group" aria-label="Note de la journée">
       ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="etoile${mien && mien.note >= n ? " pleine" : ""}"
         data-note="${n}" data-jour="${d.n}" aria-label="${n} sur 5">
@@ -2403,7 +2426,7 @@ function avisHTML(d){
       const liste = avisRanges(duJour);
       if (!liste.length) return "";
       return `<div class="autresavis">
-        <p class="anontitre">${liste.length} avis pour cette journée${
+        <p class="anontitre">${liste.length} avis pour le ${esc(dateDite)}${
           REVELER ? "" : " — à vous de deviner qui a écrit quoi. On joue franc jeu : la date de naissance ouvre l'accès, et chacun connaît celle des autres"}</p>
         ${liste.map((x, i) => `<div class="unavis${x.id === QUI ? " mien" : ""}">
           <span class="ai"><b>${REVELER ? esc(nomDe(x.id)) : `Avis ${i + 1}`}</b>${
@@ -3147,6 +3170,8 @@ document.getElementById("viewChrono").addEventListener("click", () => { state.vi
    ferait perdre le curseur au milieu d'une phrase. */
 let saveT;
 document.addEventListener("click", e => {
+  const versAuj = e.target.closest(".allerauj");
+  if (versAuj){ goToDay(+versAuj.dataset.i); return; }
   if (e.target.closest(".changequi")){
     QUI = null; RECONNUS = null; CHOIX = null; ERREUR_CODE = "";
     try { localStorage.removeItem(QUI_STORE); } catch {}
