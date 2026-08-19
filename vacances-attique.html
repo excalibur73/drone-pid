@@ -703,6 +703,78 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
 .anontitre{font-family:var(--mono); font-size:.7rem; letter-spacing:.05em; color:var(--ink-3)}
 .unavis.mien{padding-left:9px; border-left:2px solid var(--line)}
+/* La vue parallèle : marqueur de vigilance et ligne des notes. */
+.cvig{
+  display:inline-flex; align-items:center; gap:4px; margin-left:6px;
+  padding:1px 6px; border-radius:99px; vertical-align:middle;
+  border:1px solid color-mix(in oklab,var(--ochre) 45%,transparent);
+  background:var(--ochre-soft); color:var(--ochre);
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; text-transform:uppercase;
+}
+.cvig svg{width:9px; height:9px}
+.cvig.clignote{animation:vigil 1.9s ease-in-out infinite}
+tr.lnotes th{vertical-align:middle}
+.cnotes{display:flex; flex-wrap:wrap; gap:5px; align-items:center}
+.cn{
+  display:inline-flex; align-items:baseline; gap:3px; padding:1px 7px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface);
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.74rem; color:var(--ink-2);
+}
+.cn b{font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
+.cn.moi{border-color:var(--sea); color:var(--sea)}
+.cn.moi b{color:var(--sea)}
+.cmoy{
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.74rem;
+  color:var(--sea); border-bottom:1px solid var(--sea);
+}
+.pasnote{color:var(--ink-3)}
+
+/* ── Les notes, nommées ──
+   Le jeu porte sur les mots, pas sur les chiffres : on peut donc afficher
+   qui a mis quoi sans rien gâcher, et cela se lit d'un coup d'œil. */
+.notesjour{
+  margin-top:16px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--surface-2); overflow:hidden;
+}
+.njtitre{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; border-bottom:1px solid var(--line-soft);
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
+}
+.njtitre .moy{margin-left:auto; color:var(--sea); letter-spacing:.08em}
+.notesjour ul{list-style:none; padding:4px 14px 10px}
+.notesjour li{display:flex; align-items:center; gap:10px; padding:7px 0}
+.notesjour li + li{border-top:1px solid var(--line-soft)}
+.notesjour .qn{font-size:.92rem; font-weight:600; min-width:104px}
+.notesjour .qn i{font-style:normal; font-family:var(--mono); font-size:.68rem; color:var(--ink-3); letter-spacing:.1em; text-transform:uppercase}
+.notesjour .et{display:inline-flex; gap:2px; align-items:center}
+.notesjour .et svg{width:15px; height:15px; fill:var(--line); stroke:none}
+.notesjour .et svg.pleine{fill:var(--ochre)}
+.notesjour .et em{font-style:italic; font-size:.8rem; color:var(--ink-3)}
+.notesjour .nn{margin-left:auto; font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.82rem; color:var(--ink-2)}
+.notesjour li.vide .qn{color:var(--ink-3); font-weight:500}
+.notesjour li.moi{background:color-mix(in oklab,var(--sea) 5%,transparent); margin:0 -14px; padding-left:14px; padding-right:14px}
+
+/* ── Le pouce ── */
+.pouce{
+  display:inline-flex; align-items:center; gap:7px; margin-top:9px;
+  min-height:36px; padding:0 13px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+  font-size:.83rem; font-family:var(--mono); letter-spacing:.03em;
+  transition:border-color .18s, color .18s, background .18s;
+}
+.pouce svg{width:15px; height:15px; flex:0 0 auto}
+.pouce b{font-weight:700; color:var(--ink)}
+.pouce.mien b{color:var(--sea)}
+.pouce.compte.aime b{color:var(--sea)}
+.pouce .pt{color:var(--ink-3)}
+button.pouce:hover{border-color:var(--sea); color:var(--sea)}
+.pouce.mien{border-color:var(--sea); color:var(--sea); background:var(--sea-soft)}
+.pouce.mien svg{transform:translateY(-1px)}
+.pouce.mien .pt{color:var(--sea)}
+.pouce.compte{border-style:dashed; color:var(--ink-3)}
+.pouce.compte.aime{border-style:solid; border-color:var(--sea); color:var(--sea)}
+
 .reveler{
   align-self:flex-start; margin-top:2px; padding:8px 14px; border-radius:99px;
   border:1px dashed var(--line); background:transparent; color:var(--ink-3);
@@ -1160,6 +1232,9 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2Z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></symbol>
+  <symbol id="i-pouce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 21V10l4.5-7a2 2 0 0 1 2.9 2.5L13 9h5.4a2 2 0 0 1 2 2.4l-1.4 7a2 2 0 0 1-2 1.6H7Z"/>
+    <path d="M7 10H4v11h3"/></symbol>
   <symbol id="i-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5 17.5a4 4 0 0 1 .8-7.9 6 6 0 0 1 11.6-1.4A3.9 3.9 0 0 1 20 15.9"/><path d="m9 20 3-3 3 3M12 17v5"/></symbol>
   <symbol id="i-son" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -3093,6 +3168,29 @@ async function supprimerPhoto(id){
   } catch { toast("Suppression impossible"); }
 }
 
+/* ── Vitesse d'affichage de l'album ──
+   Chaque vignette téléchargeait la photo entière : 290 Ko pour un carré de
+   114 px de côté, autant de fois qu'il y a de photos dans la journée. Le
+   redimensionneur de Netlify sert la même image à la taille demandée, en
+   WebP, et la garde en bordure : 10 Ko au lieu de 290, soit trente fois
+   moins sur un forfait en itinérance. La visionneuse, elle, demande une
+   version d'écran — 50 Ko — et non l'originale.
+
+   L'adresse d'origine reste le recours : hors ligne, ou si le service de
+   redimensionnement manque, on la reprend plutôt que d'afficher un vide. */
+const imgOriginale = id => `/api/photos?id=${id}`;
+const imgReduite = (id, w, q) =>
+  `/.netlify/images?url=${encodeURIComponent(imgOriginale(id))}&w=${w}&q=${q}`;
+function vignetteSecours(img){
+  if (img.dataset.secours){
+    const f = img.closest(".vignette");
+    if (f) f.classList.add("cassee");
+    return;
+  }
+  img.dataset.secours = "1";
+  img.src = imgOriginale(img.dataset.id);
+}
+
 const photosDuJour = d => PHOTOS.liste.filter(p => +p.jour === d.n);
 const photosDe = (qui, n) => PHOTOS.liste.filter(p => p.qui === qui && +p.jour === n);
 
@@ -3121,10 +3219,12 @@ ${(() => {
     ${PHOTOS.echec && !mes.length ? `<p class="albumvide alerte">Photos injoignables pour l'instant —
       ce n'est pas qu'il n'y en a pas. <button type="button" class="rafraichir" data-photos-maj>Réessayer</button></p>` : ""}
     ${mes.length ? `<div class="grillephotos">
-      ${mes.map(p => `<figure class="vignette${p.qui === QUI ? " mienne" : ""}">
-        <img src="/api/photos?id=${p.id}" data-voir="${p.id}"
+      ${mes.map((p, i) => `<figure class="vignette${p.qui === QUI ? " mienne" : ""}">
+        <img src="${imgReduite(p.id, 400, 72)}" data-voir="${p.id}" data-id="${p.id}"
              alt="Photo du ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}, par ${esc(nomDe(p.qui))}"
-             loading="lazy" onerror="this.closest('.vignette').classList.add('cassee')">
+             width="400" height="400" decoding="async"
+             loading="${i < 3 ? "eager" : "lazy"}"${i < 3 ? ' fetchpriority="high"' : ""}
+             onerror="vignetteSecours(this)">
         <figcaption>${esc(nomDe(p.qui))}</figcaption>
         ${p.qui === QUI ? `<button type="button" class="retirer" data-suppr="${p.id}"
           aria-label="Retirer cette photo" title="Retirer cette photo">✕</button>` : ""}
@@ -3169,7 +3269,8 @@ function ouvrirPhoto(id){
     document.body.appendChild(dlg);
     dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
   }
-  dlg.innerHTML = `<img src="/api/photos?id=${p.id}" alt="">
+  dlg.innerHTML = `<img src="${imgReduite(p.id, 1400, 80)}" data-id="${p.id}"
+      decoding="async" onerror="vignetteSecours(this)" alt="">
     <div class="vbarre">
       <span>${esc(nomDe(p.qui))} · ${esc(new Date(p.ts).toLocaleString("fr-FR", { dateStyle:"short", timeStyle:"short" }))}</span>
       ${p.qui === QUI ? `<button type="button" class="vsuppr" data-suppr="${p.id}">Retirer</button>` : ""}
@@ -3316,16 +3417,18 @@ function avisHTML(d){
       : "Touchez une étoile pour noter, écrivez si vous voulez. C'est enregistré tout seul."}</p>
     ${(() => { const e = etatPartage(); return `<p class="etatsync ${e.c}">${e.t}
       <button type="button" class="rafraichir" data-avis-maj${LECTURE_EN_COURS ? " disabled" : ""}>Relire</button></p>`; })()}
+    ${notesHTML(d, duJour)}
     ${(() => {
-      const liste = avisRanges(duJour);
+      const liste = avisRanges(duJour).filter(x => (x.a.txt || "").trim());
       if (!liste.length) return "";
       return `<div class="autresavis">
-        <p class="anontitre">${liste.length} avis pour le ${esc(dateDite)}${
-          REVELER ? "" : " — à vous de deviner qui a écrit quoi. On joue franc jeu : la date de naissance ouvre l'accès, et chacun connaît celle des autres"}</p>
+        <p class="anontitre">${liste.length} commentaire${liste.length > 1 ? "s" : ""} pour le ${esc(dateDite)}${
+          REVELER ? "" : " — à vous de deviner qui a écrit quoi. Les notes, elles, sont annoncées au-dessus : le jeu porte sur les mots"}</p>
         ${liste.map((x, i) => `<div class="unavis${x.id === QUI ? " mien" : ""}">
           <span class="ai"><b>${REVELER ? esc(nomDe(x.id)) : `Avis ${i + 1}`}</b>${
-            x.id === QUI ? ` · vous` : ""}${x.a.note ? ` · ${x.a.note}/5` : ""}</span>
-          ${x.a.txt ? `<p>${esc(x.a.txt)}</p>` : ""}
+            x.id === QUI ? ` · vous` : ""}${REVELER && x.a.note ? ` · ${x.a.note}/5` : ""}</span>
+          <p>${esc(x.a.txt)}</p>
+          ${pouceHTML(d.n, x.id)}
         </div>`).join("")}
         <button type="button" class="reveler">${
           REVELER ? "Masquer les auteurs" : "Révéler qui a écrit quoi"}</button>
@@ -3356,6 +3459,85 @@ function avisHTML(d){
    — sans quoi on ne pourrait pas en parler à table. Le sien est donc affiché
    avec les autres, marqué « vous », plutôt que retiré de la liste : le retirer
    décalerait la numérotation d'un téléphone à l'autre. */
+/* Les notes, elles, sont nominatives : le jeu porte sur les commentaires,
+   « à vous de deviner qui a écrit quoi ». Une note seule ne trahit personne
+   tant qu'on ne sait pas quel texte l'accompagne, et voir d'un coup d'œil
+   qui a aimé sa journée valait mieux qu'un chiffre perdu dans la liste. */
+function notesHTML(d, duJour){
+  const notes = FAMILLE.map(f => ({ f, n: (duJour[f.id] || {}).note || 0 }));
+  const donnees = notes.filter(x => x.n);
+  const moy = donnees.length ? donnees.reduce((t, x) => t + x.n, 0) / donnees.length : 0;
+  return `<div class="notesjour">
+    <p class="njtitre">Les notes de la journée${donnees.length
+      ? ` <span class="moy">moyenne ${moy.toFixed(1).replace(".", ",")} / 5</span>` : ""}</p>
+    <ul>${notes.map(({ f, n }) => `<li class="${n ? "notee" : "vide"}${f.id === QUI ? " moi" : ""}">
+      <span class="qn">${esc(f.nom)}${f.id === QUI ? " <i>vous</i>" : ""}</span>
+      <span class="et" aria-label="${n ? `${n} sur 5` : "pas encore noté"}">${
+        n ? [1,2,3,4,5].map(k => `<svg class="${k <= n ? "pleine" : ""}" viewBox="0 0 24 24">
+              <path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.4 9.4l6.1-.8Z"/></svg>`).join("")
+          : `<em>pas encore noté</em>`}</span>
+      ${n ? `<span class="nn">${n}/5</span>` : ""}
+    </li>`).join("")}</ul>
+  </div>`;
+}
+
+/* ── Le pouce ──
+   Approuver le propos d'un autre sans avoir à écrire « + 1 » sous son avis.
+   Le serveur range les pouces par votant, si bien que deux approbations
+   simultanées ne s'annulent pas. On ne s'approuve pas soi-même : le compte
+   perdrait tout sens, et le serveur le refuse de toute façon.
+
+   L'affichage suit l'anonymat : masqué, on ne voit que le nombre ; révélé,
+   on voit qui a levé le pouce. */
+const POUCE_STORE = "attique2026:pouces";
+let POUCES = (() => { try { return JSON.parse(localStorage.getItem(POUCE_STORE)) || {}; } catch { return {}; } })();
+const clePouce = (jour, auteur) => `${jour}:${auteur}`;
+const pouceursDe = (jour, auteur) => POUCES[clePouce(jour, auteur)] || [];
+const jaiPouce = (jour, auteur) => pouceursDe(jour, auteur).includes(QUI);
+
+async function basculerPouce(jour, auteur){
+  if (!QUI || auteur === QUI) return;
+  const cle = clePouce(jour, auteur);
+  const avant = pouceursDe(jour, auteur);
+  const veut = !avant.includes(QUI);
+  /* On l'affiche tout de suite : le pouce doit répondre au doigt, pas au
+     réseau. Si l'envoi échoue, on remet l'écran dans l'état d'avant. */
+  POUCES[cle] = veut ? [...avant, QUI].sort() : avant.filter(x => x !== QUI);
+  noteEcrire(POUCE_STORE, POUCES);
+  render();
+  try {
+    const r = await fetch("/api/avis", {
+      method:"POST", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ jour:String(jour), qui:QUI, auteur, pouce:veut })
+    });
+    if (!r.ok) throw new Error(r.status);
+  } catch {
+    POUCES[cle] = avant;
+    noteEcrire(POUCE_STORE, POUCES);
+    toast("Pouce non enregistré — réessayez");
+    render();
+  }
+}
+
+/* Le bouton sous un avis. Le sien ne s'approuve pas : on y montre le compte,
+   sans bouton, pour qu'il reste lisible de son auteur. */
+function pouceHTML(jour, auteur){
+  const gens = pouceursDe(jour, auteur);
+  const mien = auteur === QUI;
+  const noms = REVELER && gens.length ? ` · ${gens.map(nomDe).join(", ")}` : "";
+  const dit = gens.length ? `${gens.length}` : "";
+  if (mien) return `<span class="pouce compte${gens.length ? " aime" : ""}">
+    <svg><use href="#i-pouce"/></svg>${gens.length
+      ? `<b>${dit}</b> · ${gens.length > 1 ? "vous approuvent" : "vous approuve"}${esc(noms)}`
+      : "personne ne s'est encore prononcé"}</span>`;
+  return `<button type="button" class="pouce${jaiPouce(jour, auteur) ? " mien" : ""}"
+    data-pouce="${auteur}" data-jour="${jour}"
+    aria-pressed="${jaiPouce(jour, auteur)}"
+    title="${jaiPouce(jour, auteur) ? "Retirer votre pouce" : "Approuver ce propos"}">
+    <svg><use href="#i-pouce"/></svg>${dit ? `<b>${dit}</b> · ` : ""}<span class="pt">${
+      jaiPouce(jour, auteur) ? "vous approuvez" : "j'approuve"}</span>${esc(noms)}</button>`;
+}
+
 const ANON_STORE = "attique2026:reveler";
 let REVELER = (() => { try { return localStorage.getItem(ANON_STORE) === "oui"; } catch { return false; } })();
 const empreinteTexte = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return h; };
@@ -3433,6 +3615,10 @@ async function lireAvis(){
     const r = await fetch("/api/avis", { cache:"no-store" });
     if (!r.ok) throw new Error(r.status);
     const distant = await r.json();
+    /* Les pouces voyagent dans le même corps, sous une clé qui ne peut pas
+       être un numéro de journée. On les met de côté avant de recopier. */
+    if (distant.pouces){ POUCES = distant.pouces; noteEcrire(POUCE_STORE, POUCES); }
+    delete distant.pouces;
     Object.keys(AVIS).forEach(k => delete AVIS[k]);
     Object.assign(AVIS, distant);
     /* Ce qui attend d'être envoyé est plus récent que ce que le serveur
@@ -3921,9 +4107,28 @@ function dayHTML(d, { live }){
   </div>`;
 }
 
+/* Redessiner la journée jetait les images en cours de téléchargement : le
+   compte à rebours change de minute, la page se reconstruit, et les vignettes
+   à moitié arrivées repartaient de zéro. Sur un réseau lent, l'album pouvait
+   ainsi ne jamais finir de s'afficher. On récupère donc les images existantes
+   — chargées ou en vol — et on les remet dans la page neuve. */
+let DERNIER_RENDU = { jour:null, html:"" };
 const renderDay = () => {
-  document.getElementById("dayView").innerHTML =
-    dayHTML(DAYS[state.day], { live: dayIndexToday() === state.day });
+  const hote = document.getElementById("dayView");
+  const neuf = dayHTML(DAYS[state.day], { live: dayIndexToday() === state.day });
+  /* Un rendu qui ne change rien ne doit rien détruire : la relecture des avis
+     revient toutes les minutes, et reconstruire à l'identique relançait le
+     téléchargement des vignettes en cours. */
+  if (DERNIER_RENDU.jour === state.day && DERNIER_RENDU.html === neuf && hote.firstChild) return;
+  DERNIER_RENDU = { jour:state.day, html:neuf };
+  const anciennes = new Map();
+  hote.querySelectorAll("img[data-id]").forEach(im => anciennes.set(im.dataset.id + "|" + im.src, im));
+  hote.innerHTML = neuf;
+  if (!anciennes.size) return;
+  hote.querySelectorAll("img[data-id]").forEach(im => {
+    const gardee = anciennes.get(im.dataset.id + "|" + im.src);
+    if (gardee) im.replaceWith(gardee);
+  });
 };
 
 /* ════════════════════════════  RECHERCHE GLOBALE  ════════════════════════════ */
@@ -3952,8 +4157,25 @@ function cellHTML(day, slot){
   return `<div class="cell">${items.map(it => `
     <span class="ci${matches(it) ? "" : " dim"}" data-t="${it.t}">
       <svg><use href="#${ICON[it.t]}"/></svg>
-      <span>${it.when ? `<span class="k">${esc(it.when)}</span> ` : ""}${highlight(it.ttl)}${it.det ? ` <em>— ${highlight(it.det)}</em>` : ""}</span>
+      <span>${it.when ? `<span class="k">${esc(it.when)}</span> ` : ""}${highlight(it.ttl)}${
+        it.vig ? `<span class="cvig${vigVive(day, slot, it) ? " clignote" : ""}" title="${esc(it.vig)}">
+          <svg><use href="#i-info"/></svg>vigilance</span>` : ""}${
+        it.det ? ` <em>— ${highlight(it.det)}</em>` : ""}</span>
     </span>`).join("")}</div>`;
+}
+/* La vue parallèle porte aussi le verdict de chaque soir : une ligne de plus
+   sous les trois créneaux, un prénom abrégé et sa note. Sans elle, il fallait
+   ouvrir les onze journées une à une pour savoir laquelle avait plu. */
+function notesCelluleHTML(d){
+  const duJour = AVIS[d.n] || {};
+  const donnees = FAMILLE.map(f => ({ f, n: (duJour[f.id] || {}).note || 0 })).filter(x => x.n);
+  if (!donnees.length) return `<span class="pasnote">—</span>`;
+  const moy = donnees.reduce((t, x) => t + x.n, 0) / donnees.length;
+  return `<div class="cnotes">
+    ${donnees.map(({ f, n }) => `<span class="cn${f.id === QUI ? " moi" : ""}">
+      <b>${esc(f.nom.slice(0, 2))}</b>${n}</span>`).join("")}
+    <span class="cmoy">${moy.toFixed(1).replace(".", ",")}</span>
+  </div>`;
 }
 function renderGrid(){
   const today = dayIndexToday();
@@ -3967,7 +4189,11 @@ function renderGrid(){
         <tbody>${SLOTS.map(s => `<tr>
           <th>${s.label}</th>
           ${days.map(d => `<td${DAYS.indexOf(d) === today ? ' class="now"' : ""}>${cellHTML(d, s.k)}</td>`).join("")}
-        </tr>`).join("")}</tbody>
+        </tr>`).join("")}
+        <tr class="lnotes">
+          <th>Notes</th>
+          ${days.map(d => `<td${DAYS.indexOf(d) === today ? ' class="now"' : ""}>${notesCelluleHTML(d)}</td>`).join("")}
+        </tr></tbody>
       </table></div>
     </div>`;
   };
@@ -4190,6 +4416,8 @@ document.addEventListener("click", e => {
     enregistrerAvis(j, { note: actuel === n ? 0 : n });   // retoucher efface
     render();
   }
+  const pce = e.target.closest("[data-pouce]");
+  if (pce){ basculerPouce(pce.dataset.jour, pce.dataset.pouce); return; }
   if (e.target.closest(".reveler")){
     REVELER = !REVELER;
     try { localStorage.setItem(ANON_STORE, REVELER ? "oui" : "non"); } catch {}
