@@ -1229,7 +1229,12 @@ const DAYS = [
             {t:"site", ttl:"Temple de Zeus olympien", ll:"37.9693,23.7331", when:"8 h – 9 h",
              det:"Angle des avenues Vasilissis Olgas et Amalias, au pied sud-est du rocher. Porte d'Hadrien juste à côté",
              note:"8 h – 9 h est l'heure d'entrée, pas la durée : franchissez le portail avant 9 h et restez ensuite le temps que vous voulez. Tous les billets sont pris. Pièces d'identité tout de même : un billet gratuit « moins de 25 ans » se justifie au contrôle"},
-            {t:"site", ttl:"Agora romaine", ll:"37.9744,23.7261", when:"10 h – 11 h", det:"Tour des Vents"} ],
+            {t:"site", ttl:"Agora romaine", ll:"37.9744,23.7261", when:"10 h – 11 h", det:"Tour des Vents"},
+            /* Ajouté sur place le 19 : les salles rupestres du flanc de
+               Philopappos, vues en chemin. */
+            {t:"site", ttl:"Prison de Socrate", ll:"37.9679,23.7223",
+             det:"Salles taillées dans le rocher, flanc de Philopappos",
+             note:"Le nom est une tradition, pas une identification : la vraie prison est dans l'Agora. Ces chambres ont en revanche abrité les antiquités de l'Acropole pendant la guerre"} ],
     aprem:[ {t:"site", ttl:"Psiri", ll:"37.9789,23.7237", det:"Quartier street art"},
             {t:"swim", ttl:"Plage d'Alimos", ll:"37.9007,23.7060"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"17 h 45", map:dir(ALIMOS, "37.9819,23.744")},
@@ -1727,6 +1732,15 @@ function renderChrono(){
    trois temps : ce que c'est, le détail qu'on manque si on ne le sait pas, et
    la phrase à retenir.                                                        */
 const SAVOIRS = {
+  "Prison de Socrate":{
+    quoi:"Trois salles taillées dans le rocher, sur le flanc de la colline de Philopappos. Le nom est une tradition populaire, pas une identification archéologique : rien ne rattache ces chambres à Socrate. On y voit plutôt les pièces d'une maison ou des réserves creusées à l'époque romaine. La vraie prison, celle où la ciguë fut bue en 399 av. J.-C., a été reconnue dans l'angle sud-ouest de l'Agora — que vous avez traversée hier.",
+    regarder:[
+      "Les trous carrés alignés dans la paroi : ce sont les logements des poutres d'un étage disparu. Une prison n'a pas de plancher de bois — une maison, si.",
+      "Les grilles de fer, qui ne datent pas de l'Antiquité. En avril 1941, devant l'avancée allemande, ces salles furent murées de béton armé pour y cacher les antiquités de l'Acropole et du Musée national. Elles y sont restées jusqu'à la fin de la guerre : c'est le seul emprisonnement dont ce lieu puisse se vanter.",
+      "La vue en vous retournant : le rocher de l'Acropole vu d'en bas et de côté, sans la foule. C'est le meilleur cadrage du Parthénon depuis le sol."
+    ],
+    mot:"Le nom est faux, le lieu est vrai : c'est ici que l'Acropole a passé la guerre."
+  },
   "Agora antique":{
     quoi:"Le centre civique d'Athènes pendant mille ans : le marché, les tribunaux, la monnaie, et la place où Socrate discutait — c'est ici qu'il fut jugé et condamné. Rien à voir avec l'Acropole, qui était le sanctuaire : ici on votait, on plaidait, on vendait du poisson.",
     regarder:[
