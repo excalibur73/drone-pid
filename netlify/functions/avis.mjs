@@ -8,8 +8,11 @@
  * Les lectures se font donc aussi en cohérence forte.
  *
  * Les pouces obéissent à la même règle, une clé par votant : « pouce/sana »
- * contient tout ce que Sana a approuvé, et personne d'autre n'y écrit. Deux
- * approbations simultanées ne peuvent donc pas s'annuler.
+ * contient tout ce que Sana a approuvé ou désapprouvé, et personne d'autre
+ * n'y écrit. Deux votes simultanés ne peuvent donc pas s'annuler.
+ *
+ * Le mot de la fin suit la même logique : « bilan/sana », une clé par
+ * personne, écrite depuis son seul téléphone.
  */
 import { getStore } from "@netlify/blobs";
 
@@ -35,16 +38,22 @@ export default async (req) => {
     /* Les pouces voyagent avec les avis : une seule requête, un seul aller.
        La clé « pouces » ne peut pas entrer en conflit avec un numéro de
        journée, qui va de « 1 » à « 11 » — les lecteurs anciens l'ignorent. */
-    const pouces = {};
+    const pouces = {}, bilans = {};
     await Promise.all(QUI_VALIDES.map(async (votant) => {
       const sien = (await store.get(`pouce/${votant}`, { type: "json" })) || {};
-      Object.entries(sien).forEach(([cle, oui]) => {
-        if (!oui) return;
-        (pouces[cle] = pouces[cle] || []).push(votant);
+      Object.entries(sien).forEach(([cle, v]) => {
+        /* « true » est l'ancienne écriture du pouce levé ; on la relit. */
+        const sens = v === true ? 1 : Number(v);
+        if (sens !== 1 && sens !== -1) return;
+        const p = (pouces[cle] = pouces[cle] || { pour: [], contre: [] });
+        (sens === 1 ? p.pour : p.contre).push(votant);
       });
+      const mot = await store.get(`bilan/${votant}`, { type: "json" });
+      if (mot && (mot.txt || "").trim()) bilans[votant] = mot;
     }));
-    Object.values(pouces).forEach((v) => v.sort());
+    Object.values(pouces).forEach((p) => { p.pour.sort(); p.contre.sort(); });
     tout.pouces = pouces;
+    tout.bilans = bilans;
     return Response.json(tout, { headers: { "cache-control": "no-store" } });
   }
 
@@ -53,21 +62,34 @@ export default async (req) => {
     try { corps = await req.json(); }
     catch { return new Response("Corps illisible", { status: 400 }); }
 
-    const { jour, qui, note, txt, auteur, pouce } = corps || {};
-    const j = String(parseInt(jour, 10));
-    if (!(+j >= 1 && +j <= 11)) return new Response("Jour hors séjour", { status: 400 });
+    const { jour, qui, note, txt, auteur, pouce, bilan } = corps || {};
     if (!QUI_VALIDES.includes(qui)) return new Response("Auteur inconnu", { status: 400 });
 
-    /* Un pouce : « qui » est le votant, « auteur » celui qu'on approuve. */
+    /* Le mot de la fin : une seule ligne par personne, sans journée. */
+    if (bilan) {
+      if (typeof txt === "string" && txt.length > 2000)
+        return Response.json({ erreur: "trop-long", limite: 2000, recu: txt.length }, { status: 422 });
+      await store.setJSON(`bilan/${qui}`, { txt: typeof txt === "string" ? txt : "", maj: new Date().toISOString() });
+      return Response.json({ ok: true, qui, bilan: true });
+    }
+
+    const j = String(parseInt(jour, 10));
+    if (!(+j >= 1 && +j <= 11)) return new Response("Jour hors séjour", { status: 400 });
+
+    /* Un vote : « qui » est le votant, « auteur » celui qu'on juge.
+       pouce vaut 1 pour approuver, -1 pour désapprouver, 0 pour retirer. */
     if (auteur !== undefined) {
       if (!QUI_VALIDES.includes(auteur)) return new Response("Auteur inconnu", { status: 400 });
       if (auteur === qui)
         return Response.json({ erreur: "soi-meme" }, { status: 422 });
+      const sens = pouce === true ? 1 : Number(pouce) || 0;
+      if (sens !== 0 && sens !== 1 && sens !== -1)
+        return new Response("Vote invalide", { status: 400 });
       const sien = (await store.get(`pouce/${qui}`, { type: "json" })) || {};
       const cle = cleVote(j, auteur);
-      if (pouce) sien[cle] = true; else delete sien[cle];
+      if (sens) sien[cle] = sens; else delete sien[cle];
       await store.setJSON(`pouce/${qui}`, sien);
-      return Response.json({ ok: true, jour: j, qui, auteur, pouce: !!pouce });
+      return Response.json({ ok: true, jour: j, qui, auteur, pouce: sens });
     }
 
     const n = Number(note) || 0;

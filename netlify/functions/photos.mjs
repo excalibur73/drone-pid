@@ -33,8 +33,6 @@ const COTE_MIN = 200;
    onze jours. Tenu ici et pas seulement à l'écran : une limite qu'on
    contourne en rechargeant la page n'en est pas une. */
 const QUOTA = 5;
-const JOUR1 = Date.UTC(2026, 7, 17);            // 17 août 2026
-const dateDuJour = (n) => new Date(JOUR1 + (n - 1) * 86400000).toISOString().slice(0, 10);
 
 const images = () => getStore({ name: "photos-athenes-2026", consistency: "strong" });
 const index  = () => getStore({ name: "photos-index-2026", consistency: "strong" });
@@ -83,14 +81,14 @@ export default async (req) => {
     if (!(+jour >= 1 && +jour <= 11)) return new Response("Jour hors séjour", { status: 400 });
     if (!EXT[type]) return new Response("Format non accepté", { status: 415 });
 
-    /* Le cliché doit appartenir à la journée sous laquelle on le range.
-       La date vient des métadonnées de l'appareil, lues par le navigateur
-       avant le redimensionnement — qui les efface. Absente, on ne peut rien
-       affirmer : on accepte, en le disant. Présente et discordante, on
-       refuse, en nommant la bonne journée. */
+    /* La date de prise de vue ne barre plus la route. Elle servait à ranger
+       chaque cliché sous sa journée ; en pratique elle refusait des photos
+       parfaitement légitimes — une capture d'écran, une image reçue d'un
+       autre téléphone, un appareil à l'heure fausse. On la conserve, pour
+       l'afficher et pour signaler doucement un décalage, mais c'est celui
+       qui dépose qui décide. */
     const pris = url.searchParams.get("pris");
-    if (pris && /^\d{4}-\d{2}-\d{2}$/.test(pris) && pris !== dateDuJour(+jour))
-      return Response.json({ erreur: "jour", prise: pris, attendu: dateDuJour(+jour) }, { status: 409 });
+    const prise = pris && /^\d{4}-\d{2}-\d{2}$/.test(pris) ? pris : "";
 
     const deja = await inventaire(`idx/${qui}/${jour}/`);
     if (deja.length >= QUOTA)
@@ -109,7 +107,7 @@ export default async (req) => {
     if (Math.max(w, h) < COTE_MIN)
       return Response.json({ erreur: "trop-petite", minimum: COTE_MIN, recu: `${w}x${h}` }, { status: 422 });
 
-    await images().set(id2, octets, { metadata: { type } });
+    await images().set(id2, octets, { metadata: prise ? { type, prise } : { type } });
     const cle = `idx/${qui}/${jour}/${new Date().toISOString()}/${w}x${h}/${EXT[type]}/${id2}`;
     await index().set(cle, "");
 

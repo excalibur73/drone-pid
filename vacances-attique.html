@@ -271,7 +271,7 @@ main{padding-bottom:64px}
 .item{display:grid; grid-template-columns:26px 1fr; gap:11px; padding:14px 16px; border-top:1px solid var(--line-soft); transition:background .18s, opacity .25s}
 .items > .item:first-child{border-top:none}
 .item:hover{background:var(--surface-2)}
-.item.dim{opacity:.24}
+.item.dim{opacity:.45}
 .item.passe{opacity:.5}
 .item.passe .body .ttl{text-decoration:line-through; text-decoration-thickness:1px; color:var(--ink-3)}
 .item.encours{background:color-mix(in oklab,var(--sea) 6%,transparent)}
@@ -729,6 +729,79 @@ tr.lnotes th{vertical-align:middle}
 }
 .pasnote{color:var(--ink-3)}
 
+/* ── Copier, et sélectionner ──
+   Le texte se sélectionne partout : rien ne l'interdit ici, et on l'écrit
+   pour que rien ne vienne l'interdire plus tard. Le bouton reste le chemin
+   court sur un téléphone. */
+.journee, .bilan, #carnetView, #chronoView, #gridView, .savoirbox{
+  -webkit-user-select:text; user-select:text; -webkit-touch-callout:default;
+}
+.copier{
+  display:inline-flex; align-items:center; gap:7px; min-height:36px; padding:0 14px;
+  border:1px solid var(--line); border-radius:99px; background:var(--surface); color:var(--ink-2);
+  font-size:.82rem; transition:border-color .18s, color .18s;
+}
+.copier:hover{border-color:var(--sea); color:var(--sea)}
+.copier svg{width:14px; height:14px}
+.copier.petit{min-height:30px; padding:0 10px; font-size:.75rem; font-family:var(--mono); color:var(--ink-3)}
+.vigjour .copier.petit,.veille .copier.petit{margin-left:auto; background:transparent}
+.pack .copier.petit{margin-top:10px}
+.unavis .copier.petit{margin-top:7px}
+.unmot .copier.petit{margin-top:8px}
+
+/* ── Le bilan ── */
+.bilan{display:flex; flex-direction:column; gap:18px}
+.bgrand{
+  display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;
+  padding:26px 18px; border-radius:var(--r); border:1px solid var(--line);
+  background:linear-gradient(180deg,var(--sea-soft),var(--surface));
+}
+.bgrand .lab{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
+.bgrand b{font-size:3.4rem; line-height:1; color:var(--sea); font-variant-numeric:tabular-nums}
+.bgrand b i{font-style:normal; font-size:1.2rem; color:var(--ink-3); margin-left:4px}
+.bgrand .sur{font-size:.84rem; color:var(--ink-2)}
+.bgrand .encours{margin-top:6px; font-size:.79rem; color:var(--ink-3); font-style:italic}
+.bbloc{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); overflow:hidden}
+.bbloc > header{display:flex; align-items:center; gap:10px; padding:11px 15px; border-bottom:1px solid var(--line-soft); background:var(--surface-2)}
+.bbloc > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
+.bbloc > header .copier{margin-left:auto}
+.bjours,.bgens{list-style:none; padding:6px 15px 12px}
+.bjours li{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:10px 0; align-items:center}
+.bjours li + li,.bgens li + li{border-top:1px solid var(--line-soft)}
+.bjours .j{font-family:var(--mono); font-size:.74rem; color:var(--ink-3)}
+.bjours .j b{color:var(--ink-2); margin-right:6px}
+.bjours .ti{grid-column:1; font-size:.93rem; font-weight:600}
+.bjours .mo{grid-row:1 / span 3; grid-column:2; font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.35rem; color:var(--sea); align-self:center}
+.bjours .mo em{font-style:normal; font-size:.7rem; color:var(--ink-3)}
+.bjours .ba{grid-column:1; height:5px; border-radius:99px; background:var(--line-soft); overflow:hidden; margin-top:4px}
+.bjours .ba i{display:block; height:100%; background:var(--sea)}
+.bjours li.haut .ba i{background:var(--sea)}
+.bjours li.haut .ti::after{content:"la préférée"; margin-left:8px; font-family:var(--mono); font-size:8.5px; letter-spacing:.11em; text-transform:uppercase; color:var(--sea); border:1px solid currentColor; border-radius:99px; padding:2px 7px; white-space:nowrap}
+.bjours li.bas .ba i{background:var(--ochre)}
+.bjours li.bas .mo{color:var(--ochre)}
+.bnote{padding:0 15px 13px; font-size:.85rem; color:var(--ink-2)}
+.bgens li{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:11px 0}
+.bgens .qn{font-size:1rem; font-weight:600}
+.bgens .qn i{font-style:normal; font-family:var(--mono); font-size:.66rem; color:var(--ink-3); letter-spacing:.1em; text-transform:uppercase; margin-left:6px}
+.bgens .mo{grid-column:2; grid-row:1; font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.2rem; color:var(--sea)}
+.bgens .mo em{font-style:normal; font-size:.68rem; color:var(--ink-3)}
+.bgens .de{grid-column:1 / -1; font-size:.79rem; color:var(--ink-3); font-family:var(--mono)}
+.bgens .ext{grid-column:1 / -1; font-size:.85rem; color:var(--ink-2); margin-top:3px}
+.bgens li.moi{background:color-mix(in oklab,var(--sea) 5%,transparent); margin:0 -15px; padding-left:15px; padding-right:15px}
+.baide{padding:12px 15px; font-size:.85rem; color:var(--ink-2); line-height:1.55}
+.bmot{padding:0 15px 14px}
+.bmot textarea{
+  width:100%; min-height:120px; margin-top:8px; padding:12px 13px; border-radius:var(--r-sm);
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
+  font:inherit; font-size:.95rem; line-height:1.6; resize:vertical;
+}
+.bmot textarea:focus{outline:none; border-color:var(--sea); background:var(--surface)}
+.bilanetat{margin-top:7px; font-size:.78rem; color:var(--ink-3); font-family:var(--mono)}
+.unmot{padding:13px 15px; border-top:1px solid var(--line-soft)}
+.unmot .ai{font-family:var(--mono); font-size:.76rem; color:var(--sea)}
+.unmot p{margin-top:5px; font-size:.93rem; line-height:1.6; white-space:pre-wrap}
+.bactions{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+
 /* ── Les notes, nommées ──
    Le jeu porte sur les mots, pas sur les chiffres : on peut donc afficher
    qui a mis quoi sans rien gâcher, et cela se lit d'un coup d'œil. */
@@ -772,7 +845,15 @@ button.pouce:hover{border-color:var(--sea); color:var(--sea)}
 .pouce.mien{border-color:var(--sea); color:var(--sea); background:var(--sea-soft)}
 .pouce.mien svg{transform:translateY(-1px)}
 .pouce.mien .pt{color:var(--sea)}
+.pouces{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.pouce svg.bas{transform:rotate(180deg)}
+.pouce.mien svg.bas{transform:rotate(180deg) translateY(-1px)}
+button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
+.pouce.bas.mien{border-color:var(--ochre); color:var(--ochre); background:var(--ochre-soft)}
+.pouce.bas.mien b,.pouce.bas.mien .pt{color:var(--ochre)}
 .pouce.compte{border-style:dashed; color:var(--ink-3)}
+.pouce.compte.conteste{border-style:solid; border-color:var(--ochre); color:var(--ochre)}
+.pouce.compte.conteste b{color:var(--ochre)}
 .pouce.compte.aime{border-style:solid; border-color:var(--sea); color:var(--sea)}
 
 .reveler{
@@ -981,6 +1062,20 @@ button.pouce:hover{border-color:var(--sea); color:var(--sea)}
   color:var(--ink-3); flex:0 0 66px; padding-top:2px;
 }
 .vigjour li b{color:var(--ink); font-weight:600}
+.filtrevu{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-top:12px; padding:10px 14px; border-radius:var(--r-sm);
+  border:1px solid color-mix(in oklab,var(--sea) 38%,transparent); background:var(--sea-soft);
+  font-size:.85rem; color:var(--ink-2);
+}
+.filtrevu svg{width:15px; height:15px; color:var(--sea); flex:0 0 auto}
+.filtrevu span{flex:1 1 180px}
+.filtrevu b{color:var(--sea)}
+.videfiltre{
+  min-height:34px; padding:0 13px; border-radius:99px; border:1px solid var(--sea);
+  background:var(--surface); color:var(--sea); font-size:.82rem; font-family:var(--mono);
+}
+
 /* Ce qui se prépare la veille : même forme que la vigilance, teinte de mer.
    Ce n'est pas un avertissement, c'est une liste à faire ce soir. */
 .veille{
@@ -1255,6 +1350,8 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2Z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></symbol>
+  <symbol id="i-copie" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M6 15H4.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V6"/></symbol>
   <symbol id="i-pouce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M7 21V10l4.5-7a2 2 0 0 1 2.9 2.5L13 9h5.4a2 2 0 0 1 2 2.4l-1.4 7a2 2 0 0 1-2 1.6H7Z"/>
     <path d="M7 10H4v11h3"/></symbol>
@@ -1312,6 +1409,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       <button id="viewGrid" aria-pressed="false">Vue parallèle</button>
       <button id="viewCarnet" aria-pressed="false">Carnet</button>
       <button id="viewChrono" aria-pressed="false">Chronologie</button>
+      <button id="viewBilan" aria-pressed="false">Bilan</button>
     </div>
     <div class="filters" id="filters">
       <button class="f" data-k="site" aria-pressed="false"><svg><use href="#i-site"/></svg>Sites</button>
@@ -1331,6 +1429,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
     <section id="gridView" hidden></section>
     <section id="carnetView" hidden></section>
     <section id="chronoView" hidden></section>
+    <section id="bilanView" hidden></section>
 
     <div class="legend">
       <div class="lg site">
@@ -1461,7 +1560,7 @@ const DAYS = [
            {t:"site", ttl:"Croisière au couchant", ll:"37.9382,23.6852", note:"Réservée", sunset:true,
             vig:"Le sac du bateau se prépare avant de quitter l'hôtel — la liste est plus bas. Rien ne se rachète une fois au large.",
             rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
-            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris.",
+            det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Dîner et boissons compris — emportez votre propre matériel de snorkeling.",
             sac:"bateau"},
            {t:"swim", ttl:"Baignade Hydrousa + Varkiza", parBateau:true, det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
 
@@ -1800,7 +1899,9 @@ function toMinutes(when){
 function packFor(day){
   const items = allItems(day).map(x => x.it);
   const out = [];
-  if (items.some(i => i.gear)) out.push("Masque & tuba", "Chaussons de roche");
+  /* Chacun a son matériel : on emporte le sien, on n'emprunte rien à bord. */
+  if (items.some(i => i.gear || i.parBateau || i.sac === "bateau"))
+    out.push("Palmes, masque, tuba", "Shorty", "Chaussons de roche");
   /* La plage d'Alimos est à 500 m de l'hôtel : on s'y baigne et l'on revient
      se sécher. Porter une serviette toute la journée dans les ruines n'a pas
      de sens — sauf le 20, où la baignade se fait depuis le bateau. */
@@ -1813,11 +1914,6 @@ function packFor(day){
   if (items.some(i => /colline|acropole|stade|philopappos|lycabette/i.test(i.ttl))) out.push("Chaussures qui tiennent");
   if (items.some(i => i.sunset)) out.push("De quoi couvrir les épaules au couchant");
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
-  /* Sur la croisière du couchant, le matériel de snorkeling est fourni à bord. */
-  if (items.some(i => /couchant/i.test(i.ttl) && /croisi/i.test(i.ttl))){
-    out.push("Masques fournis à bord");
-    return [...new Set(out)].filter(x => x !== "Masque & tuba" && x !== "Chaussons de roche");
-  }
   if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
   return [...new Set(out)];
 }
@@ -2152,7 +2248,7 @@ const SAVOIRS = {
   "Croisière au couchant":{
     quoi:"Départ de la marina Delta, à Kallithea, sur un caïque traditionnel en bois. Deux mouillages, un barbecue à bord, et le retour au couchant le long de la Riviera athénienne. Le golfe Saronique est une mer fermée et abritée — c'est là que la flotte perse fut détruite à Salamine en 480 av. J.-C.",
     regarder:[
-      "Premier arrêt, l'îlot d'Hydrousa : inhabité, sans construction, eaux claires. Baignade et masque — le matériel est fourni à bord, inutile d'emporter le vôtre.",
+      "Premier arrêt, l'îlot d'Hydrousa : inhabité, sans construction, eaux claires. Baignade et masque — vous avez le vôtre, emportez-le : palmes, tuba, shorty.",
       "Puis le barbecue grec en naviguant, avec buffet de spécialités. Boissons et eau sont comprises et servies sans compter : c'est votre dîner, ne mangez pas avant. Toute demande particulière se signale à l'opérateur en avance, le repas étant préparé à terre.",
       "Deuxième arrêt, la baie de Varkiza : eaux calmes, dernière baignade. Puis retour vers Kallithea à la musique, face à la côte — l'angle sous lequel les Athéniens voyaient leur ville en rentrant de la mer."
     ],
@@ -2264,6 +2360,20 @@ function jours(d){
   const auj = dayIndexToday();
   return auj < 0 ? 0 : Math.max(0, d.n - DAYS[auj].n);
 }
+/* Trois boutons en tête de page filtrent par type d'étape. Une fois pressés,
+   ils atténuent tout le reste — au point qu'on croit les étapes déjà passées.
+   Le rappel dit ce qui est masqué et le défait d'un geste. */
+const NOM_FILTRE = { site:"Sites", swim:"Baignades", depart:"Départs" };
+function filtreHTML(){
+  if (!state.filters.size) return "";
+  const noms = [...state.filters].map(k => NOM_FILTRE[k] || k);
+  return `<p class="filtrevu">
+    <svg><use href="#i-search"/></svg>
+    <span>Filtre en cours : <b>${esc(noms.join(", "))}</b> — les autres étapes sont estompées, pas passées.</span>
+    <button type="button" class="videfiltre">Tout afficher</button>
+  </p>`;
+}
+
 /* ── Ce qui se prépare la veille ──
    Un masque oublié au penthouse ne se rachète pas dans une crique, et le
    panier du 24 se fait la veille au soir puisqu'on part à 7 h 45. La journée
@@ -2276,14 +2386,13 @@ function jours(d){
 function preparatifs(d){
   const items = allItems(d).map(x => x.it);
   const l = [];
-  /* Sur la croisière du couchant, les masques sont fournis à bord : annoncer
-     « prenez vos palmes » ferait chercher pour rien un matériel inutile. */
-  const fournis = items.some(i => /couchant/i.test(i.ttl) && /croisi/i.test(i.ttl));
+  /* Vous avez votre propre matériel — palmes, masque, tuba, shorty. On ne
+     renvoie donc jamais vers ce qu'un bateau pourrait prêter : c'est le sac
+     de la maison qu'il faut faire, et c'est tout. */
   if (items.some(i => i.sac === "bateau" || i.parBateau))
-    l.push({ t:"Le sac du bateau", d:`Maillot déjà mis sous les vêtements, ${
-      fournis ? "masques fournis à bord — rien à emporter de ce côté" : "palmes et tuba, chaussons pour les rochers"}, crème résistante à l'eau, une serviette par personne plus une pour s'asseoir, rechange complet dans un sac plastique fermé, chapeau et coupe-vent pour le retour.` });
+    l.push({ t:"Le sac du bateau", d:"Maillot déjà mis sous les vêtements, vos palmes, masques et tubas, les shortys, chaussons pour les rochers, crème résistante à l'eau, une serviette par personne plus une pour s'asseoir, rechange complet dans un sac plastique fermé, chapeau et coupe-vent pour le retour." });
   else if (items.some(i => i.gear))
-    l.push({ t:"Palmes, tuba, chaussons", d:"Les fonds sont rocheux : sans chaussons on renonce à la moitié des entrées. Crème résistante à l'eau, et une bouteille d'eau douce pour se rincer au retour." });
+    l.push({ t:"Palmes, masques, tubas, shortys", d:"Le vôtre, sorti la veille et posé près de la porte. Les fonds sont rocheux : sans chaussons on renonce à la moitié des entrées. Crème résistante à l'eau, et une bouteille d'eau douce pour se rincer au retour." });
   (d.prep || []).forEach(x => l.push(x));
   items.forEach(i => { if (i.prep) l.push({ t:i.ttl, d:i.prep }); });
   return l;
@@ -2304,6 +2413,7 @@ function veilleHTML(d){
       <span class="pastille"></span>
       <b>${vive ? "Ce soir, pour demain" : `La veille du ${esc(DOW_FULL[suivant.dow])} ${esc(suivant.dm)}`}</b>
       <span class="quand">${esc(suivant.title)}</span>
+      <button type="button" class="copier petit" data-copie="bloc"><svg><use href="#i-copie"/></svg>Copier</button>
     </header>
     <ul>${l.map(x => `<li><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}</ul>
   </article>`;
@@ -2344,6 +2454,7 @@ function vigJourHTML(d){
       <span class="pastille"></span>
       <b>${liste.length} point${liste.length > 1 ? "s" : ""} de vigilance</b>
       ${quand ? `<span class="quand">${esc(quand)}</span>` : ""}
+      <button type="button" class="copier petit" data-copie="bloc"><svg><use href="#i-copie"/></svg>Copier</button>
     </header>
     <ul>${liste.map(x => `<li>
       <span class="h">${x.it.when ? esc(x.it.when.split(" – ")[0]) : "—"}</span>
@@ -2383,6 +2494,46 @@ async function partagerJour(d){
     toast("Copie impossible sur cet appareil");
   }
 }
+/* ── Copier ──
+   Tout ce qui est à l'écran doit pouvoir partir dans un message : une étape,
+   une consigne, un avis, la journée entière. La sélection au doigt existe,
+   mais elle est pénible sur un téléphone où chaque carte réagit au toucher —
+   un bouton fait le travail sans qu'on ait à viser.
+
+   L'API du presse-papiers exige un contexte sûr ; là où elle manque, on
+   retombe sur un champ de texte invisible et l'ancienne commande. */
+async function copier(texte, quoi){
+  const t = String(texte || "").trim();
+  if (!t) return;
+  try {
+    if (navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(t);
+    } else {
+      const z = document.createElement("textarea");
+      z.value = t;
+      z.setAttribute("readonly", "");
+      z.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.appendChild(z);
+      z.select();
+      const ok = document.execCommand("copy");
+      z.remove();
+      if (!ok) throw new Error("refus");
+    }
+    toast(`Copié : ${quoi.toLowerCase()} — collez-le où vous voulez`);
+  } catch { toast("Copie impossible sur cet appareil"); }
+}
+/* Le texte d'une étape, tel qu'on le lirait à voix haute. */
+function texteEtape(d, slot, i){
+  const it = itemsOf(d, slot)[i];
+  if (!it) return "";
+  return [
+    `${DOW_FULL[d.dow]} ${d.dm} — ${it.ttl}`,
+    it.when ? `Horaire : ${it.when}` : "",
+    it.det || "", it.rdv || "", it.vig ? `À ne pas oublier : ${it.vig}` : "", it.note || "",
+    it.bonplan ? `Bon plan : ${it.bonplan}` : ""
+  ].filter(Boolean).join("\n");
+}
+
 let toastT;
 function toast(msg){
   let el = document.querySelector(".toast");
@@ -2772,7 +2923,7 @@ function sacBateauHTML(d){
     <header><svg><use href="#i-swim"/></svg><h3>Le sac du bateau — ${esc(s.ou)}</h3></header>
     <ul class="sacliste">
       <li><b>Sur vous</b> : maillot déjà mis sous les vêtements, on ne se change pas à bord sans gêne.</li>
-      <li><b>Palmes et tuba</b> si vous les avez — sinon les masques sont fournis. Chaussons pour les rochers.</li>
+      <li><b>Vos palmes, masques et tubas</b>, les shortys, et des chaussons pour les rochers — on emporte le sien, rien à emprunter à bord.</li>
       <li><b>Crème solaire résistante à l'eau</b>, à remettre après chaque bain : en mer, le soleil frappe deux fois, du ciel et de l'eau.</li>
       <li><b>Serviette par personne</b>, plus une pour s'asseoir : le pont est brûlant l'après-midi.</li>
       <li><b>Affaires de rechange complètes</b>, dans un sac plastique fermé — ce qui revient du bateau revient mouillé.</li>
@@ -3163,32 +3314,31 @@ async function envoyerPhotos(jour, fichiers){
     toast(`${place} place${place > 1 ? "s" : ""} restante${place > 1 ? "s" : ""} ce jour-là : les premières seulement`);
     fichiers = fichiers.slice(0, place);
   }
-  /* On écarte d'abord ce qui ne va pas, pour ne pas commencer un envoi qui
-     s'arrêtera en chemin. Une photo sans date reconnaissable passe : on ne
-     peut pas affirmer qu'elle est du mauvais jour. */
+  /* La date de l'appareil ne barre plus la route. Elle refusait des photos
+     parfaitement légitimes — capture d'écran, image reçue d'un autre
+     téléphone, appareil à l'heure fausse — et l'on ne pouvait plus rien
+     déposer sur une journée qu'on n'avait pas photographiée soi-même. Elle
+     sert désormais à prévenir, pas à interdire : on dit ce qu'on a vu et le
+     jour où ces clichés auraient leur place, et l'envoi se fait quand même.
+
+     Seule la taille reste éliminatoire : un rectangle de vingt pixels dans
+     un album, c'est un défaut d'affichage, pas une photo. */
   ENVOI = { faits: 0, total: fichiers.length, verif: true };
   REFUS = null;
   render();
-  const bons = [], ecartes = [];
-  let sansDate = 0;
+  const bons = [], dautresJours = [];
   const minus = [];
   for (const f of fichiers){
     const prise = await dateDePriseDeVue(f);
-    if (prise && prise !== jourDit.date){ ecartes.push({ f, prise }); continue; }
-    /* Une image minuscule n'a rien à faire dans un album : on s'en aperçoit
-       ici plutôt que d'envoyer un rectangle de couleur. */
     const t = await tailleDe(f);
     if (t && Math.max(t.w, t.h) < 200){ minus.push(f); continue; }
-    if (!prise) sansDate++;
+    if (prise && prise !== jourDit.date) dautresJours.push({ f, prise });
     bons.push({ f, prise });
   }
   if (minus.length) toast(`${minus.length} image${minus.length > 1 ? "s" : ""} trop petite${minus.length > 1 ? "s" : ""} pour un album`);
-  if (ecartes.length){
-    /* Un message qui s'efface au bout de trois secondes laisse croire à un
-       blocage sans raison : on l'inscrit dans la page, avec le jour où ces
-       photos ont leur place et de quoi s'y rendre. */
+  if (dautresJours.length){
     const par = {};
-    ecartes.forEach(e => { par[e.prise] = (par[e.prise] || 0) + 1; });
+    dautresJours.forEach(e => { par[e.prise] = (par[e.prise] || 0) + 1; });
     REFUS = { jour, motifs: Object.entries(par).map(([date, n]) => {
       const autre = DAYS.find(x => x.date === date);
       return { date, n, va: autre ? autre.n : null, nom: autre ? `${DOW_FULL[autre.dow]} ${autre.dm}` : null };
@@ -3233,7 +3383,7 @@ async function envoyerPhotos(jour, fichiers){
   ENVOI = null;
   if (rates.length) toast(rates.length === 1 ? "Une photo n'est pas passée : " + rates[0]
     : `${rates.length} photos ne sont pas passées — ${rates[0]}`);
-  else if (sansDate) toast(`${sansDate} photo${sansDate > 1 ? "s" : ""} sans date d'appareil : rangée${sansDate > 1 ? "s" : ""} sur votre parole`);
+
   await lirePhotos();
 }
 
@@ -3289,10 +3439,11 @@ ${(() => {
          pas quand on va voir ailleurs. */
       if (!REFUS || REFUS.jour !== d.n) return "";
       const total = REFUS.motifs.reduce((n, r) => n + r.n, 0);
-      return `<div class="refus">
-        <p><b>${total} photo${total > 1 ? "s" : ""} écartée${total > 1 ? "s" : ""}</b> — la date de l'appareil ne correspond pas à cette journée.</p>
-        <ul>${REFUS.motifs.map(r => `<li>${r.n} prise${r.n > 1 ? "s" : ""} le ${r.date.slice(8)}/${r.date.slice(5, 7)} — ${
-          r.va ? `<button type="button" class="allerauj" data-i="${r.va - 1}">déposez-les au ${esc(r.nom)}</button>` : "hors séjour"}</li>`).join("")}</ul>
+      return `<div class="refus remarque">
+        <p><b>${total} photo${total > 1 ? "s" : ""} déposée${total > 1 ? "s" : ""} ici</b>, mais l'appareil les date d'un autre jour.
+          Elles restent où vous les avez mises — c'est vous qui décidez.</p>
+        <ul>${REFUS.motifs.map(r => `<li>${r.n} prise${r.n > 1 ? "s" : ""} le ${r.date.slice(8)}/${r.date.slice(5, 7)}${
+          r.va ? ` — <button type="button" class="allerauj" data-i="${r.va - 1}">voir le ${esc(r.nom)}</button>` : " — hors séjour"}</li>`).join("")}</ul>
         <button type="button" class="oublirefus">J'ai compris</button>
       </div>`;
     })()}
@@ -3333,8 +3484,9 @@ ${(() => {
              <svg><use href="#i-partage"/></svg>Ajouter ${reste === 1 ? "une photo" : "des photos"}
            </label>` : ""}
            <p class="albumaide">Cinq photos par personne et par journée, soit cinquante-cinq au plus
-             chacun sur le séjour. La date de l'appareil est vérifiée : une photo prise un autre
-             jour est refusée ici. Elles sont réduites avant l'envoi — 300 Ko, pas 4 Mo.</p>`}
+             chacun sur le séjour. Toute image est acceptée, quelle que soit sa date : si l'appareil
+             la date d'un autre jour, on vous le signale sans rien refuser. Elles sont réduites
+             avant l'envoi — 300 Ko, pas 4 Mo.</p>`}
   </section>`;
 }
 
@@ -3509,6 +3661,7 @@ function avisHTML(d){
             x.id === QUI ? ` · vous` : ""}${REVELER && x.a.note ? ` · ${x.a.note}/5` : ""}</span>
           <p>${esc(x.a.txt)}</p>
           ${pouceHTML(d.n, x.id)}
+          <button type="button" class="copier petit" data-copie="texte" data-t="${esc(x.a.txt)}"><svg><use href="#i-copie"/></svg>Copier</button>
         </div>`).join("")}
         <button type="button" class="reveler">${
           REVELER ? "Masquer les auteurs" : "Révéler qui a écrit quoi"}</button>
@@ -3561,6 +3714,128 @@ function notesHTML(d, duJour){
   </div>`;
 }
 
+/* ── Le bilan du séjour ──
+   Onze journées notées par quatre personnes : la moyenne se calcule toute
+   seule, et chacun laisse un mot de la fin, signé celui-là. Ce n'est plus le
+   jeu du soir — on ne devine pas qui a écrit le mot de la fin. */
+const BILAN_STORE = "attique2026:bilans";
+let BILANS = (() => { try { return JSON.parse(localStorage.getItem(BILAN_STORE)) || {}; } catch { return {}; } })();
+
+function notesDuJour(n){
+  const a = AVIS[n] || {};
+  return FAMILLE.map(f => ({ id:f.id, nom:f.nom, note:(a[f.id] || {}).note || 0 })).filter(x => x.note);
+}
+const moyenneDe = l => l.length ? l.reduce((t, x) => t + x, 0) / l.length : 0;
+function toutesLesNotes(){
+  const tout = DAYS.flatMap(d => notesDuJour(d.n)).map(x => x.note);
+  return { n:tout.length, moy:moyenneDe(tout) };
+}
+function bilanParPersonne(){
+  return FAMILLE.map(f => {
+    const siennes = DAYS.map(d => ({ d, note:((AVIS[d.n] || {})[f.id] || {}).note || 0 })).filter(x => x.note);
+    const photos = PHOTOS.liste.filter(p => p.qui === f.id).length;
+    const mots = DAYS.filter(d => (((AVIS[d.n] || {})[f.id] || {}).txt || "").trim()).length;
+    return { f, n:siennes.length, moy:moyenneDe(siennes.map(x => x.note)), photos, mots,
+             haut:siennes.slice().sort((a, b) => b.note - a.note)[0] || null,
+             bas:siennes.slice().sort((a, b) => a.note - b.note)[0] || null };
+  });
+}
+function bilanParJour(){
+  return DAYS.map(d => {
+    const l = notesDuJour(d.n);
+    return { d, n:l.length, moy:moyenneDe(l.map(x => x.note)), l };
+  }).filter(x => x.n);
+}
+
+async function enregistrerBilan(txt){
+  if (!QUI) return;
+  BILANS[QUI] = { txt, maj:new Date().toISOString() };
+  noteEcrire(BILAN_STORE, BILANS);
+  majEtatBilan("Enregistrement…");
+  try {
+    const r = await fetch("/api/avis", {
+      method:"POST", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ qui:QUI, bilan:true, txt })
+    });
+    if (!r.ok) throw new Error(r.status);
+    majEtatBilan("Partagé avec les autres téléphones.");
+  } catch { majEtatBilan("Serveur injoignable : gardé sur ce téléphone."); }
+}
+/* Mise à jour ciblée : réécrire la page effacerait le curseur en pleine phrase. */
+function majEtatBilan(t){
+  const el = document.querySelector(".bilanetat");
+  if (el) el.textContent = t;
+}
+
+function renderBilan(){
+  const gens = bilanParPersonne(), jours = bilanParJour(), tout = toutesLesNotes();
+  const auj = dayIndexToday();
+  const reste = auj < 0 ? 0 : DAYS.length - auj - 1;
+  const meilleur = jours.slice().sort((a, b) => b.moy - a.moy)[0];
+  const rude = jours.slice().sort((a, b) => a.moy - b.moy)[0];
+  const photos = PHOTOS.liste.length;
+  const autresMots = Object.entries(BILANS).filter(([q, b]) => (b.txt || "").trim() && q !== QUI);
+  document.getElementById("bilanView").innerHTML = `
+    <div class="bilan">
+      <div class="bgrand">
+        <span class="lab">Moyenne du séjour</span>
+        <b>${tout.n ? tout.moy.toFixed(2).replace(".", ",") : "—"}<i>/5</i></b>
+        <span class="sur">${tout.n} note${tout.n > 1 ? "s" : ""} · ${jours.length} journée${jours.length > 1 ? "s" : ""} notée${jours.length > 1 ? "s" : ""} sur ${DAYS.length}${
+          photos ? ` · ${photos} photo${photos > 1 ? "s" : ""}` : ""}</span>
+        ${reste > 0 ? `<span class="encours">Le séjour n'est pas fini — il reste ${reste} journée${reste > 1 ? "s" : ""}. Le calcul se refait tout seul.</span>` : ""}
+      </div>
+
+      ${jours.length ? `<article class="bbloc">
+        <header><h3>Journée par journée</h3>
+          <button type="button" class="copier" data-copie="jours"><svg><use href="#i-copie"/></svg>Copier</button></header>
+        <ul class="bjours">
+          ${jours.map(x => `<li class="${meilleur && x.d.n === meilleur.d.n ? "haut" : rude && jours.length > 1 && x.d.n === rude.d.n ? "bas" : ""}">
+            <span class="j"><b>Jour ${x.d.n}</b> ${esc(DOW_FULL[x.d.dow])} ${esc(x.d.dm)}</span>
+            <span class="ti">${esc(x.d.title)}</span>
+            <span class="ba"><i style="width:${x.moy / 5 * 100}%"></i></span>
+            <span class="mo">${x.moy.toFixed(1).replace(".", ",")}<em>/5</em></span>
+          </li>`).join("")}
+        </ul>
+        ${meilleur && jours.length > 1 ? `<p class="bnote">La journée la mieux notée : <b>${esc(meilleur.d.title)}</b>${
+          rude && rude.d.n !== meilleur.d.n ? `. La plus rude : <b>${esc(rude.d.title)}</b>` : ""}.</p>` : ""}
+      </article>` : `<p class="baide">Aucune note pour l'instant : le bilan se remplit tout seul, soir après soir.</p>`}
+
+      <article class="bbloc">
+        <header><h3>Chacun de nous</h3></header>
+        <ul class="bgens">
+          ${gens.map(g => `<li class="${g.f.id === QUI ? "moi" : ""}">
+            <span class="qn">${esc(g.f.nom)}${g.f.id === QUI ? " <i>vous</i>" : ""}</span>
+            ${g.n ? `<span class="mo">${g.moy.toFixed(1).replace(".", ",")}<em>/5</em></span>
+              <span class="de">${g.n} journée${g.n > 1 ? "s" : ""} notée${g.n > 1 ? "s" : ""} · ${g.mots} commentaire${g.mots > 1 ? "s" : ""} · ${g.photos} photo${g.photos > 1 ? "s" : ""}</span>
+              ${g.haut ? `<span class="ext">A préféré <b>${esc(g.haut.d.title)}</b> (${g.haut.note}/5)${
+                g.bas && g.bas.d.n !== g.haut.d.n ? ` · a moins aimé ${esc(g.bas.d.title)} (${g.bas.note}/5)` : ""}</span>` : ""}`
+            : `<span class="de">n'a encore rien noté</span>`}
+          </li>`).join("")}
+        </ul>
+      </article>
+
+      <article class="bbloc">
+        <header><h3>Le mot de la fin</h3></header>
+        ${QUI ? `<div class="bmot">
+          <p class="baide">Une page pour le séjour entier, signée de votre prénom — ici, on ne devine pas qui a écrit quoi.</p>
+          <label class="sr" for="bilantxt">Votre mot de la fin</label>
+          <textarea id="bilantxt" data-bilan maxlength="2000"
+            placeholder="Ce qu'on gardera, ce qu'on referait, ce qu'on ferait autrement…">${esc((BILANS[QUI] || {}).txt || "")}</textarea>
+          <p class="bilanetat">${(BILANS[QUI] || {}).txt ? "Partagé avec les autres téléphones." : "Écrit au fil de la frappe, enregistré tout seul."}</p>
+        </div>` : `<p class="baide">Identifiez-vous dans « Le mot du soir » d'une journée pour écrire le vôtre.</p>`}
+        ${autresMots.map(([q, b]) => `
+          <div class="unmot"><span class="ai"><b>${esc(nomDe(q))}</b></span><p>${esc(b.txt)}</p>
+            <button type="button" class="copier petit" data-copie="mot" data-qui="${q}"><svg><use href="#i-copie"/></svg>Copier</button></div>`).join("")}
+        ${!autresMots.length && QUI ? `<p class="baide">Personne d'autre n'a encore écrit le sien.</p>` : ""}
+      </article>
+
+      <div class="bactions">
+        <button type="button" class="partage" id="journalBtn2"><svg><use href="#i-partage"/></svg>Envoyer le carnet complet</button>
+        <button type="button" class="copier" data-copie="journal"><svg><use href="#i-copie"/></svg>Copier le carnet</button>
+      </div>
+    </div>`;
+}
+
 /* ── Le pouce ──
    Approuver le propos d'un autre sans avoir à écrire « + 1 » sous son avis.
    Le serveur range les pouces par votant, si bien que deux approbations
@@ -3572,17 +3847,33 @@ function notesHTML(d, duJour){
 const POUCE_STORE = "attique2026:pouces";
 let POUCES = (() => { try { return JSON.parse(localStorage.getItem(POUCE_STORE)) || {}; } catch { return {}; } })();
 const clePouce = (jour, auteur) => `${jour}:${auteur}`;
-const pouceursDe = (jour, auteur) => POUCES[clePouce(jour, auteur)] || [];
-const jaiPouce = (jour, auteur) => pouceursDe(jour, auteur).includes(QUI);
+/* Un vote se lit { pour:[…], contre:[…] }. L'ancienne écriture — une simple
+   liste d'approbateurs — se relit encore, le temps qu'un téléphone laissé
+   hors ligne se remette à jour. */
+function votesDe(jour, auteur){
+  const v = POUCES[clePouce(jour, auteur)];
+  if (!v) return { pour:[], contre:[] };
+  return Array.isArray(v) ? { pour:v, contre:[] } : { pour:v.pour || [], contre:v.contre || [] };
+}
+/* +1 approuvé, -1 désapprouvé, 0 sans opinion. */
+function monVote(jour, auteur){
+  const { pour, contre } = votesDe(jour, auteur);
+  return pour.includes(QUI) ? 1 : contre.includes(QUI) ? -1 : 0;
+}
 
-async function basculerPouce(jour, auteur){
+async function basculerPouce(jour, auteur, sens){
   if (!QUI || auteur === QUI) return;
   const cle = clePouce(jour, auteur);
-  const avant = pouceursDe(jour, auteur);
-  const veut = !avant.includes(QUI);
+  const avant = votesDe(jour, auteur);
+  /* Toucher le pouce déjà allumé retire l'avis ; toucher l'autre le retourne
+     — on ne peut pas approuver et désapprouver le même propos. */
+  const veut = monVote(jour, auteur) === sens ? 0 : sens;
+  const sans = { pour: avant.pour.filter(x => x !== QUI), contre: avant.contre.filter(x => x !== QUI) };
+  if (veut === 1) sans.pour = [...sans.pour, QUI].sort();
+  if (veut === -1) sans.contre = [...sans.contre, QUI].sort();
   /* On l'affiche tout de suite : le pouce doit répondre au doigt, pas au
      réseau. Si l'envoi échoue, on remet l'écran dans l'état d'avant. */
-  POUCES[cle] = veut ? [...avant, QUI].sort() : avant.filter(x => x !== QUI);
+  POUCES[cle] = sans;
   noteEcrire(POUCE_STORE, POUCES);
   render();
   try {
@@ -3594,28 +3885,38 @@ async function basculerPouce(jour, auteur){
   } catch {
     POUCES[cle] = avant;
     noteEcrire(POUCE_STORE, POUCES);
-    toast("Pouce non enregistré — réessayez");
+    toast("Vote non enregistré — réessayez");
     render();
   }
 }
 
-/* Le bouton sous un avis. Le sien ne s'approuve pas : on y montre le compte,
-   sans bouton, pour qu'il reste lisible de son auteur. */
+/* Les deux pouces sous un avis. Le sien ne se vote pas : on y montre le
+   compte, sans bouton, pour qu'il reste lisible de son auteur. */
 function pouceHTML(jour, auteur){
-  const gens = pouceursDe(jour, auteur);
+  const { pour, contre } = votesDe(jour, auteur);
   const mien = auteur === QUI;
-  const noms = REVELER && gens.length ? ` · ${gens.map(nomDe).join(", ")}` : "";
-  const dit = gens.length ? `${gens.length}` : "";
-  if (mien) return `<span class="pouce compte${gens.length ? " aime" : ""}">
-    <svg><use href="#i-pouce"/></svg>${gens.length
-      ? `<b>${dit}</b> · ${gens.length > 1 ? "vous approuvent" : "vous approuve"}${esc(noms)}`
-      : "personne ne s'est encore prononcé"}</span>`;
-  return `<button type="button" class="pouce${jaiPouce(jour, auteur) ? " mien" : ""}"
-    data-pouce="${auteur}" data-jour="${jour}"
-    aria-pressed="${jaiPouce(jour, auteur)}"
-    title="${jaiPouce(jour, auteur) ? "Retirer votre pouce" : "Approuver ce propos"}">
-    <svg><use href="#i-pouce"/></svg>${dit ? `<b>${dit}</b> · ` : ""}<span class="pt">${
-      jaiPouce(jour, auteur) ? "vous approuvez" : "j'approuve"}</span>${esc(noms)}</button>`;
+  const noms = l => REVELER && l.length ? ` · ${l.map(nomDe).join(", ")}` : "";
+  if (mien) return `<span class="pouces">
+    <span class="pouce compte${pour.length ? " aime" : ""}">
+      <svg><use href="#i-pouce"/></svg>${pour.length
+        ? `<b>${pour.length}</b> · ${pour.length > 1 ? "vous approuvent" : "vous approuve"}${esc(noms(pour))}`
+        : "aucune approbation"}</span>
+    ${contre.length ? `<span class="pouce compte bas conteste">
+      <svg class="bas"><use href="#i-pouce"/></svg><b>${contre.length}</b> · ${
+        contre.length > 1 ? "ne sont pas d'accord" : "n'est pas d'accord"}${esc(noms(contre))}</span>` : ""}
+  </span>`;
+  const v = monVote(jour, auteur);
+  const bouton = (sens, cls, mot, dit) => `<button type="button" class="pouce${cls}${v === sens ? " mien" : ""}"
+    data-pouce="${auteur}" data-jour="${jour}" data-sens="${sens}"
+    aria-pressed="${v === sens}"
+    title="${v === sens ? "Retirer votre vote" : mot}">
+    <svg${sens < 0 ? ' class="bas"' : ""}><use href="#i-pouce"/></svg>${
+      dit.length ? `<b>${dit.length}</b> · ` : ""}<span class="pt">${
+      v === sens ? (sens > 0 ? "vous approuvez" : "vous contestez") : mot}</span>${esc(noms(dit))}</button>`;
+  return `<span class="pouces">
+    ${bouton(1, "", "j'approuve", pour)}
+    ${bouton(-1, " bas", "pas d'accord", contre)}
+  </span>`;
 }
 
 const ANON_STORE = "attique2026:reveler";
@@ -3698,7 +3999,8 @@ async function lireAvis(){
     /* Les pouces voyagent dans le même corps, sous une clé qui ne peut pas
        être un numéro de journée. On les met de côté avant de recopier. */
     if (distant.pouces){ POUCES = distant.pouces; noteEcrire(POUCE_STORE, POUCES); }
-    delete distant.pouces;
+    if (distant.bilans){ BILANS = distant.bilans; noteEcrire(BILAN_STORE, BILANS); }
+    delete distant.pouces; delete distant.bilans;
     Object.keys(AVIS).forEach(k => delete AVIS[k]);
     Object.assign(AVIS, distant);
     /* Ce qui attend d'être envoyé est plus récent que ce que le serveur
@@ -3784,21 +4086,48 @@ function enregistrerAvis(jour, champs){
 addEventListener("online", viderAttente);
 
 /* Le journal complet, tel qu'il part par message. */
+/* Le journal part par message, et se lit dans une fenêtre étroite : sans
+   séparation nette, les journées se collaient les unes aux autres. Chacune
+   s'ouvre donc sur un trait, avec sa moyenne. */
+const TRAIT = "─".repeat(34);
 function journalTexte(){
-  const l = [`Carnet de bord — Athènes 2026`, ""];
+  const l = [`CARNET DE BORD — ATHÈNES 2026`, `17 → 27 août, en famille`, ""];
+  let vides = true;
   DAYS.forEach(d => {
     const a = AVIS[d.n];
     if (!a || !Object.keys(a).length) return;
-    l.push(`${DOW_FULL[d.dow]} ${d.dm} — ${d.title}`);
+    vides = false;
+    const notes = Object.values(a).map(x => x.note).filter(Boolean);
+    const moy = notes.length ? (notes.reduce((t, n) => t + n, 0) / notes.length) : 0;
+    l.push(TRAIT);
+    l.push(`JOUR ${d.n} · ${DOW_FULL[d.dow]} ${d.dm}`);
+    l.push(d.title + (moy ? `   —   moyenne ${moy.toFixed(1).replace(".", ",")}/5` : ""));
+    l.push("");
     /* Le journal suit l'écran : tant que les auteurs sont masqués, l'envoyer
        ne doit pas révéler ce que la page cache. */
     avisRanges(a).forEach((x, i) => {
       const qui = REVELER ? nomDe(x.id) : `Avis ${i + 1}`;
-      l.push(`  ${qui}${x.a.note ? ` — ${x.a.note}/5` : ""}${x.a.txt ? ` : ${x.a.txt}` : ""}`);
+      l.push(`  ${qui}${x.a.note ? ` — ${x.a.note}/5` : ""}`);
+      if (x.a.txt) x.a.txt.split("\n").forEach(ligne => l.push(`    ${ligne}`));
     });
     l.push("");
   });
-  if (l.length === 2) l.push("Rien de noté pour l'instant.");
+  if (vides) l.push("Rien de noté pour l'instant.");
+  else {
+    const mots = Object.entries(BILANS).filter(([, b]) => (b.txt || "").trim());
+    if (mots.length){
+      l.push(TRAIT);
+      l.push("LE MOT DE LA FIN");
+      l.push("");
+      mots.forEach(([qui, b]) => {
+        l.push(`  ${nomDe(qui)}`);
+        b.txt.split("\n").forEach(ligne => l.push(`    ${ligne}`));
+        l.push("");
+      });
+    }
+    const t = toutesLesNotes();
+    if (t.n) l.push(TRAIT, `Moyenne du séjour : ${t.moy.toFixed(2).replace(".", ",")}/5 sur ${t.n} note${t.n > 1 ? "s" : ""}.`);
+  }
   return l.join("\n");
 }
 async function envoyerJournal(){
@@ -4049,6 +4378,8 @@ function itemHTML(day, slot, it, i, vedette){
       <div class="acts">
         ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire${it.trajet ? ` · ${esc(it.trajet)}` : ""}</a>` : ""}
         ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
+        <button class="copier petit" type="button" data-copie="etape" data-j="${day.n}" data-slot="${slot}" data-i="${i}"
+          title="Copier cette étape"><svg><use href="#i-copie"/></svg>Copier</button>
       </div>
     </div>
   </div>`;
@@ -4128,15 +4459,18 @@ function dayHTML(d, { live }){
       <button class="partage" data-jour="${d.n}" type="button">
         <svg><use href="#i-partage"/></svg>Partager
       </button>
+      <button class="copier" data-copie="jour" data-j="${d.n}" type="button">
+        <svg><use href="#i-copie"/></svg>Copier
+      </button>
       <span class="suntimes" title="Calculé pour ${d.sun === SOUNION ? "le cap Sounion" : d.phase === 1 ? "Athènes" : "Saronida"}">
         <svg><use href="#i-sunrise"/></svg><b>${hhmm(d.sunT.rise)}</b>
         <svg><use href="#i-sunset"/></svg><b>${hhmm(d.sunT.set)}</b>
         ${meteoHTML(d)}
       </span>
     </div>
+    ${filtreHTML()}
     ${meteoAlerte(d)}
     ${vigJourHTML(d)}
-    ${veilleHTML(d)}
     ${alarm}
     ${merHTML(d)}
     ${sacBateauHTML(d)}
@@ -4183,7 +4517,9 @@ function dayHTML(d, { live }){
     ${pack.length ? `<div class="pack">
       <span class="lbl">À prendre</span>
       <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
+      <button type="button" class="copier petit" data-copie="bloc"><svg><use href="#i-copie"/></svg>Copier</button>
     </div>` : ""}
+    ${veilleHTML(d)}
     ${photosHTML(d)}
     ${avisHTML(d)}
   </div>`;
@@ -4432,14 +4768,17 @@ function render(){
   document.getElementById("gridView").hidden   = state.view !== "grid";
   document.getElementById("carnetView").hidden = state.view !== "carnet";
   document.getElementById("chronoView").hidden = state.view !== "chrono";
+  document.getElementById("bilanView").hidden  = state.view !== "bilan";
   if (searching) renderSearch();
   else if (state.view === "day") renderDay();
   else if (state.view === "grid") renderGrid();
   else if (state.view === "carnet") renderCarnet();
+  else if (state.view === "bilan") renderBilan();
   else renderChrono();
   renderRail(); renderStatus(); renderFoot();
   const h = state.view === "grid" ? "#tableau" : state.view === "carnet" ? "#carnet"
-          : state.view === "chrono" ? "#chronologie" : `#j${DAYS[state.day].n}`;
+          : state.view === "chrono" ? "#chronologie" : state.view === "bilan" ? "#bilan"
+          : `#j${DAYS[state.day].n}`;
   if (location.hash !== h) history.replaceState(null, "", h);
 
   document.querySelectorAll("textarea[data-avis]").forEach(majCompteur);
@@ -4535,11 +4874,13 @@ function syncSeg(){
   document.getElementById("viewGrid").setAttribute("aria-pressed", state.view === "grid");
   document.getElementById("viewCarnet").setAttribute("aria-pressed", state.view === "carnet");
   document.getElementById("viewChrono").setAttribute("aria-pressed", state.view === "chrono");
+  document.getElementById("viewBilan").setAttribute("aria-pressed", state.view === "bilan");
 }
 document.getElementById("viewDay").addEventListener("click", () => { state.view = "day"; syncSeg(); render(); });
 document.getElementById("viewGrid").addEventListener("click", () => { state.view = "grid"; syncSeg(); render(); });
 document.getElementById("viewCarnet").addEventListener("click", () => { state.view = "carnet"; syncSeg(); render(); });
 document.getElementById("viewChrono").addEventListener("click", () => { state.view = "chrono"; syncSeg(); render(); });
+document.getElementById("viewBilan").addEventListener("click", () => { state.view = "bilan"; syncSeg(); render(); });
 
 /* Saisies : on enregistre au fil de la frappe, sans redessiner — un rendu
    ferait perdre le curseur au milieu d'une phrase. */
@@ -4562,7 +4903,32 @@ document.addEventListener("click", e => {
     render();
   }
   const pce = e.target.closest("[data-pouce]");
-  if (pce){ basculerPouce(pce.dataset.jour, pce.dataset.pouce); return; }
+  if (pce){ basculerPouce(pce.dataset.jour, pce.dataset.pouce, +pce.dataset.sens); return; }
+  const cop = e.target.closest("[data-copie]");
+  if (cop){
+    const q = cop.dataset.copie;
+    if (q === "journal") copier(journalTexte(), "Carnet");
+    else if (q === "jours") copier(bilanParJour().map(x =>
+      `Jour ${x.d.n} · ${DOW_FULL[x.d.dow]} ${x.d.dm} — ${x.d.title} : ${x.moy.toFixed(1).replace(".", ",")}/5`).join("\n"), "Tableau");
+    else if (q === "mot") copier((BILANS[cop.dataset.qui] || {}).txt, "Mot");
+    else if (q === "texte") copier(cop.dataset.t, "Texte");
+    else if (q === "jour") copier(texteDuJour(DAYS.find(x => x.n === +cop.dataset.j)), "Programme");
+    else if (q === "etape") copier(texteEtape(DAYS.find(x => x.n === +cop.dataset.j), cop.dataset.slot, +cop.dataset.i), "Étape");
+    else {
+      const bloc = cop.closest("article, .pack, .journee, section");
+      if (bloc){
+        const clone = bloc.cloneNode(true);
+        clone.querySelectorAll("button").forEach(b => b.remove());
+        copier(clone.innerText.replace(/\n{3,}/g, "\n\n"), "Texte");
+      }
+    }
+    return;
+  }
+  if (e.target.closest(".videfiltre")){
+    state.filters.clear();
+    document.querySelectorAll("#filters .f").forEach(b => b.setAttribute("aria-pressed", "false"));
+    render(); return;
+  }
   if (e.target.closest(".reveler")){
     REVELER = !REVELER;
     try { localStorage.setItem(ANON_STORE, REVELER ? "oui" : "non"); } catch {}
@@ -4582,7 +4948,7 @@ document.addEventListener("click", e => {
   if (e.target.closest(".rafraichir[data-photos-maj]")){ lirePhotos(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
-  if (e.target.closest("#journalBtn")) envoyerJournal();
+  if (e.target.closest("#journalBtn") || e.target.closest("#journalBtn2")) envoyerJournal();
 });
 
 /* Identification par la date de naissance. On compare des empreintes : la date
@@ -4679,6 +5045,13 @@ document.addEventListener("input", e => {
     const j = avis.dataset.avis, v = avis.value;
     clearTimeout(saveT);
     saveT = setTimeout(() => enregistrerAvis(j, { txt:v }), 700);
+    return;
+  }
+  const bil = e.target.closest("textarea[data-bilan]");
+  if (bil && QUI){
+    const v = bil.value;
+    clearTimeout(saveT);
+    saveT = setTimeout(() => enregistrerBilan(v), 700);
     return;
   }
   const note = e.target.closest("textarea[data-note]");
@@ -4805,6 +5178,7 @@ function fromHash(){
   if (h === "#tableau"){ state.view = "grid"; syncSeg(); return true; }
   if (h === "#carnet"){ state.view = "carnet"; syncSeg(); return true; }
   if (h === "#chronologie"){ state.view = "chrono"; syncSeg(); return true; }
+  if (h === "#bilan"){ state.view = "bilan"; syncSeg(); return true; }
   const m = h.match(/^#j(\d{1,2})$/);
   if (m){
     const i = DAYS.findIndex(d => d.n === +m[1]);
