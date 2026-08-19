@@ -19,8 +19,8 @@
  * Les octets de l'image vivent à part, sous cet identifiant seul. Ils ne
  * changent jamais : le navigateur peut les garder indéfiniment.
  *
- * Les notes suivent la même règle qu'ailleurs : une clé par votant,
- * « note/sana », que personne d'autre n'écrit. Deux notes données au même
+ * Les podiums suivent la même règle qu'ailleurs : une clé par votant,
+ * « podium/sana », que personne d'autre n'écrit. Deux votes déposés au même
  * instant ne peuvent donc pas s'annuler.
  */
 import { getStore } from "@netlify/blobs";
@@ -38,7 +38,7 @@ const COTE_MIN = 200;
    contourne en rechargeant la page n'en est pas une. */
 const QUOTA = 5;
 
-const NOTE_MAX = 5;
+const PODIUM = 3;                               // on n'en distingue que trois
 const images = () => getStore({ name: "photos-athenes-2026", consistency: "strong" });
 const index  = () => getStore({ name: "photos-index-2026", consistency: "strong" });
 
@@ -75,35 +75,50 @@ export default async (req) => {
       });
     }
     const photos = (await inventaire()).map(({ cle, ...p }) => p);
-    /* Les notes voyagent avec l'inventaire : un seul aller pour tout l'album. */
-    const notes = {};
+    /* Les podiums voyagent avec l'inventaire : un seul aller pour tout l'album.
+       « podiums["3"]["sana"] = [id1, id2, id3] » — l'ordre est le classement. */
+    const podiums = {};
     await Promise.all(QUI_VALIDES.map(async (votant) => {
-      const sien = (await index().get(`note/${votant}`, { type: "json" })) || {};
-      Object.entries(sien).forEach(([photo, n]) => {
-        const v = Number(n);
-        if (!(v >= 1 && v <= NOTE_MAX)) return;
-        (notes[photo] = notes[photo] || {})[votant] = v;
+      const sien = (await index().get(`podium/${votant}`, { type: "json" })) || {};
+      Object.entries(sien).forEach(([jour, liste]) => {
+        if (!Array.isArray(liste) || !liste.length) return;
+        (podiums[jour] = podiums[jour] || {})[votant] = liste.slice(0, PODIUM);
       });
     }));
-    return Response.json({ photos, quota: QUOTA, notes }, { headers: { "cache-control": "no-store" } });
+    return Response.json({ photos, quota: QUOTA, podiums, podium: PODIUM },
+      { headers: { "cache-control": "no-store" } });
   }
 
-  /* Noter une photo : ni image ni journée, seulement un identifiant et un
-     chiffre. On s'en occupe avant de lire un corps qui n'existe pas. */
-  if (req.method === "POST" && url.searchParams.has("note")) {
+  /* Le podium d'une journée : trois photos, dans l'ordre. On envoie la liste
+     entière plutôt que rang par rang — ainsi l'écran et le dépôt ne peuvent
+     pas diverger si un envoi se perd en route. */
+  if (req.method === "POST" && url.searchParams.has("podium")) {
     const qui = url.searchParams.get("qui");
+    const jour = String(parseInt(url.searchParams.get("podium"), 10));
     if (!QUI_VALIDES.includes(qui)) return new Response("Auteur inconnu", { status: 400 });
-    if (!id || !/^[0-9a-z]{6,40}$/.test(id)) return new Response("Identifiant invalide", { status: 400 });
-    const n = parseInt(url.searchParams.get("note"), 10) || 0;
-    if (n < 0 || n > NOTE_MAX) return new Response("Note hors barème", { status: 400 });
-    /* On ne note pas la sienne : un album où chacun s'attribue cinq étoiles
-       ne classe plus rien. Le refus est explicite plutôt que silencieux. */
-    const sienne = (await inventaire(`idx/${qui}/`)).some((p) => p.id === id);
-    if (sienne) return Response.json({ erreur: "sa-photo" }, { status: 422 });
-    const carnet = (await index().get(`note/${qui}`, { type: "json" })) || {};
-    if (n) carnet[id] = n; else delete carnet[id];
-    await index().setJSON(`note/${qui}`, carnet);
-    return Response.json({ ok: true, id, qui, note: n });
+    if (!(+jour >= 1 && +jour <= 11)) return new Response("Jour hors séjour", { status: 400 });
+    let corps;
+    try { corps = await req.json(); }
+    catch { return new Response("Corps illisible", { status: 400 }); }
+    const choix = Array.isArray(corps && corps.choix) ? corps.choix.map(String) : null;
+    if (!choix) return new Response("Choix illisible", { status: 400 });
+    if (choix.length > PODIUM) return new Response("Trois au plus", { status: 400 });
+    if (new Set(choix).size !== choix.length) return new Response("Doublon", { status: 400 });
+
+    /* Chaque photo choisie doit exister, appartenir à cette journée, et ne pas
+       être la sienne : on ne se distingue pas soi-même. */
+    const duJour = await inventaire();
+    for (const c of choix) {
+      const photo = duJour.find((p) => p.id === c);
+      if (!photo || photo.jour !== jour)
+        return Response.json({ erreur: "photo-inconnue", id: c }, { status: 422 });
+      if (photo.qui === qui)
+        return Response.json({ erreur: "sa-photo", id: c }, { status: 422 });
+    }
+    const carnet = (await index().get(`podium/${qui}`, { type: "json" })) || {};
+    if (choix.length) carnet[jour] = choix; else delete carnet[jour];
+    await index().setJSON(`podium/${qui}`, carnet);
+    return Response.json({ ok: true, jour, qui, choix });
   }
 
   if (req.method === "POST") {
@@ -165,13 +180,18 @@ export default async (req) => {
     if (!sienne) return new Response("Pas la vôtre", { status: 403 });
     await index().delete(sienne.cle);
     await images().delete(id);
-    /* Sans ce nettoyage, les notes d'une photo disparue resteraient à
-       jamais dans les carnets, et reviendraient sur un identifiant réutilisé. */
+    /* Sans ce nettoyage, une photo retirée resterait sur les podiums qui
+       l'avaient distinguée, et compterait des points pour rien. */
     await Promise.all(QUI_VALIDES.map(async (votant) => {
-      const carnet = (await index().get(`note/${votant}`, { type: "json" })) || {};
-      if (carnet[id] === undefined) return;
-      delete carnet[id];
-      await index().setJSON(`note/${votant}`, carnet);
+      const carnet = (await index().get(`podium/${votant}`, { type: "json" })) || {};
+      let touche = false;
+      for (const [jour, liste] of Object.entries(carnet)) {
+        if (!liste.includes(id)) continue;
+        const reste = liste.filter((x) => x !== id);
+        if (reste.length) carnet[jour] = reste; else delete carnet[jour];
+        touche = true;
+      }
+      if (touche) await index().setJSON(`podium/${votant}`, carnet);
     }));
     return Response.json({ ok: true, supprime: id });
   }

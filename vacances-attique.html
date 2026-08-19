@@ -971,28 +971,63 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
   font-family:var(--mono); font-size:.72rem;
 }
 .vbarre .vsuppr{border-color:rgba(255,140,140,.6); color:#ffbdbd}
-/* ── Noter une photo ──
-   Dans la visionneuse, où il y a la place du doigt ; la vignette n'en
-   montre que le résultat. */
+/* ── Distinguer une photo ──
+   Un bouton sur la vignette, un autre en grand dans la visionneuse : le
+   même geste des deux côtés. */
 .vnote{
-  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   padding:10px 4px 0; color:#fff;
 }
-.vnote .vlab{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; opacity:.62; margin-right:4px}
-.vnote .etoile{
-  display:grid; place-items:center; width:38px; height:38px; border:none; background:none; padding:0;
+.vmedaille{
+  display:inline-flex; align-items:center; min-height:40px; padding:0 16px; border-radius:99px;
+  border:1px solid rgba(255,255,255,.45); background:rgba(255,255,255,.08); color:#fff; font-size:.86rem;
 }
-.vnote .etoile svg{width:24px; height:24px; fill:rgba(255,255,255,.26); transition:fill .15s, transform .15s}
-.vnote .etoile.pleine svg{fill:var(--ochre)}
-.vnote .etoile:active svg{transform:scale(.88)}
+.vmedaille.prise{border-color:var(--ochre); background:color-mix(in oklab,var(--ochre) 30%,transparent)}
 .vnote .vmoy{margin-left:auto; font-family:var(--mono); font-size:.78rem; opacity:.8}
 .vnote .vaide{flex:1 1 100%; font-size:.78rem; opacity:.66; line-height:1.4}
-.vnotebadge{
-  position:absolute; left:6px; bottom:6px; z-index:2;
+.ptsbadge{
+  position:absolute; left:6px; top:6px; z-index:2;
   padding:2px 7px; border-radius:99px;
   background:rgba(0,0,0,.58); color:#fff; backdrop-filter:blur(3px);
   font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.72rem;
 }
+.medaille{
+  position:absolute; right:6px; bottom:6px; z-index:3;
+  min-width:32px; height:32px; padding:0 8px; border-radius:99px;
+  border:1px solid rgba(255,255,255,.55); background:rgba(0,0,0,.5); color:#fff;
+  backdrop-filter:blur(3px); font-family:var(--mono); font-size:.76rem; line-height:1;
+  display:grid; place-items:center; transition:background .18s, border-color .18s;
+}
+.medaille.r1{background:var(--ochre); border-color:var(--ochre)}
+.medaille.r2{background:#8e9298; border-color:#8e9298}
+.medaille.r3{background:#a9743f; border-color:#a9743f}
+.vignette.mienne .medaille{display:none}
+
+/* ── Le podium du jour ── */
+.podium{
+  margin-top:14px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--surface-2); overflow:hidden;
+}
+.ptitre{
+  padding:10px 14px; border-bottom:1px solid var(--line-soft);
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
+}
+.pliste{list-style:none; padding:8px 14px 4px}
+.pliste li{display:grid; grid-template-columns:52px 46px 1fr auto; gap:10px; align-items:center; padding:8px 0}
+.pliste li + li{border-top:1px solid var(--line-soft)}
+.pliste .med{
+  font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid currentColor; border-radius:99px; padding:2px 0; text-align:center; color:var(--ink-3);
+}
+.pliste .p1 .med{color:var(--ochre)}
+.pliste .p2 .med{color:#8e9298}
+.pliste .p3 .med{color:#a9743f}
+.pliste img{width:46px; height:46px; object-fit:cover; border-radius:var(--r-sm); background:var(--surface)}
+.pliste .sig{display:flex; flex-direction:column; gap:1px; font-size:.74rem; color:var(--ink-3); min-width:0}
+.pliste .sig b{font-size:.9rem; color:var(--ink)}
+.pliste .pts{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.05rem; color:var(--sea); text-align:right}
+.pliste .pts em{font-style:normal; font-size:.66rem; color:var(--ink-3); display:block}
+.paide{padding:8px 14px 12px; font-size:.8rem; line-height:1.5; color:var(--ink-3)}
 
 /* ─────────────────────────────  FEU MÉTÉO  ───────────────────────────── */
 .feu{
@@ -3187,55 +3222,88 @@ function baignadeHTML(d){
    L'orientation vient des métadonnées EXIF, que le redimensionnement
    effacerait : on la laisse au navigateur, qui applique déjà la rotation à
    l'affichage — d'où le dessin sur une toile aux dimensions déjà tournées. */
-const PHOTOS = { liste: [], lu: false, quota: 5, echec: false, notes: {} };
+const PHOTOS = { liste: [], lu: false, quota: 5, echec: false, podiums: {}, podium: 3 };
 
-/* ── Noter les photos ──
-   De quoi choisir le best-of à la fin du séjour sans y passer une soirée :
-   chacun met une note sur cinq aux clichés des autres, et la moyenne les
-   classe toute seule. On ne note pas les siennes — un album où chacun
-   s'attribue cinq étoiles ne classe plus rien.
+/* ── Le podium du jour ──
+   Chacun distingue les trois plus belles photos de la journée — celles des
+   autres, jamais les siennes : on ne se décerne pas de médaille. Un premier
+   vaut trois points, un deuxième deux, un troisième un ; l'addition des
+   quatre podiums donne celui de la journée, et la somme du séjour donne le
+   best-of sans qu'on ait à trancher un soir de retour.
 
-   Le serveur range les notes par votant, comme les pouces : deux notes
-   données au même instant ne s'effacent pas l'une l'autre. */
-const NOTE_PHOTO_MAX = 5;
-const notesDe = id => PHOTOS.notes[id] || {};
-function noteMoyenne(id){
-  const v = Object.values(notesDe(id));
-  return { n: v.length, moy: v.length ? v.reduce((t, x) => t + x, 0) / v.length : 0,
-           mienne: QUI ? notesDe(id)[QUI] || 0 : 0 };
+   Trois choix plutôt qu'une note sur cinq : on ne cherche pas à mesurer
+   chaque cliché, seulement à désigner les meilleurs. C'est plus rapide au
+   doigt, et cela oblige à choisir — une note généreuse donnée à tout le
+   monde ne classe rien.
+
+   Le serveur range les podiums par votant : deux votes déposés au même
+   instant ne s'effacent pas l'un l'autre. */
+const POINTS = [3, 2, 1];
+const podiumsDuJour = n => PHOTOS.podiums[String(n)] || {};
+const monPodium = n => (QUI && podiumsDuJour(n)[QUI]) || [];
+/* Le rang que j'ai donné à cette photo, 0 si je ne l'ai pas distinguée. */
+const monRang = (n, id) => monPodium(n).indexOf(id) + 1;
+
+/* Le classement collectif d'une journée : les points de chacun, additionnés. */
+function classementDuJour(n){
+  const pts = {}, par = {};
+  Object.entries(podiumsDuJour(n)).forEach(([votant, liste]) => {
+    liste.slice(0, PHOTOS.podium).forEach((id, i) => {
+      pts[id] = (pts[id] || 0) + POINTS[i];
+      (par[id] = par[id] || []).push({ votant, rang: i + 1 });
+    });
+  });
+  return Object.entries(pts)
+    .map(([id, p]) => ({ id, p, voix: par[id], photo: PHOTOS.liste.find(x => x.id === id) }))
+    .filter(x => x.photo)
+    .sort((a, b) => b.p - a.p || b.voix.length - a.voix.length);
 }
-async function noterPhoto(id, note){
+/* Le même calcul sur tout le séjour, pour le best-of. */
+function classementDuSejour(){
+  const pts = {}, voix = {};
+  Object.keys(PHOTOS.podiums).forEach(j => {
+    Object.values(PHOTOS.podiums[j]).forEach(liste => {
+      liste.slice(0, PHOTOS.podium).forEach((id, i) => {
+        pts[id] = (pts[id] || 0) + POINTS[i];
+        voix[id] = (voix[id] || 0) + 1;
+      });
+    });
+  });
+  return Object.entries(pts)
+    .map(([id, p]) => ({ id, p, n: voix[id], photo: PHOTOS.liste.find(x => x.id === id) }))
+    .filter(x => x.photo)
+    .sort((a, b) => b.p - a.p || b.n - a.n);
+}
+
+/* Un geste : on distingue, ou l'on retire. Le rang suivant libre est
+   attribué ; retirer la deuxième fait remonter la troisième. Pas de menu,
+   pas de glisser-déposer — un doigt sur une vignette suffit. */
+async function basculerPodium(jour, id){
   const photo = PHOTOS.liste.find(x => x.id === id);
   if (!QUI || !photo || photo.qui === QUI) return;
-  const avant = { ...notesDe(id) };
-  const veut = avant[QUI] === note ? 0 : note;       // retoucher l'étoile efface
-  const apres = { ...avant };
-  if (veut) apres[QUI] = veut; else delete apres[QUI];
-  PHOTOS.notes[id] = apres;
-  majEtoilesPhoto(id);
+  const avant = monPodium(jour);
+  const apres = avant.includes(id) ? avant.filter(x => x !== id)
+    : avant.length >= PHOTOS.podium ? null
+    : [...avant, id];
+  if (!apres){ toast(`Trois photos au plus — retirez-en une pour changer d'avis`); return; }
+  const jourCle = String(jour);
+  PHOTOS.podiums[jourCle] = { ...podiumsDuJour(jour) };
+  if (apres.length) PHOTOS.podiums[jourCle][QUI] = apres;
+  else delete PHOTOS.podiums[jourCle][QUI];
+  render();
   try {
-    const r = await fetch(`/api/photos?note=${veut}&id=${id}&qui=${QUI}`, { method:"POST" });
+    const r = await fetch(`/api/photos?podium=${jour}&qui=${QUI}`, {
+      method:"POST", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ choix: apres })
+    });
     if (!r.ok) throw new Error(r.status);
-    render();
   } catch {
-    PHOTOS.notes[id] = avant;
-    majEtoilesPhoto(id);
-    toast("Note non enregistrée — réessayez");
+    PHOTOS.podiums[jourCle] = { ...podiumsDuJour(jour) };
+    if (avant.length) PHOTOS.podiums[jourCle][QUI] = avant;
+    else delete PHOTOS.podiums[jourCle][QUI];
+    toast("Vote non enregistré — réessayez");
+    render();
   }
-}
-/* La visionneuse est ouverte : on retouche ses étoiles sur place plutôt que
-   de redessiner la page sous la photo qu'on est en train de regarder. */
-function majEtoilesPhoto(id){
-  const zone = document.querySelector(`.vnote[data-photo="${id}"]`);
-  if (!zone) return;
-  const { n, moy, mienne } = noteMoyenne(id);
-  zone.querySelectorAll(".etoile").forEach(b => {
-    b.classList.toggle("pleine", +b.dataset.note <= mienne);
-  });
-  const dit = zone.querySelector(".vmoy");
-  if (dit) dit.textContent = n
-    ? `${moy.toFixed(1).replace(".", ",")}/5 · ${n} vote${n > 1 ? "s" : ""}`
-    : "pas encore notée";
 }
 const COTE_MAX = 1600;
 
@@ -3332,7 +3400,8 @@ async function lirePhotos(){
     if (!r.ok) throw new Error(r.status);
     const rep = await r.json();
     PHOTOS.liste = rep.photos || [];
-    PHOTOS.notes = rep.notes || {};
+    PHOTOS.podiums = rep.podiums || {};
+    if (rep.podium) PHOTOS.podium = rep.podium;
     if (rep.quota) PHOTOS.quota = rep.quota;
     PHOTOS.lu = true; PHOTOS.echec = false;
     renderSiLibre();
@@ -3498,9 +3567,17 @@ ${(() => {
              loading="${i < 3 ? "eager" : "lazy"}"${i < 3 ? ' fetchpriority="high"' : ""}
              onerror="vignetteSecours(this)">
         <figcaption>${esc(nomDe(p.qui))}</figcaption>
-        ${(() => { const { n, moy } = noteMoyenne(p.id); return n
-          ? `<span class="vnotebadge" title="${n} vote${n > 1 ? "s" : ""}">★ ${moy.toFixed(1).replace(".", ",")}</span>`
-          : ""; })()}
+        ${(() => {
+          const rang = monRang(d.n, p.id);
+          const pts = (classementDuJour(d.n).find(x => x.id === p.id) || {}).p || 0;
+          const sienne = p.qui === QUI;
+          return `${pts ? `<span class="ptsbadge" title="${pts} point${pts > 1 ? "s" : ""}">${pts} pt${pts > 1 ? "s" : ""}</span>` : ""}
+            ${QUI && !sienne ? `<button type="button" class="medaille${rang ? " r" + rang : ""}"
+              data-podium="${p.id}" data-jour="${d.n}"
+              aria-pressed="${rang > 0}"
+              title="${rang ? `Votre ${rang}${rang === 1 ? "er" : "e"} — touchez pour retirer` : "Distinguer cette photo"}">${
+              rang ? `${rang}${rang === 1 ? "er" : "e"}` : "＋"}</button>` : ""}`;
+        })()}
         ${p.qui === QUI ? `<button type="button" class="retirer" data-suppr="${p.id}"
           aria-label="Retirer cette photo" title="Retirer cette photo">✕</button>` : ""}
       </figure>`).join("")}
@@ -3509,6 +3586,7 @@ ${(() => {
       : PHOTOS.echec ? ""
       : PHOTOS.lu ? "Aucune photo pour l'instant. La première est la plus difficile."
       : "Chargement…"}</p>`}
+    ${podiumHTML(d)}
     ${aVenir ? "" : !QUI
       ? `<p class="albumvide">Identifiez-vous dans « Le mot du soir » pour ajouter les vôtres.</p>`
       : ENVOI
@@ -3534,6 +3612,38 @@ ${(() => {
   </section>`;
 }
 
+/* Le classement de la journée, tel qu'il se lit sous l'album. Il n'apparaît
+   qu'une fois quelqu'un a voté : trois cadres vides n'apprennent rien. */
+function podiumHTML(d){
+  const mes = photosDuJour(d);
+  if (!mes.length) return "";
+  const cl = classementDuJour(d.n).slice(0, PHOTOS.podium);
+  const mien = monPodium(d.n);
+  const notables = mes.filter(p => p.qui !== QUI).length;
+  const MEDAILLE = ["Or", "Argent", "Bronze"];
+  return `<div class="podium">
+    <p class="ptitre">Le podium du jour${cl.length ? "" : " — à faire"}</p>
+    ${cl.length ? `<ol class="pliste">
+      ${cl.map((x, i) => `<li class="p${i + 1}">
+        <span class="med">${MEDAILLE[i]}</span>
+        <img src="${imgReduite(x.id, 200, 70)}" data-id="${x.id}" data-voir="${x.id}"
+             width="200" height="200" loading="lazy" decoding="async"
+             onerror="vignetteSecours(this)" alt="Photo de ${esc(nomDe(x.photo.qui))}">
+        <span class="sig"><b>${esc(nomDe(x.photo.qui))}</b>${
+          x.voix.map(v => `${esc(nomDe(v.votant))} ${v.rang}${v.rang === 1 ? "er" : "e"}`).join(" · ")}</span>
+        <span class="pts">${x.p}<em>pt${x.p > 1 ? "s" : ""}</em></span>
+      </li>`).join("")}
+    </ol>` : ""}
+    <p class="paide">${!QUI
+      ? "Identifiez-vous dans « Le mot du soir » pour voter."
+      : !notables ? "Il n'y a encore que vos photos ce jour-là : on ne se distingue pas soi-même."
+      : mien.length >= PHOTOS.podium
+        ? `Votre podium est complet — ${mien.map((id, i) => `${i + 1}${i ? "e" : "er"} ${esc(nomDe((PHOTOS.liste.find(p => p.id === id) || {}).qui || ""))}`).join(", ")}. Touchez une médaille pour la retirer.`
+        : `Touchez le ＋ d'une photo pour la distinguer — ${PHOTOS.podium - mien.length} place${
+            PHOTOS.podium - mien.length > 1 ? "s" : ""} sur votre podium. Un premier vaut 3 points, un deuxième 2, un troisième 1.`}</p>
+  </div>`;
+}
+
 /* Ouverture en grand, au clavier comme au doigt. */
 function ouvrirPhoto(id){
   const p = PHOTOS.liste.find(x => x.id === id);
@@ -3548,18 +3658,17 @@ function ouvrirPhoto(id){
   dlg.innerHTML = `<img src="${imgReduite(p.id, 1400, 80)}" data-id="${p.id}"
       decoding="async" onerror="vignetteSecours(this)" alt="">
     ${(() => {
-      const { n, moy, mienne } = noteMoyenne(p.id);
-      const dit = n ? `${moy.toFixed(1).replace(".", ",")}/5 · ${n} vote${n > 1 ? "s" : ""}` : "pas encore notée";
-      if (!QUI) return `<div class="vnote" data-photo="${p.id}"><span class="vmoy">${dit}</span>
-        <span class="vaide">Identifiez-vous dans « Le mot du soir » pour noter.</span></div>`;
-      if (p.qui === QUI) return `<div class="vnote" data-photo="${p.id}"><span class="vmoy">${dit}</span>
-        <span class="vaide">C'est la vôtre — ce sont les autres qui la notent.</span></div>`;
-      return `<div class="vnote" data-photo="${p.id}">
-        <span class="vlab">Votre note</span>
-        ${[1, 2, 3, 4, 5].map(k => `<button type="button" class="etoile${k <= mienne ? " pleine" : ""}"
-          data-notephoto="${p.id}" data-note="${k}" aria-label="${k} sur 5">
-          <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.4 9.4l6.1-.8Z"/></svg>
-        </button>`).join("")}
+      const rang = monRang(+p.jour, p.id);
+      const cl = classementDuJour(+p.jour).find(x => x.id === p.id);
+      const dit = cl ? `${cl.p} point${cl.p > 1 ? "s" : ""} · ${cl.voix.length} voix` : "pas encore distinguée";
+      if (!QUI) return `<div class="vnote"><span class="vmoy">${dit}</span>
+        <span class="vaide">Identifiez-vous dans « Le mot du soir » pour voter.</span></div>`;
+      if (p.qui === QUI) return `<div class="vnote"><span class="vmoy">${dit}</span>
+        <span class="vaide">C'est la vôtre — ce sont les autres qui la distinguent.</span></div>`;
+      return `<div class="vnote">
+        <button type="button" class="vmedaille${rang ? " prise" : ""}" data-podium="${p.id}" data-jour="${p.jour}">
+          ${rang ? `Votre ${rang}${rang === 1 ? "er" : "e"} — retirer` : "Mettre au podium du jour"}
+        </button>
         <span class="vmoy">${dit}</span>
       </div>`;
     })()}
@@ -3863,12 +3972,8 @@ function renderBilan(){
         /* Le best-of se fait tout seul : on classe par moyenne, et à moyenne
            égale c'est le nombre de votes qui départage — une photo notée par
            trois personnes vaut mieux qu'une notée par une seule. */
-        const classees = PHOTOS.liste
-          .map(p => ({ p, ...noteMoyenne(p.id) }))
-          .filter(x => x.n)
-          .sort((a, b) => b.moy - a.moy || b.n - a.n)
-          .slice(0, 5);
-        const notees = PHOTOS.liste.filter(p => noteMoyenne(p.id).n).length;
+        const classees = classementDuSejour().slice(0, 5).map(x => ({ ...x, p2: x.p, p: x.photo }));
+        const notees = classementDuSejour().length;
         if (!PHOTOS.liste.length) return "";
         return `<article class="bbloc">
           <header><h3>Le best-of</h3></header>
@@ -3879,14 +3984,15 @@ function renderBilan(){
                    width="200" height="200" loading="lazy" decoding="async"
                    onerror="vignetteSecours(this)" alt="Photo de ${esc(nomDe(x.p.qui))}">
               <span class="sig"><b>${esc(nomDe(x.p.qui))}</b>Jour ${x.p.jour}</span>
-              <span class="mo">${x.moy.toFixed(1).replace(".", ",")}<em>/5</em>
-                <i>${x.n} vote${x.n > 1 ? "s" : ""}</i></span>
+              <span class="mo">${x.p2}<em>pt${x.p2 > 1 ? "s" : ""}</em>
+                <i>${x.n} voix</i></span>
             </li>`).join("")}
           </ol>
-          <p class="bnote">${notees} photo${notees > 1 ? "s" : ""} notée${notees > 1 ? "s" : ""} sur ${
-            PHOTOS.liste.length}. Ouvrez une photo de l'album pour lui donner une note — les vôtres, ce sont les autres qui les notent.</p>`
-          : `<p class="baide">Aucune photo notée pour l'instant. Ouvrez-en une dans l'album du jour :
-             cinq étoiles sous l'image, et le classement se fait tout seul.</p>`}
+          <p class="bnote">${notees} photo${notees > 1 ? "s" : ""} distinguée${notees > 1 ? "s" : ""} sur ${
+            PHOTOS.liste.length}. Chacun désigne ses trois préférées du jour — 3 points, 2, puis 1 —
+            et le séjour additionne. Les vôtres, ce sont les autres qui les choisissent.</p>`
+          : `<p class="baide">Aucune photo distinguée pour l'instant. Dans l'album d'une journée,
+             touchez le ＋ de vos trois préférées : le classement se fait tout seul.</p>`}
         </article>`;
       })()}
 
@@ -4978,8 +5084,13 @@ document.addEventListener("click", e => {
     const ch = document.getElementById("codenaiss"); if (ch) ch.focus();
     return;
   }
-  const etp = e.target.closest("[data-notephoto]");
-  if (etp){ noterPhoto(etp.dataset.notephoto, +etp.dataset.note); return; }
+  const med = e.target.closest("[data-podium]");
+  if (med){
+    const dlg = document.getElementById("visionneuse");
+    if (dlg && dlg.open) dlg.close();
+    basculerPodium(+med.dataset.jour, med.dataset.podium);
+    return;
+  }
   const et = e.target.closest(".etoile");
   if (et){
     const j = et.dataset.jour, n = +et.dataset.note;
