@@ -750,6 +750,14 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
   font-family:var(--mono); font-size:.72rem;
 }
+.envoi{margin-top:12px}
+.envoi p{font-size:.85rem; color:var(--ink-2)}
+.envoi b{font-family:var(--mono); color:var(--sea)}
+.jauge{
+  margin-top:7px; height:5px; border-radius:99px; overflow:hidden;
+  background:var(--surface-2); border:1px solid var(--line-soft);
+}
+.jauge span{display:block; height:100%; background:var(--sea); transition:width .25s ease-out}
 .albumvide{margin-top:11px; font-size:.85rem; color:var(--ink-3)}
 .quota{
   margin-top:12px; padding:9px 12px; border-radius:var(--r-sm);
@@ -2843,30 +2851,40 @@ async function envoyerPhotos(jour, fichiers){
   } else REFUS = null;
   if (!bons.length){ ENVOI = null; render(); return; }
 
+  /* Trois de front plutôt qu'une à la fois : cinq photos partaient en cinq
+     allers-retours successifs, chacun attendant le précédent. Trois est un
+     compromis — au-delà, un téléphone en itinérance se gêne lui-même, et
+     réduire les images occupe déjà le processeur. */
   ENVOI = { faits: 0, total: bons.length };
   render();
   const rates = [];
-  for (const { f, prise } of bons){
-    try {
-      const { blob, w, h } = await reduire(f);
-      const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}${prise ? `&pris=${prise}` : ""}`, {
-        method:"POST", headers:{ "content-type":"image/jpeg" }, body:blob
-      });
-      if (!r.ok){
-        const t = await r.text();
-        throw new Error(t.includes("quota") ? `vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`
-          : t.includes("jour") ? "cette photo n'a pas été prise ce jour-là"
-          : t.includes("trop-petite") ? "image trop petite pour un album"
-          : t.slice(0, 60));
+  const FRONT = 3;
+  let suivant = 0;
+  const uneVoie = async () => {
+    while (suivant < bons.length){
+      const { f, prise } = bons[suivant++];
+      try {
+        const { blob, w, h } = await reduire(f);
+        const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}${prise ? `&pris=${prise}` : ""}`, {
+          method:"POST", headers:{ "content-type":"image/jpeg" }, body:blob
+        });
+        if (!r.ok){
+          const t = await r.text();
+          throw new Error(t.includes("quota") ? `vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`
+            : t.includes("jour") ? "cette photo n'a pas été prise ce jour-là"
+            : t.includes("trop-petite") ? "image trop petite pour un album"
+            : t.slice(0, 60));
+        }
+        if (ENVOI) ENVOI.faits++;
+      } catch (e){
+        /* Une photo refusée ou un réseau qui cligne n'emporte pas les
+           autres : chaque voie continue, et le compte est dit à la fin. */
+        rates.push(String(e.message || e).slice(0, 70));
       }
-      ENVOI.faits++;
-    } catch (e){
-      /* On continue avec les suivantes : une photo refusée ou un réseau qui
-         cligne ne doit pas emporter tout un envoi. Le compte est dit à la fin. */
-      rates.push(String(e.message || e).slice(0, 70));
+      majEnvoi();
     }
-    render();
-  }
+  };
+  await Promise.all(Array.from({ length: Math.min(FRONT, bons.length) }, uneVoie));
   ENVOI = null;
   if (rates.length) toast(rates.length === 1 ? "Une photo n'est pas passée : " + rates[0]
     : `${rates.length} photos ne sont pas passées — ${rates[0]}`);
@@ -2929,8 +2947,12 @@ ${(() => {
     ${aVenir ? "" : !QUI
       ? `<p class="albumvide">Identifiez-vous dans « Le mot du soir » pour ajouter les vôtres.</p>`
       : ENVOI
-        ? `<p class="albumvide">${ENVOI.verif ? "Lecture des dates de prise de vue…"
-             : `Envoi en cours — ${ENVOI.faits} sur ${ENVOI.total}…`}</p>`
+        ? `<div class="envoi">
+             <p>${ENVOI.verif ? "Lecture des dates de prise de vue…"
+               : `Envoi en cours — <b id="envoi-faits">${ENVOI.faits}</b> sur ${ENVOI.total}`}</p>
+             ${ENVOI.verif ? "" : `<div class="jauge"><span id="envoi-jauge" style="width:${
+               Math.round(ENVOI.faits / ENVOI.total * 100)}%"></span></div>`}
+           </div>`
         : `<p class="quota${reste <= 0 ? " plein" : ""}">
              <b>${miennes} sur ${PHOTOS.quota}</b> pour cette journée — ${
                reste <= 0 ? "c'est complet. Retirez-en une pour libérer la place."
@@ -4043,6 +4065,16 @@ function majEtatSync(){
     p.textContent = e.t + " ";
     if (bouton) p.appendChild(bouton);
   });
+}
+/* Comme le compteur de caractères : la progression doit avancer sans
+   attendre un rendu complet, qui recréerait tout le bloc à chaque photo. */
+function majEnvoi(){
+  if (!ENVOI) return;
+  const n = document.getElementById("envoi-faits");
+  const j = document.getElementById("envoi-jauge");
+  if (n) n.textContent = ENVOI.faits;
+  if (j) j.style.width = Math.round(ENVOI.faits / ENVOI.total * 100) + "%";
+  if (!n && !j) render();
 }
 function majCompteur(champ){
   const p = document.getElementById("compteur-" + champ.dataset.avis);
