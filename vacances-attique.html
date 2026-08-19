@@ -981,6 +981,29 @@ button.pouce:hover{border-color:var(--sea); color:var(--sea)}
   color:var(--ink-3); flex:0 0 66px; padding-top:2px;
 }
 .vigjour li b{color:var(--ink); font-weight:600}
+/* Ce qui se prépare la veille : même forme que la vigilance, teinte de mer.
+   Ce n'est pas un avertissement, c'est une liste à faire ce soir. */
+.veille{
+  margin-top:14px; border-radius:var(--r); overflow:hidden;
+  border:1px solid color-mix(in oklab,var(--sea) 40%,transparent); background:var(--surface);
+}
+.veille > header{display:flex; align-items:center; gap:9px; padding:10px 14px; background:var(--sea-soft); flex-wrap:wrap}
+.veille > header b{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--sea)}
+.veille > header .quand{margin-left:auto; font-size:.78rem; color:var(--ink-3)}
+.veille .pastille{
+  width:10px; height:10px; border-radius:50%; background:var(--sea); flex:0 0 auto;
+  box-shadow:0 0 0 3px color-mix(in oklab,var(--sea) 20%,transparent);
+}
+.veille.clignote .pastille{animation:battmer 1.5s ease-in-out infinite}
+@keyframes battmer{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--sea) 55%,transparent)}
+  50%{box-shadow:0 0 0 8px transparent}
+}
+.veille ul{list-style:none; padding:4px 14px 12px}
+.veille li{display:flex; flex-direction:column; gap:3px; padding:9px 0; font-size:.87rem; line-height:1.5; color:var(--ink-2)}
+.veille li + li{border-top:1px solid var(--line-soft)}
+.veille li b{color:var(--ink); font-weight:600; font-size:.92rem}
+
 /* Un feu rouge, le jour même ou la veille, bat lui aussi. */
 .feu.clignote .pastille{animation:battfeu 1.5s ease-in-out infinite}
 @keyframes battfeu{
@@ -1449,11 +1472,17 @@ const DAYS = [
     soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
 
   { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", sun:SARO,
-    matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(ALIMOS, "37.9611,23.7228"),
+    /* Le transfert n'est qu'en fin de matinée, et une seule personne se
+       déplace : la matinée reste libre pour les trois autres. Le programme
+       laissait croire que toute la famille partait à 9 h 15. */
+    matin:[ {t:"plain", ttl:"Matinée libre à Alimos",
+             det:"Le transfert vers Saronida n'a lieu qu'en fin de matinée — la plage et la marina sont à cinq minutes",
+             note:"Abderrahman part seul chercher la voiture ; Sana, Hilal et Layal gardent quartier libre jusqu'à son retour, vers 11 h 15. Les valises peuvent être laissées à la réception après la libération des chambres"},
+            {t:"depart", ttl:"Départ pour le loueur — Abderrahman seul", when:"9 h 15", map:dir(ALIMOS, "37.9611,23.7228"),
              corrige:"Avancé de 30 min : retrait à 10 h, et il y a des papiers à signer."},
             {t:"plain", ttl:"Récupération de la voiture", when:"10 h",
             vig:"Permis et carte bancaire au nom du conducteur, sans quoi le comptoir ne délivre rien. La référence de réservation est dans le Carnet.",
-             det:"Puis route vers Saronida et installation",
+             det:"Retour à l'hôtel vers 11 h 15, chargement, puis route vers Saronida et installation",
              rdv:"Sixt — Syngrou Avenue 11 / Lempesi, Athina-Neos Kosmos"} ],
     aprem:[ {t:"courses", ttl:"Courses pour la semaine", when:"~12 h 30",
             vig:"Ce sont les courses de la semaine : la prochaine occasion pratique est Markopoulo, le 24 au retour de Porto Rafti.",
@@ -1464,12 +1493,18 @@ const DAYS = [
     soir:[ {t:"food", ttl:"Dîner au Lavraki", ll:"37.7445,23.9020", det:"Front de mer — ou terrasse du penthouse"} ] },
 
   { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Criques de Limanakia", sun:SARO,
+    prep:[{ t:"Le panier du pique-nique",
+            d:"Départ à 8 h : rien n'ouvre avant. Pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque — rien de crémeux. Et les pains de glace au congélateur dès ce soir." }],
     matin:[ {t:"depart", ttl:"Départ", when:"8 h", map:dir(SARONIDA,"37.8065,23.7785")},
             {t:"swim", ttl:"Snorkeling tôt", ll:"37.8065,23.7785", det:"Criques de Limanakia — fonds rocheux", gear:true} ],
     aprem:[ {t:"swim", ttl:"Suite des criques", ll:"37.8065,23.7785", det:"Limanakia, ou les pointes ouest de Varkiza", gear:true} ],
     soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
+    prep:[{ t:"Le panier et la glacière",
+            d:"Petit-déjeuner à 6 h 35, départ à 7 h 45 : tout doit être prêt la veille. La glacière reste dans la voiture pendant la croisière — deux pains de glace, et une place à l'ombre en arrivant au terminal." },
+          { t:"Les petits-déjeuners du penthouse",
+            d:"Plus de buffet ni de service à 7 h à partir du 23 : vérifiez ce soir qu'il reste de quoi tenir les matins suivants." }],
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
             {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
@@ -2229,6 +2264,51 @@ function jours(d){
   const auj = dayIndexToday();
   return auj < 0 ? 0 : Math.max(0, d.n - DAYS[auj].n);
 }
+/* ── Ce qui se prépare la veille ──
+   Un masque oublié au penthouse ne se rachète pas dans une crique, et le
+   panier du 24 se fait la veille au soir puisqu'on part à 7 h 45. La journée
+   sait donc ce qu'elle exige, et c'est la précédente qui l'annonce — le seul
+   moment où l'on peut encore agir.
+
+   Le sac du bateau et le matériel de snorkeling se déduisent du programme
+   lui-même : toute étape marquée « bateau » ou « palmes » les entraîne. Le
+   reste — les paniers, les courses — est nommé sur la journée. */
+function preparatifs(d){
+  const items = allItems(d).map(x => x.it);
+  const l = [];
+  /* Sur la croisière du couchant, les masques sont fournis à bord : annoncer
+     « prenez vos palmes » ferait chercher pour rien un matériel inutile. */
+  const fournis = items.some(i => /couchant/i.test(i.ttl) && /croisi/i.test(i.ttl));
+  if (items.some(i => i.sac === "bateau" || i.parBateau))
+    l.push({ t:"Le sac du bateau", d:`Maillot déjà mis sous les vêtements, ${
+      fournis ? "masques fournis à bord — rien à emporter de ce côté" : "palmes et tuba, chaussons pour les rochers"}, crème résistante à l'eau, une serviette par personne plus une pour s'asseoir, rechange complet dans un sac plastique fermé, chapeau et coupe-vent pour le retour.` });
+  else if (items.some(i => i.gear))
+    l.push({ t:"Palmes, tuba, chaussons", d:"Les fonds sont rocheux : sans chaussons on renonce à la moitié des entrées. Crème résistante à l'eau, et une bouteille d'eau douce pour se rincer au retour." });
+  (d.prep || []).forEach(x => l.push(x));
+  items.forEach(i => { if (i.prep) l.push({ t:i.ttl, d:i.prep }); });
+  return l;
+}
+/* Le pavé s'affiche sur la journée qui précède. Il bat le soir même, quand
+   il est encore temps de descendre chercher les palmes. */
+function veilleHTML(d){
+  const suivant = DAYS[DAYS.indexOf(d) + 1];
+  if (!suivant) return "";
+  const l = preparatifs(suivant);
+  if (!l.length) return "";
+  const auj = dayIndexToday();
+  const ecart = auj < 0 ? null : d.n - DAYS[auj].n;
+  if (ecart !== null && ecart < 0) return "";        // la veille est passée
+  const vive = ecart === 0;
+  return `<article class="veille${vive ? " clignote" : ""}">
+    <header>
+      <span class="pastille"></span>
+      <b>${vive ? "Ce soir, pour demain" : `La veille du ${esc(DOW_FULL[suivant.dow])} ${esc(suivant.dm)}`}</b>
+      <span class="quand">${esc(suivant.title)}</span>
+    </header>
+    <ul>${l.map(x => `<li><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}</ul>
+  </article>`;
+}
+
 /* ── Points de vigilance ──
    Un champ « vig » sur l'étape : ce qu'on ne rattrape pas si on l'oublie.
    Rare par construction — huit sur onze jours. Un rappel qui s'allume partout
@@ -3688,6 +3768,7 @@ async function viderAttente(){
 
 /* Enregistre localement, puis tente d'envoyer. */
 function enregistrerAvis(jour, champs){
+  AVIS_TOUCHE = { jour:+jour, t:Date.now() };
   AVIS[jour] = AVIS[jour] || {};
   AVIS[jour][QUI] = { ...(AVIS[jour][QUI] || {}), ...champs };
   noteEcrire(AVIS_STORE, AVIS);
@@ -4055,6 +4136,7 @@ function dayHTML(d, { live }){
     </div>
     ${meteoAlerte(d)}
     ${vigJourHTML(d)}
+    ${veilleHTML(d)}
     ${alarm}
     ${merHTML(d)}
     ${sacBateauHTML(d)}
@@ -4377,6 +4459,69 @@ function goToDay(i){
   document.getElementById("dayView").scrollIntoView({ block:"nearest" });
 }
 
+/* ── Retour à la journée en cours ──
+   Le téléphone passe de main en main, on regarde l'album d'avant-hier, la vue
+   parallèle, un jour à venir — puis on le pose. Trente secondes sans un geste
+   et il revient à la journée du jour, sur l'étape qui vient : c'est ce qu'on
+   veut voir en le reprenant.
+
+   Trois retenues. On ne bouge pas si l'on est déjà sur cette page — arracher
+   quelqu'un à sa lecture serait pire que le mal. Ni pendant une saisie, ni
+   devant une photo ouverte : un écran qui se dérobe en pleine phrase est une
+   trahison. Et l'écran éteint ne compte pas comme de l'inactivité : c'est au
+   retour, si l'absence a duré, que le programme se remet en place aussitôt. */
+const INACTIF_MS = 30000;
+let inactifT = null, masqueDepuis = 0;
+
+const surLaJourneeDuJour = () => {
+  const auj = dayIndexToday();
+  return auj >= 0 && state.view === "day" && state.day === auj && !state.query.trim();
+};
+/* Noter une journée passée est permis, et cela se fait par à-coups : une
+   étoile, on relit les autres, on réfléchit, on écrit. Déplacer l'écran au
+   milieu de ce va-et-vient reviendrait à interdire ce qu'on a autorisé. La
+   journée qu'on est en train de commenter reste donc en place trois minutes
+   après le dernier geste. */
+let AVIS_TOUCHE = { jour:null, t:0 };
+const RESPIT_AVIS = 180000;
+function occupeAilleurs(){
+  const a = document.activeElement;
+  if (a && a.matches && a.matches("textarea, input, select")) return true;
+  if (document.querySelector("dialog[open]")) return true;
+  /* Le répit ne vaut que si la journée commentée est bien celle qu'on a sous
+     les yeux : partir voir la vue parallèle, c'est avoir fini d'écrire. */
+  return state.view === "day" && AVIS_TOUCHE.jour === DAYS[state.day].n
+      && Date.now() - AVIS_TOUCHE.t < RESPIT_AVIS;
+}
+function revenirALaJournee(){
+  const auj = dayIndexToday();
+  if (auj < 0 || surLaJourneeDuJour() || occupeAilleurs()) return;
+  const q = document.getElementById("q");
+  if (q && q.value){ q.value = ""; state.query = ""; }
+  state.day = auj;
+  state.view = "day";
+  syncSeg(); render();
+  const carte = document.querySelector("#dayView .suite") || document.getElementById("dayView");
+  if (carte) carte.scrollIntoView({ block:"center", behavior:"smooth" });
+}
+function relancerInactivite(){
+  clearTimeout(inactifT);
+  if (document.hidden) return;
+  /* Un refus n'est pas un abandon : si l'écran est occupé à l'échéance, on
+     repose la question plus tard. Sans cela, une seule étoile touchée
+     désactivait le retour pour le reste de la soirée. */
+  inactifT = setTimeout(() => { revenirALaJournee(); relancerInactivite(); }, INACTIF_MS);
+}
+["pointerdown", "keydown", "wheel", "touchstart", "scroll", "input"].forEach(ev =>
+  addEventListener(ev, relancerInactivite, { passive:true }));
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden){ masqueDepuis = Date.now(); clearTimeout(inactifT); return; }
+  if (masqueDepuis && Date.now() - masqueDepuis >= INACTIF_MS) revenirALaJournee();
+  masqueDepuis = 0;
+  relancerInactivite();
+});
+relancerInactivite();
+
 /* ════════════════════════════  ÉVÉNEMENTS  ════════════════════════════ */
 document.getElementById("rail").addEventListener("click", e => {
   const b = e.target.closest(".chip"); if (b) goToDay(+b.dataset.i);
@@ -4529,7 +4674,7 @@ function majCompteur(champ){
 }
 document.addEventListener("input", e => {
   const avis = e.target.closest("textarea[data-avis]");
-  if (avis) majCompteur(avis);
+  if (avis){ majCompteur(avis); AVIS_TOUCHE = { jour:+avis.dataset.avis, t:Date.now() }; }
   if (avis && QUI){
     const j = avis.dataset.avis, v = avis.value;
     clearTimeout(saveT);
