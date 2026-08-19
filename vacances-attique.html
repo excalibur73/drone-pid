@@ -1235,10 +1235,16 @@ const DAYS = [
             {t:"site", ttl:"Prison de Socrate", ll:"37.9679,23.7223",
              det:"Salles taillées dans le rocher, flanc de Philopappos",
              note:"Le nom est une tradition, pas une identification : la vraie prison est dans l'Agora. Ces chambres ont en revanche abrité les antiquités de l'Acropole pendant la guerre"} ],
-    aprem:[ {t:"site", ttl:"Psiri", ll:"37.9789,23.7237", det:"Quartier street art"},
-            {t:"swim", ttl:"Plage d'Alimos", ll:"37.9007,23.7060"} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"17 h 45", map:dir(ALIMOS, "37.9819,23.744")},
-           {t:"site", ttl:"Colline du Lycabette", ll:"37.9819,23.7440", when:"19 h", det:"Vue à 360°, montée en funiculaire", sunset:true},
+    /* Psiri abandonné sur place le 19 : la matinée avait déjà bien rempli la
+       journée, et l'après-midi est passée à l'eau. */
+    aprem:[ {t:"swim", ttl:"Plage d'Alimos", ll:"37.9007,23.7060", when:"13 h 30 – 18 h",
+             det:"Tout l'après-midi, jusqu'à la fin de la chaleur"} ],
+    soir:[ {t:"depart", ttl:"Départ", when:"18 h 15", map:dir(ALIMOS, "37.9819,23.744"),
+            det:"11 km jusqu'au pied du funiculaire — 30 min en taxi, le temps de se rincer avant de partir"},
+           {t:"site", ttl:"Colline du Lycabette", ll:"37.9819,23.7440", when:"19 h – 20 h 45",
+            det:"Vue à 360°, montée en funiculaire depuis la rue Aristippou",
+            note:"Le coucher du soleil est à 20 h 14 : vous aurez une bonne heure devant vous. Il y a un café au sommet — c'est le meilleur endroit du séjour pour la voir s'allumer, l'Acropole d'un côté et la mer de l'autre",
+            sunset:true},
            {t:"food", ttl:"Dîner à Kolonaki", ll:"37.9787,23.7419"} ] },
 
   { n:4, date:"2026-08-20", dow:"Jeu", dm:"20 août", phase:1, title:"Stade panathénaïque & croisière", sun:ATHENES,
