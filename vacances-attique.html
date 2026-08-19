@@ -1558,7 +1558,7 @@ const DAYS = [
     soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", ll:"37.9382,23.6852", note:"Réservée", sunset:true,
-            vig:"Le sac du bateau se prépare avant de quitter l'hôtel — la liste est plus bas. Rien ne se rachète une fois au large.",
+            vig:"Départ de l'hôtel à 15 h : le sac doit être bouclé avant, on ne revient pas le chercher. Rien ne se rachète une fois au large.",
             rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
             det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Dîner et boissons compris — emportez votre propre matériel de snorkeling.",
             sac:"bateau"},
@@ -1576,8 +1576,8 @@ const DAYS = [
        laissait croire que toute la famille partait à 9 h 15. */
     matin:[ {t:"plain", ttl:"Matinée libre à Alimos",
              det:"Le transfert vers Saronida n'a lieu qu'en fin de matinée — la plage et la marina sont à cinq minutes",
-             note:"Abderrahman part seul chercher la voiture ; Sana, Hilal et Layal gardent quartier libre jusqu'à son retour, vers 11 h 15. Les valises peuvent être laissées à la réception après la libération des chambres"},
-            {t:"depart", ttl:"Départ pour le loueur — Abderrahman seul", when:"9 h 15", map:dir(ALIMOS, "37.9611,23.7228"),
+             note:"AAB part seul chercher la voiture ; Sana, Hilal et Layal gardent quartier libre jusqu'à son retour, vers 11 h 15. Les valises peuvent être laissées à la réception après la libération des chambres"},
+            {t:"depart", ttl:"Départ pour le loueur — AAB seul", when:"9 h 15", map:dir(ALIMOS, "37.9611,23.7228"),
              corrige:"Avancé de 30 min : retrait à 10 h, et il y a des papiers à signer."},
             {t:"plain", ttl:"Récupération de la voiture", when:"10 h",
             vig:"Permis et carte bancaire au nom du conducteur, sans quoi le comptoir ne délivre rien. La référence de réservation est dans le Carnet.",
@@ -1585,7 +1585,7 @@ const DAYS = [
              rdv:"Sixt — Syngrou Avenue 11 / Lempesi, Athina-Neos Kosmos"} ],
     aprem:[ {t:"courses", ttl:"Courses pour la semaine", when:"~12 h 30",
             vig:"Ce sont les courses de la semaine : la prochaine occasion pratique est Markopoulo, le 24 au retour de Porto Rafti.",
-             det:"Cinq petits-déjeuners au penthouse et le pique-nique du 24 : il n'y a plus d'hôtel pour vous nourrir.",
+             det:"Cinq petits-déjeuners au penthouse et le pique-nique du 23 : il n'y a plus d'hôtel pour vous nourrir.",
              note:"Prochaine occasion pratique : Markopoulo, le 24 au retour de Porto Rafti",
              map:"https://www.google.com/maps/search/?api=1&query=supermarket+Saronida+Anavyssos+Greece"},
             {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
@@ -1600,17 +1600,17 @@ const DAYS = [
     soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
-    prep:[{ t:"Le panier et la glacière",
-            d:"Petit-déjeuner à 6 h 35, départ à 7 h 45 : tout doit être prêt la veille. La glacière reste dans la voiture pendant la croisière — deux pains de glace, et une place à l'ombre en arrivant au terminal." },
-          { t:"Les petits-déjeuners du penthouse",
-            d:"Plus de buffet ni de service à 7 h à partir du 23 : vérifiez ce soir qu'il reste de quoi tenir les matins suivants." }],
+    /* Repas et boissons sont fournis à bord, comme le 20 : rien à porter.
+       Reste le petit-déjeuner, pris au penthouse à 6 h 35. */
+    prep:[{ t:"Le petit-déjeuner de 6 h 35",
+            d:"Plus de buffet ni de service à 7 h depuis le 23 : sortez ce soir de quoi tenir un départ à 7 h 45. Le repas de la journée, lui, est fourni à bord." }],
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
             {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
              vig:"Présentation à 8 h 30 au Resalto Terminal : le bateau part à l'heure. C'est ce qui commande le départ de 7 h 45 de Saronida.",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", parBateau:true, gear:true,
-             det:"Erotospilia, Avlaki — criques et grotte-abri, pique-nique, sans précipitation. On ne repasse pas par Saronida."} ],
+             det:"Erotospilia, Avlaki — criques et grotte-abri, sans précipitation. Repas et boissons fournis à bord. On ne repasse pas par Saronida."} ],
     soir:[ {t:"depart", ttl:"Départ", when:"~18 h", map:dir("37.8868674,24.0143872",SARONIDA)},
            {t:"plain", ttl:"Retour à Saronida en fin de journée"},
            {t:"food", ttl:"Dîner Stou Stavrou", ll:"37.7440,23.9050"} ],
@@ -1818,10 +1818,10 @@ const DEJEUNERS = {
       det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
       note:"À préparer la veille au soir",
       bonplan:"Le panier se prépare la veille au soir : le 23 vous partez à 8 h, rien n'est ouvert avant." } },
-  8:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"13 h 30 – 14 h 30",
-      det:"À Erotospilia ou Avlaki, à l'ombre de la grotte. C'est au programme, et sans précipitation.",
-      note:"Acheté le 22, gardé au frais dans la voiture",
-      bonplan:"La glacière reste dans la voiture pendant la croisière — cherchez une place à l'ombre en arrivant au terminal." } },
+  8:{ rang:0, it:{ t:"repas", ttl:"Déjeuner fourni à bord", when:"13 h 30 – 14 h 30",
+      det:"À Erotospilia ou Avlaki, à l'ombre de la grotte. Le prestataire s'occupe de tout, comme le 20.",
+      note:"Rien à emporter",
+      bonplan:"Une journée sans glacière ni panier : le sac du bateau suffit." } },
   9:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
       det:"Avant de partir : le KAPE n'a rien, et vous enchaînez jusqu'au couchant à Sounion.",
       note:"Départ à 14 h",
@@ -2155,20 +2155,20 @@ const SAVOIRS = {
     mot:"Un cran en arrière de la rue touristique, la même assiette coûte un tiers de moins."
   },
   "Pique-nique":{
-    quoi:"Deux journées entières se passent dans des criques sans buvette, sans ombre et sans eau : le 23 aux Limanakia, le 24 à Erotospilia. Tout s'achète avant et se porte depuis la voiture.",
+    quoi:"Une journée entière se passe dans des criques sans buvette, sans ombre et sans eau : le 23 aux Limanakia. Tout s'achète avant et se porte depuis la voiture. Le 24, en revanche, repas et boissons sont fournis à bord — rien à préparer.",
     regarder:[
       "Le panier qui tient la chaleur : pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque. Rien de crémeux, rien de fragile — à 35° dans une voiture, une salade composée ne passe pas deux heures.",
-      "Le froid : une glacière souple et deux pains de glace changent tout, surtout le 24 où la voiture reste au soleil pendant la croisière.",
+      "Le froid : une glacière souple et deux pains de glace changent tout — la voiture reste au soleil pendant que vous êtes à l'eau.",
       "L'eau : deux litres par personne. C'est le seul poste où l'on se trompe toujours, et le seul qui ne se rattrape pas sur place.",
       "Où acheter : les enseignes de la côte vers Anavyssos pour l'essentiel. Et si vous croisez une λαϊκή αγορά — le marché de rue, un jour fixe par quartier — les fruits y sont moitié prix et cueillis la veille."
     ],
     mot:"Le sel et un couteau : c'est ce qu'on oublie, et ce qui manque le plus devant une pastèque."
   },
   "Courses pour la semaine":{
-    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus deux pique-niques : les criques de Limanakia le 23, Erotospilia le 24. Les deux petits-déjeuners les plus matinaux — 6 h 50 le 23, 6 h 35 le 24 — se prennent avant l'ouverture de tout commerce, et les départs suivent à 8 h et 7 h 45.",
+    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 24, repas et boissons sont fournis à bord. Les deux petits-déjeuners les plus matinaux — 6 h 50 le 23, 6 h 35 le 24 — se prennent avant l'ouverture de tout commerce, et les départs suivent à 8 h et 7 h 45.",
     regarder:[
       "Le petit-déjeuner : café ou thé, lait, pain ou biscottes, yaourt grec et miel — le vrai, celui de thym —, fruits de saison, œufs, jus. Comptez large : les pêches et les figues d'août ne survivent pas à cinq jours.",
-      "Les deux pique-niques, le 23 et le 24 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace — la voiture restera au soleil pendant la croisière, et les criques n'ont pas d'ombre.",
+      "Le pique-nique du 23 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace — la voiture restera au soleil, et les criques n'ont pas d'ombre.",
       "L'eau : prévoyez de grosses bouteilles. Vous en boirez plus que vous ne pensez par 35°, et les criques n'ont pas de buvette."
     ],
     mot:"Les grandes enseignes grecques — Sklavenitis, AB, Lidl, My Market — ont des magasins le long de la côte vers Anavyssos."
@@ -2447,7 +2447,10 @@ function vigJourHTML(d){
   const ecart = auj < 0 ? null : d.n - DAYS[auj].n;
   if (ecart !== null && ecart < 0) return "";       // hier n'a plus rien à préparer
   const vive = liste.some(x => vigVive(d, x.slot, x.it));
-  const quand = ecart === 0 ? "aujourd'hui" : ecart === 1 ? "à préparer ce soir"
+  /* « à préparer ce soir » était faux ici : un billet qui se prend au guichet
+     le lendemain matin ne se prépare pas la veille. Ce pavé prévient, il ne
+     fait pas faire — c'est celui des préparatifs, plus bas, qui fait faire. */
+  const quand = ecart === 0 ? "aujourd'hui" : ecart === 1 ? "demain"
     : ecart === null ? "" : `dans ${ecart} jour${ecart > 1 ? "s" : ""}`;
   return `<article class="vigjour${vive ? " clignote" : ""}">
     <header>
@@ -2457,7 +2460,7 @@ function vigJourHTML(d){
       <button type="button" class="copier petit" data-copie="bloc"><svg><use href="#i-copie"/></svg>Copier</button>
     </header>
     <ul>${liste.map(x => `<li>
-      <span class="h">${x.it.when ? esc(x.it.when.split(" – ")[0]) : "—"}</span>
+      <span class="h">${x.it.when ? esc(x.it.when.split(" – ")[0]) : ""}</span>
       <span><b>${esc(x.it.ttl)}</b> — ${esc(x.it.vig)}</span>
     </li>`).join("")}</ul>
   </article>`;
@@ -3538,7 +3541,7 @@ const FAMILLE = [
   { id:"hilal", nom:"Hilal", h:"dd0ff5d7523cc45bd5204de0f75011b7accc9e8e0f885f1365f59378b4c172fa" },
   { id:"layal", nom:"Layal", h:"dd0ff5d7523cc45bd5204de0f75011b7accc9e8e0f885f1365f59378b4c172fa" },
   { id:"sana",  nom:"Sana",  h:"2053c380e618f81422fc3c7cb17d68c76078d25fd7370411cd7309834116a0f7" },
-  { id:"papa",  nom:"Abderrahman", h:"047fbb749bbdc4f767db87e836bf3a786fe0873ee31cc90fd51921df2ab17233" }
+  { id:"papa",  nom:"AAB", h:"047fbb749bbdc4f767db87e836bf3a786fe0873ee31cc90fd51921df2ab17233" }
 ];
 let QUI = (() => {
   try {
@@ -4591,7 +4594,7 @@ function notesCelluleHTML(d){
   const moy = donnees.reduce((t, x) => t + x.n, 0) / donnees.length;
   return `<div class="cnotes">
     ${donnees.map(({ f, n }) => `<span class="cn${f.id === QUI ? " moi" : ""}">
-      <b>${esc(f.nom.slice(0, 2))}</b>${n}</span>`).join("")}
+      <b>${esc(f.nom.length <= 3 ? f.nom : f.nom.slice(0, 2))}</b>${n}</span>`).join("")}
     <span class="cmoy">${moy.toFixed(1).replace(".", ",")}</span>
   </div>`;
 }
