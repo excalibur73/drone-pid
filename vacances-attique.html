@@ -753,6 +753,16 @@ tr.lnotes th{vertical-align:middle}
 .bbloc{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); overflow:hidden}
 .bbloc > header{display:flex; align-items:center; gap:10px; padding:11px 15px; border-bottom:1px solid var(--line-soft); background:var(--surface-2)}
 .bbloc > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
+.bphotos{list-style:none; padding:8px 15px 12px}
+.bphotos li{display:grid; grid-template-columns:22px 56px 1fr auto; gap:11px; align-items:center; padding:8px 0}
+.bphotos li + li{border-top:1px solid var(--line-soft)}
+.bphotos .rang{font-family:var(--mono); font-size:.9rem; color:var(--ink-3); text-align:center}
+.bphotos img{width:56px; height:56px; object-fit:cover; border-radius:var(--r-sm); background:var(--surface-2)}
+.bphotos .sig{display:flex; flex-direction:column; gap:1px; font-size:.78rem; color:var(--ink-3)}
+.bphotos .sig b{font-size:.92rem; color:var(--ink)}
+.bphotos .mo{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.05rem; color:var(--sea); text-align:right}
+.bphotos .mo em{font-style:normal; font-size:.7rem; color:var(--ink-3)}
+.bphotos .mo i{display:block; font-style:normal; font-size:.68rem; color:var(--ink-3)}
 .bjours,.bgens{list-style:none; padding:6px 15px 12px}
 .bjours li{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:10px 0; align-items:center}
 .bjours li + li,.bgens li + li{border-top:1px solid var(--line-soft)}
@@ -961,6 +971,28 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
   font-family:var(--mono); font-size:.72rem;
 }
 .vbarre .vsuppr{border-color:rgba(255,140,140,.6); color:#ffbdbd}
+/* ── Noter une photo ──
+   Dans la visionneuse, où il y a la place du doigt ; la vignette n'en
+   montre que le résultat. */
+.vnote{
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:10px 4px 0; color:#fff;
+}
+.vnote .vlab{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; opacity:.62; margin-right:4px}
+.vnote .etoile{
+  display:grid; place-items:center; width:38px; height:38px; border:none; background:none; padding:0;
+}
+.vnote .etoile svg{width:24px; height:24px; fill:rgba(255,255,255,.26); transition:fill .15s, transform .15s}
+.vnote .etoile.pleine svg{fill:var(--ochre)}
+.vnote .etoile:active svg{transform:scale(.88)}
+.vnote .vmoy{margin-left:auto; font-family:var(--mono); font-size:.78rem; opacity:.8}
+.vnote .vaide{flex:1 1 100%; font-size:.78rem; opacity:.66; line-height:1.4}
+.vnotebadge{
+  position:absolute; left:6px; bottom:6px; z-index:2;
+  padding:2px 7px; border-radius:99px;
+  background:rgba(0,0,0,.58); color:#fff; backdrop-filter:blur(3px);
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.72rem;
+}
 
 /* ─────────────────────────────  FEU MÉTÉO  ───────────────────────────── */
 .feu{
@@ -3155,7 +3187,56 @@ function baignadeHTML(d){
    L'orientation vient des métadonnées EXIF, que le redimensionnement
    effacerait : on la laisse au navigateur, qui applique déjà la rotation à
    l'affichage — d'où le dessin sur une toile aux dimensions déjà tournées. */
-const PHOTOS = { liste: [], lu: false, quota: 5, echec: false };
+const PHOTOS = { liste: [], lu: false, quota: 5, echec: false, notes: {} };
+
+/* ── Noter les photos ──
+   De quoi choisir le best-of à la fin du séjour sans y passer une soirée :
+   chacun met une note sur cinq aux clichés des autres, et la moyenne les
+   classe toute seule. On ne note pas les siennes — un album où chacun
+   s'attribue cinq étoiles ne classe plus rien.
+
+   Le serveur range les notes par votant, comme les pouces : deux notes
+   données au même instant ne s'effacent pas l'une l'autre. */
+const NOTE_PHOTO_MAX = 5;
+const notesDe = id => PHOTOS.notes[id] || {};
+function noteMoyenne(id){
+  const v = Object.values(notesDe(id));
+  return { n: v.length, moy: v.length ? v.reduce((t, x) => t + x, 0) / v.length : 0,
+           mienne: QUI ? notesDe(id)[QUI] || 0 : 0 };
+}
+async function noterPhoto(id, note){
+  const photo = PHOTOS.liste.find(x => x.id === id);
+  if (!QUI || !photo || photo.qui === QUI) return;
+  const avant = { ...notesDe(id) };
+  const veut = avant[QUI] === note ? 0 : note;       // retoucher l'étoile efface
+  const apres = { ...avant };
+  if (veut) apres[QUI] = veut; else delete apres[QUI];
+  PHOTOS.notes[id] = apres;
+  majEtoilesPhoto(id);
+  try {
+    const r = await fetch(`/api/photos?note=${veut}&id=${id}&qui=${QUI}`, { method:"POST" });
+    if (!r.ok) throw new Error(r.status);
+    render();
+  } catch {
+    PHOTOS.notes[id] = avant;
+    majEtoilesPhoto(id);
+    toast("Note non enregistrée — réessayez");
+  }
+}
+/* La visionneuse est ouverte : on retouche ses étoiles sur place plutôt que
+   de redessiner la page sous la photo qu'on est en train de regarder. */
+function majEtoilesPhoto(id){
+  const zone = document.querySelector(`.vnote[data-photo="${id}"]`);
+  if (!zone) return;
+  const { n, moy, mienne } = noteMoyenne(id);
+  zone.querySelectorAll(".etoile").forEach(b => {
+    b.classList.toggle("pleine", +b.dataset.note <= mienne);
+  });
+  const dit = zone.querySelector(".vmoy");
+  if (dit) dit.textContent = n
+    ? `${moy.toFixed(1).replace(".", ",")}/5 · ${n} vote${n > 1 ? "s" : ""}`
+    : "pas encore notée";
+}
 const COTE_MAX = 1600;
 
 /* ── La date de prise de vue ──
@@ -3251,6 +3332,7 @@ async function lirePhotos(){
     if (!r.ok) throw new Error(r.status);
     const rep = await r.json();
     PHOTOS.liste = rep.photos || [];
+    PHOTOS.notes = rep.notes || {};
     if (rep.quota) PHOTOS.quota = rep.quota;
     PHOTOS.lu = true; PHOTOS.echec = false;
     renderSiLibre();
@@ -3416,6 +3498,9 @@ ${(() => {
              loading="${i < 3 ? "eager" : "lazy"}"${i < 3 ? ' fetchpriority="high"' : ""}
              onerror="vignetteSecours(this)">
         <figcaption>${esc(nomDe(p.qui))}</figcaption>
+        ${(() => { const { n, moy } = noteMoyenne(p.id); return n
+          ? `<span class="vnotebadge" title="${n} vote${n > 1 ? "s" : ""}">★ ${moy.toFixed(1).replace(".", ",")}</span>`
+          : ""; })()}
         ${p.qui === QUI ? `<button type="button" class="retirer" data-suppr="${p.id}"
           aria-label="Retirer cette photo" title="Retirer cette photo">✕</button>` : ""}
       </figure>`).join("")}
@@ -3462,6 +3547,22 @@ function ouvrirPhoto(id){
   }
   dlg.innerHTML = `<img src="${imgReduite(p.id, 1400, 80)}" data-id="${p.id}"
       decoding="async" onerror="vignetteSecours(this)" alt="">
+    ${(() => {
+      const { n, moy, mienne } = noteMoyenne(p.id);
+      const dit = n ? `${moy.toFixed(1).replace(".", ",")}/5 · ${n} vote${n > 1 ? "s" : ""}` : "pas encore notée";
+      if (!QUI) return `<div class="vnote" data-photo="${p.id}"><span class="vmoy">${dit}</span>
+        <span class="vaide">Identifiez-vous dans « Le mot du soir » pour noter.</span></div>`;
+      if (p.qui === QUI) return `<div class="vnote" data-photo="${p.id}"><span class="vmoy">${dit}</span>
+        <span class="vaide">C'est la vôtre — ce sont les autres qui la notent.</span></div>`;
+      return `<div class="vnote" data-photo="${p.id}">
+        <span class="vlab">Votre note</span>
+        ${[1, 2, 3, 4, 5].map(k => `<button type="button" class="etoile${k <= mienne ? " pleine" : ""}"
+          data-notephoto="${p.id}" data-note="${k}" aria-label="${k} sur 5">
+          <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.4 9.4l6.1-.8Z"/></svg>
+        </button>`).join("")}
+        <span class="vmoy">${dit}</span>
+      </div>`;
+    })()}
     <div class="vbarre">
       <span>${esc(nomDe(p.qui))} · ${esc(new Date(p.ts).toLocaleString("fr-FR", { dateStyle:"short", timeStyle:"short" }))}</span>
       ${p.qui === QUI ? `<button type="button" class="vsuppr" data-suppr="${p.id}">Retirer</button>` : ""}
@@ -3757,6 +3858,37 @@ function renderBilan(){
         ${meilleur && jours.length > 1 ? `<p class="bnote">La journée la mieux notée : <b>${esc(meilleur.d.title)}</b>${
           rude && rude.d.n !== meilleur.d.n ? `. La plus rude : <b>${esc(rude.d.title)}</b>` : ""}.</p>` : ""}
       </article>` : `<p class="baide">Aucune note pour l'instant : le bilan se remplit tout seul, soir après soir.</p>`}
+
+      ${(() => {
+        /* Le best-of se fait tout seul : on classe par moyenne, et à moyenne
+           égale c'est le nombre de votes qui départage — une photo notée par
+           trois personnes vaut mieux qu'une notée par une seule. */
+        const classees = PHOTOS.liste
+          .map(p => ({ p, ...noteMoyenne(p.id) }))
+          .filter(x => x.n)
+          .sort((a, b) => b.moy - a.moy || b.n - a.n)
+          .slice(0, 5);
+        const notees = PHOTOS.liste.filter(p => noteMoyenne(p.id).n).length;
+        if (!PHOTOS.liste.length) return "";
+        return `<article class="bbloc">
+          <header><h3>Le best-of</h3></header>
+          ${classees.length ? `<ol class="bphotos">
+            ${classees.map((x, i) => `<li>
+              <span class="rang">${i + 1}</span>
+              <img src="${imgReduite(x.p.id, 200, 70)}" data-id="${x.p.id}" data-voir="${x.p.id}"
+                   width="200" height="200" loading="lazy" decoding="async"
+                   onerror="vignetteSecours(this)" alt="Photo de ${esc(nomDe(x.p.qui))}">
+              <span class="sig"><b>${esc(nomDe(x.p.qui))}</b>Jour ${x.p.jour}</span>
+              <span class="mo">${x.moy.toFixed(1).replace(".", ",")}<em>/5</em>
+                <i>${x.n} vote${x.n > 1 ? "s" : ""}</i></span>
+            </li>`).join("")}
+          </ol>
+          <p class="bnote">${notees} photo${notees > 1 ? "s" : ""} notée${notees > 1 ? "s" : ""} sur ${
+            PHOTOS.liste.length}. Ouvrez une photo de l'album pour lui donner une note — les vôtres, ce sont les autres qui les notent.</p>`
+          : `<p class="baide">Aucune photo notée pour l'instant. Ouvrez-en une dans l'album du jour :
+             cinq étoiles sous l'image, et le classement se fait tout seul.</p>`}
+        </article>`;
+      })()}
 
       <article class="bbloc">
         <header><h3>Chacun de nous</h3></header>
@@ -4846,6 +4978,8 @@ document.addEventListener("click", e => {
     const ch = document.getElementById("codenaiss"); if (ch) ch.focus();
     return;
   }
+  const etp = e.target.closest("[data-notephoto]");
+  if (etp){ noterPhoto(etp.dataset.notephoto, +etp.dataset.note); return; }
   const et = e.target.closest(".etoile");
   if (et){
     const j = et.dataset.jour, n = +et.dataset.note;

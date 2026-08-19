@@ -18,6 +18,10 @@
  *
  * Les octets de l'image vivent à part, sous cet identifiant seul. Ils ne
  * changent jamais : le navigateur peut les garder indéfiniment.
+ *
+ * Les notes suivent la même règle qu'ailleurs : une clé par votant,
+ * « note/sana », que personne d'autre n'écrit. Deux notes données au même
+ * instant ne peuvent donc pas s'annuler.
  */
 import { getStore } from "@netlify/blobs";
 
@@ -34,6 +38,7 @@ const COTE_MIN = 200;
    contourne en rechargeant la page n'en est pas une. */
 const QUOTA = 5;
 
+const NOTE_MAX = 5;
 const images = () => getStore({ name: "photos-athenes-2026", consistency: "strong" });
 const index  = () => getStore({ name: "photos-index-2026", consistency: "strong" });
 
@@ -70,7 +75,35 @@ export default async (req) => {
       });
     }
     const photos = (await inventaire()).map(({ cle, ...p }) => p);
-    return Response.json({ photos, quota: QUOTA }, { headers: { "cache-control": "no-store" } });
+    /* Les notes voyagent avec l'inventaire : un seul aller pour tout l'album. */
+    const notes = {};
+    await Promise.all(QUI_VALIDES.map(async (votant) => {
+      const sien = (await index().get(`note/${votant}`, { type: "json" })) || {};
+      Object.entries(sien).forEach(([photo, n]) => {
+        const v = Number(n);
+        if (!(v >= 1 && v <= NOTE_MAX)) return;
+        (notes[photo] = notes[photo] || {})[votant] = v;
+      });
+    }));
+    return Response.json({ photos, quota: QUOTA, notes }, { headers: { "cache-control": "no-store" } });
+  }
+
+  /* Noter une photo : ni image ni journée, seulement un identifiant et un
+     chiffre. On s'en occupe avant de lire un corps qui n'existe pas. */
+  if (req.method === "POST" && url.searchParams.has("note")) {
+    const qui = url.searchParams.get("qui");
+    if (!QUI_VALIDES.includes(qui)) return new Response("Auteur inconnu", { status: 400 });
+    if (!id || !/^[0-9a-z]{6,40}$/.test(id)) return new Response("Identifiant invalide", { status: 400 });
+    const n = parseInt(url.searchParams.get("note"), 10) || 0;
+    if (n < 0 || n > NOTE_MAX) return new Response("Note hors barème", { status: 400 });
+    /* On ne note pas la sienne : un album où chacun s'attribue cinq étoiles
+       ne classe plus rien. Le refus est explicite plutôt que silencieux. */
+    const sienne = (await inventaire(`idx/${qui}/`)).some((p) => p.id === id);
+    if (sienne) return Response.json({ erreur: "sa-photo" }, { status: 422 });
+    const carnet = (await index().get(`note/${qui}`, { type: "json" })) || {};
+    if (n) carnet[id] = n; else delete carnet[id];
+    await index().setJSON(`note/${qui}`, carnet);
+    return Response.json({ ok: true, id, qui, note: n });
   }
 
   if (req.method === "POST") {
@@ -132,6 +165,14 @@ export default async (req) => {
     if (!sienne) return new Response("Pas la vôtre", { status: 403 });
     await index().delete(sienne.cle);
     await images().delete(id);
+    /* Sans ce nettoyage, les notes d'une photo disparue resteraient à
+       jamais dans les carnets, et reviendraient sur un identifiant réutilisé. */
+    await Promise.all(QUI_VALIDES.map(async (votant) => {
+      const carnet = (await index().get(`note/${votant}`, { type: "json" })) || {};
+      if (carnet[id] === undefined) return;
+      delete carnet[id];
+      await index().setJSON(`note/${votant}`, carnet);
+    }));
     return Response.json({ ok: true, supprime: id });
   }
 
