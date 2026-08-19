@@ -2052,6 +2052,21 @@ function prochaineEtape(d){
   const suivant = liste.find(x => x.start > m);
   return { encours, suivant, reste: suivant ? suivant.start - m : null };
 }
+/* La première étape horodatée d'une journée, dans l'ordre du programme. */
+function premiereEtape(d){
+  const liste = [];
+  SLOTS.forEach(s => itemsOf(d, s.k).forEach((it, i) => {
+    const r = it.when ? whenRange(it.when, 60) : null;
+    if (r) liste.push({ it, slot:s.k, i, start:r.start });
+  }));
+  liste.sort((a, b) => a.start - b.start);
+  return liste[0] || null;
+}
+/* Combien de jours nous séparent de cette journée. */
+function jours(d){
+  const auj = dayIndexToday();
+  return auj < 0 ? 0 : Math.max(0, d.n - DAYS[auj].n);
+}
 function dureeCourte(min){
   if (min < 60) return `${min} min`;
   const h = Math.floor(min / 60), r = min % 60;
@@ -3561,11 +3576,15 @@ function renderStatus(){
   if (today >= 0){
     const d = DAYS[today], m = nowMin();
     key.textContent = "Aujourd'hui à Athènes";
-    const next = allItems(d).map(x => x.it)
-      .find(it => it.t === "depart" && toMinutes(it.when) !== null && toMinutes(it.when) > m);
-    val.innerHTML = next
-      ? `Jour ${d.n} · prochain départ <b>${esc(next.when)}</b>`
-      : `Jour ${d.n} — ${esc(d.title)}`;
+    /* On annonçait le prochain départ ; c'est la prochaine étape qui répond
+       à « et maintenant ? ». Une visite, un repas, un bain valent autant
+       qu'un départ, et la plupart des journées n'ont qu'un départ ou deux. */
+    const { encours, suivant, reste } = prochaineEtape(d);
+    val.innerHTML = suivant
+      ? `<b>${esc(suivant.it.ttl)}</b> à ${esc(suivant.it.when)} · dans ${dureeCourte(reste)}`
+      : encours
+        ? `<b>${esc(encours.it.ttl)}</b> — en ce moment`
+        : `Jour ${d.n} — ${esc(d.title)}`;
     const left = DAYS.length - today - 1;
     right.textContent = left ? `${left} jour${left > 1 ? "s" : ""} restant${left > 1 ? "s" : ""}` : "dernier jour";
     fill.style.width = `${((today + 1) / DAYS.length) * 100}%`;
@@ -3667,17 +3686,31 @@ function dayHTML(d, { live }){
           <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
       </div>`;
     }
-  } else if (next){
-    vedette = `${nextRef.slot}.${nextRef.i}`;
-    alarm = `<div class="suite depart">
-      <div class="sq">
-        <span class="lab">Premier départ</span>
-        <span class="t">${esc(next.when)}</span>
-      </div>
-      <div class="sc"><b>On quitte ${ph.home}</b>${next.map ? "" : ""}</div>
-      ${next.map ? `<a class="sgo" href="${next.map}" target="_blank" rel="noopener noreferrer">
-        <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
-    </div>`;
+  } else {
+    /* Les autres journées portent le même pavé : la première étape horodatée,
+       quelle qu'elle soit. Auparavant seul un départ y figurait, si bien
+       qu'une journée sans départ n'annonçait rien du tout. */
+    const auj = dayIndexToday();
+    const passee = auj >= 0 && d.n < DAYS[auj].n;
+    const premiere = premiereEtape(d);
+    if (premiere && !passee){
+      const dep = premiere.it.t === "depart";
+      vedette = `${premiere.slot}.${premiere.i}`;
+      alarm = `<div class="suite${dep ? " depart" : ""}">
+        <div class="sq">
+          <span class="lab">${jours(d) === 1 ? "Demain, on commence par" : "La journée commence par"}</span>
+          <span class="t">${esc(premiere.it.when)}</span>
+          ${jours(d) > 0 ? `<span class="cd">dans ${jours(d)} jour${jours(d) > 1 ? "s" : ""}</span>` : ""}
+        </div>
+        <div class="sc">
+          <b>${esc(premiere.it.ttl)}${dep ? ` — on quitte ${ph.home}` : ""}</b>
+          ${premiere.it.det ? `<p>${esc(premiere.it.det)}</p>` : ""}
+          ${premiere.it.rdv ? `<p>${esc(premiere.it.rdv)}</p>` : ""}
+        </div>
+        ${premiere.it.map ? `<a class="sgo" href="${premiere.it.map}" target="_blank" rel="noopener noreferrer">
+          <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
+      </div>`;
+    }
   }
 
   const pack = packFor(d);
