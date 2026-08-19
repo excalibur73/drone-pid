@@ -1072,7 +1072,7 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
 }
 .veille > header{display:flex; align-items:center; gap:9px; padding:10px 14px; background:var(--sea-soft); flex-wrap:wrap}
 .veille > header b{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--sea)}
-.veille > header .quand{margin-left:auto; font-size:.78rem; color:var(--ink-3)}
+.veille > header .quand{margin-left:auto; font-size:.78rem; color:var(--ink-3); text-align:right}
 .veille .pastille{
   width:10px; height:10px; border-radius:50%; background:var(--sea); flex:0 0 auto;
   box-shadow:0 0 0 3px color-mix(in oklab,var(--sea) 20%,transparent);
@@ -1081,6 +1081,10 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
 @keyframes battmer{
   0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--sea) 55%,transparent)}
   50%{box-shadow:0 0 0 8px transparent}
+}
+.veille .vsous{
+  padding:11px 14px 0; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
 }
 .veille ul{list-style:none; padding:4px 14px 12px}
 .veille li{display:flex; flex-direction:column; gap:3px; padding:9px 0; font-size:.87rem; line-height:1.5; color:var(--ink-2)}
@@ -2390,8 +2394,9 @@ function preparatifs(d){
 function veilleHTML(d){
   const suivant = DAYS[DAYS.indexOf(d) + 1];
   if (!suivant) return "";
-  const l = preparatifs(suivant);
-  if (!l.length) return "";
+  const aFaire = preparatifs(suivant);
+  const aSurveiller = vigDuJour(suivant);
+  if (!aFaire.length && !aSurveiller.length) return "";
   const auj = dayIndexToday();
   const ecart = auj < 0 ? null : d.n - DAYS[auj].n;
   if (ecart !== null && ecart < 0) return "";        // la veille est passée
@@ -2399,10 +2404,15 @@ function veilleHTML(d){
   return `<article class="veille${vive ? " clignote" : ""}">
     <header>
       <span class="pastille"></span>
-      <b>${vive ? "Ce soir, pour demain" : `La veille du ${esc(DOW_FULL[suivant.dow])} ${esc(suivant.dm)}`}</b>
-      <span class="quand">${esc(suivant.title)}</span>
+      <b>${vive ? "Ce soir, en prévision de demain" : `La veille du ${esc(DOW_FULL[suivant.dow])} ${esc(suivant.dm)}`}</b>
+      <span class="quand">${vive ? `${esc(DOW_FULL[suivant.dow])} ${esc(suivant.dm)} — ` : ""}${esc(suivant.title)}</span>
     </header>
-    <ul>${l.map(x => `<li><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}</ul>
+    ${aSurveiller.length ? `<p class="vsous">Ce qui vous attend</p>
+      <ul>${aSurveiller.map(x => `<li>
+        <b>${esc(x.it.ttl)}${x.it.when ? ` · ${esc(x.it.when.split(" – ")[0])}` : ""}</b>
+        <span>${esc(x.it.vig)}</span></li>`).join("")}</ul>` : ""}
+    ${aFaire.length ? `<p class="vsous">À préparer</p>
+      <ul>${aFaire.map(x => `<li><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}</ul>` : ""}
   </article>`;
 }
 
@@ -2434,11 +2444,11 @@ function vigJourHTML(d){
   const ecart = auj < 0 ? null : d.n - DAYS[auj].n;
   if (ecart !== null && ecart < 0) return "";       // hier n'a plus rien à préparer
   const vive = liste.some(x => vigVive(d, x.slot, x.it));
-  /* « à préparer ce soir » était faux ici : un billet qui se prend au guichet
-     le lendemain matin ne se prépare pas la veille. Ce pavé prévient, il ne
-     fait pas faire — c'est celui des préparatifs, plus bas, qui fait faire. */
-  const quand = ecart === 0 ? "aujourd'hui" : ecart === 1 ? "demain"
-    : ecart === null ? "" : `dans ${ecart} jour${ecart > 1 ? "s" : ""}`;
+  /* Ce pavé décrit la journée qu'on a sous les yeux : la situer par rapport à
+     une autre — « demain » sur la page du jeudi — se lit comme une
+     contradiction. Seul « aujourd'hui » apporte quelque chose, parce qu'il
+     dit que c'est maintenant. L'anticipation, elle, a son pavé sur la veille. */
+  const quand = ecart === 0 ? "aujourd'hui" : "";
   return `<article class="vigjour${vive ? " clignote" : ""}">
     <header>
       <span class="pastille"></span>
