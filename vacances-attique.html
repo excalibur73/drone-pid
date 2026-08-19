@@ -444,20 +444,38 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 
 /* ─────────────────────────────  BANDEAU DE MISE À JOUR  ───────────────────────────── */
 .maj{
-  position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:80;
-  display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;
-  max-width:min(560px, calc(100vw - 32px)); padding:12px 16px;
-  border:1px solid var(--sea); border-radius:99px; background:var(--surface);
-  box-shadow:0 10px 40px -12px rgba(0,0,0,.45);
-  font-size:.87rem; color:var(--ink);
-  animation:monte .35s ease-out;
+  position:fixed; inset:0 0 auto 0; z-index:200;
+  display:flex; align-items:center; gap:13px; flex-wrap:wrap;
+  padding:calc(11px + env(safe-area-inset-top)) 16px 11px;
+  background:var(--sea); color:#fff;
+  box-shadow:0 6px 26px -8px rgba(0,0,0,.5);
+  animation:descend .3s ease-out;
 }
-@keyframes monte{from{opacity:0; transform:translate(-50%,14px)}to{opacity:1; transform:translate(-50%,0)}}
+@keyframes descend{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.majpuce{
+  width:34px; height:34px; flex:0 0 auto; border-radius:50%;
+  display:grid; place-items:center; background:rgba(255,255,255,.18);
+  animation:battement 2s ease-in-out infinite;
+}
+.majpuce svg{
+  width:19px; height:19px; fill:none; stroke:#fff; stroke-width:1.9;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+@keyframes battement{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.35)}50%{box-shadow:0 0 0 7px rgba(255,255,255,0)}}
+.majtxt{flex:1 1 200px; display:flex; flex-direction:column; gap:1px; min-width:0}
+.majtxt b{font-size:.92rem; font-weight:700}
+.majtxt span{font-size:.79rem; opacity:.9; line-height:1.4}
+.majboutons{display:flex; align-items:center; gap:8px; flex:0 0 auto}
 .maj button{
-  padding:6px 14px; border-radius:99px; background:var(--sea); color:var(--surface);
+  min-height:38px; padding:0 16px; border-radius:99px;
   font-weight:600; font-size:.83rem; white-space:nowrap;
 }
-.maj button:hover{filter:brightness(1.1)}
+.majok{background:#fff; color:var(--sea)}
+.majok:hover{filter:brightness(.94)}
+.majplustard{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.45); font-weight:500}
+.majplustard:hover{background:rgba(255,255,255,.14)}
+/* La page descend d'autant, d'une hauteur mesurée à l'affichage : elle
+   dépend du texte et de la largeur de l'écran. */
 
 /* ─────────────────────────────  ÉTAT DE LA MER  ───────────────────────────── */
 .mer{
@@ -4261,23 +4279,60 @@ async function verifierVersion(){
   if (!MA_VERSION || !navigator.onLine) return;
   try {
     const v = (await (await fetch("/version.txt", { cache:"no-store" })).text()).trim();
-    if (v && v !== MA_VERSION && !banniereMontree) montrerMaj();
+    if (v && v !== MA_VERSION && !banniereMontree && Date.now() >= REPORT_MAJ) montrerMaj(v);
   } catch { /* hors connexion : rien à signaler */ }
 }
-function montrerMaj(){
+/* Le bandeau était discret, en bas de l'écran, là où le pouce le masque et
+   où l'œil ne va pas. Il occupe désormais le haut sur toute la largeur, au
+   premier plan, et repousse la page pour ne rien recouvrir — y compris
+   l'encoche des iPhone. Repoussé, il revient dix minutes plus tard : une
+   correction d'horaire n'a pas à attendre le bon vouloir d'un oubli. */
+let REPORT_MAJ = 0, RAPPEL_MAJ = null;
+function montrerMaj(version){
   banniereMontree = true;
   const el = document.createElement("div");
   el.className = "maj";
-  el.innerHTML = `<span>Une version plus récente du programme est disponible.</span>
-    <button type="button">Mettre à jour</button>`;
-  el.querySelector("button").addEventListener("click", async () => {
+  el.setAttribute("role", "status");
+  el.innerHTML = `
+    <div class="majpuce"><svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 4v9m0 0 3.4-3.4M12 13 8.6 9.6M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg></div>
+    <div class="majtxt">
+      <b>Le programme a été mis à jour</b>
+      <span>Rechargez pour voir les dernières corrections d'horaires et d'étapes.</span>
+    </div>
+    <div class="majboutons">
+      <button type="button" class="majok">Recharger</button>
+      <button type="button" class="majplustard">Plus tard</button>
+    </div>`;
+  el.querySelector(".majok").addEventListener("click", async () => {
+    el.querySelector(".majok").textContent = "Chargement…";
     try {
       const rs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(rs.map(r => r.update()));
     } catch {}
     location.reload();
   });
+  el.querySelector(".majplustard").addEventListener("click", () => {
+    fermerMaj(el);
+    banniereMontree = false;
+    REPORT_MAJ = Date.now() + 10 * 60 * 1000;
+    /* Rendez-vous pris à la minute près : s'en remettre au cycle de
+       vérification aurait repoussé le retour jusqu'à un quart d'heure. */
+    clearTimeout(RAPPEL_MAJ);
+    RAPPEL_MAJ = setTimeout(verifierVersion, 10 * 60 * 1000);
+  });
   document.body.appendChild(el);
+  /* La hauteur dépend du texte et de la largeur de l'écran : on la mesure
+     plutôt que de la deviner, sinon le bandeau mord sur l'en-tête. */
+  const caler = () => document.body.style.paddingTop = el.offsetHeight + "px";
+  caler();
+  addEventListener("resize", caler);
+  el._caler = caler;
+}
+function fermerMaj(el){
+  removeEventListener("resize", el._caler);
+  el.remove();
+  document.body.style.paddingTop = "";
 }
 /* Une appli installée sur iOS peut rester gelée des jours : elle est restaurée
    depuis le cache mémoire sans rien recharger. On multiplie donc les occasions
