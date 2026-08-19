@@ -623,6 +623,15 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .changequi:hover{color:var(--sea)}
 .soir-intro{margin-top:8px; font-size:.87rem; color:var(--ink-2)}
 .soir.avenir{border-style:dashed; background:var(--surface-2); box-shadow:none}
+/* Gris et fermé, gris et encore ouvert : rien ne les distinguait d'un coup
+   d'œil, et une journée passée avait l'air verrouillée par l'heure. */
+.etatjour{
+  font-family:var(--mono); font-size:9px; letter-spacing:.11em; text-transform:uppercase;
+  border:1px solid currentColor; border-radius:99px; padding:2px 8px; white-space:nowrap;
+}
+.etatjour.ouvert{color:var(--sea)}
+.etatjour.passe{color:var(--ink-3)}
+.etatjour.ferme{color:var(--ink-3); border-style:dashed}
 .allerauj{
   color:var(--sea); font-weight:600; text-decoration:underline; text-underline-offset:3px;
   font-size:inherit; padding:0;
@@ -841,6 +850,75 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   :root:not([data-theme="light"]) .feu.orange{color:#fcd34d}
   :root:not([data-theme="light"]) .feu.rouge{color:#fca5a5}
 }
+/* ─────────────────────────────  POINTS DE VIGILANCE  ─────────────────────────────
+   Ce qui se paie cher si on l'oublie : un billet qui ne se vend qu'au guichet,
+   une heure de présentation, un sac à préparer avant de partir. Le pavé bat
+   doucement tant que la chose est devant nous, et s'immobilise dès qu'elle est
+   derrière — un clignotement permanent ne se voit plus au bout d'un jour.
+   Le réglage « animations réduites » du téléphone le fige d'office. */
+.vig{
+  display:flex; gap:9px; align-items:flex-start;
+  margin-top:9px; padding:9px 12px; border-radius:var(--r-sm);
+  background:var(--ochre-soft); color:var(--ink);
+  border:1px solid color-mix(in oklab,var(--ochre) 40%,transparent);
+  font-size:.85rem; line-height:1.5;
+}
+.vig svg{width:14px; height:14px; color:var(--ochre); flex:0 0 auto; margin-top:3px}
+.vig b{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ochre); margin-right:7px;
+}
+.vig.clignote{animation:vigil 1.9s ease-in-out infinite}
+@keyframes vigil{
+  0%,100%{
+    border-color:color-mix(in oklab,var(--ochre) 40%,transparent);
+    box-shadow:0 0 0 0 color-mix(in oklab,var(--ochre) 38%,transparent);
+  }
+  50%{
+    border-color:var(--ochre);
+    box-shadow:0 0 0 6px transparent;
+  }
+}
+/* Le rappel de tête : tous les points de la journée, d'un coup d'œil. */
+.vigjour{
+  margin-top:14px; border-radius:var(--r); overflow:hidden;
+  border:1px solid color-mix(in oklab,var(--ochre) 42%,transparent); background:var(--surface);
+}
+.vigjour > header{
+  display:flex; align-items:center; gap:9px; padding:10px 14px;
+  background:var(--ochre-soft);
+}
+.vigjour > header b{
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ochre);
+}
+.vigjour > header .quand{margin-left:auto; font-family:var(--mono); font-size:.74rem; color:var(--ink-3)}
+.vigjour .pastille{
+  width:10px; height:10px; border-radius:50%; background:var(--ochre); flex:0 0 auto;
+  box-shadow:0 0 0 3px color-mix(in oklab,var(--ochre) 22%,transparent);
+}
+.vigjour.clignote .pastille{animation:battochre 1.5s ease-in-out infinite}
+@keyframes battochre{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--ochre) 55%,transparent)}
+  50%{box-shadow:0 0 0 8px transparent}
+}
+.vigjour ul{list-style:none; padding:4px 14px 12px}
+.vigjour li{display:flex; gap:9px; padding:8px 0; font-size:.87rem; line-height:1.5; color:var(--ink-2)}
+.vigjour li + li{border-top:1px solid var(--line-soft)}
+.vigjour li .h{
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.76rem;
+  color:var(--ink-3); flex:0 0 66px; padding-top:2px;
+}
+.vigjour li b{color:var(--ink); font-weight:600}
+/* Un feu rouge, le jour même ou la veille, bat lui aussi. */
+.feu.clignote .pastille{animation:battfeu 1.5s ease-in-out infinite}
+@keyframes battfeu{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,currentColor 55%,transparent)}
+  50%{box-shadow:0 0 0 9px transparent}
+}
+/* La carte « prochaine étape » porte le point de vigilance de l'étape. */
+.sc .vig{margin-top:7px; background:var(--surface); }
+.suite.depart .sc .vig{background:color-mix(in oklab,var(--surface) 72%,transparent)}
+
 :root[data-theme="dark"] .feu.vert{color:#6ee7b7}
 :root[data-theme="dark"] .feu.orange{color:#fcd34d}
 :root[data-theme="dark"] .feu.rouge{color:#fca5a5}
@@ -1264,6 +1342,7 @@ const DAYS = [
             note:"Le coucher du soleil est à 20 h 14 : vous aurez une bonne heure devant vous. Il y a un café au sommet — c'est le meilleur endroit du séjour pour la voir s'allumer, l'Acropole d'un côté et la mer de l'autre",
             sunset:true},
            {t:"food", ttl:"Dîner à Kolonaki — poisson grillé", ll:"37.9787,23.7419",
+            vig:"Le poisson se paie au kilo : faites peser et annoncer le prix avant de dire oui, et demandez s'il est frais ou surgelé.",
             det:"À deux pas de la sortie du funiculaire",
             note:"Le poisson se paie au kilo : demandez le prix avant de choisir la pièce, et si elle est fraîche ou surgelée. Horta en accompagnement plutôt que des frites"} ] },
 
@@ -1273,6 +1352,7 @@ const DAYS = [
        rallonge d'autant le petit-déjeuner. */
     matin:[ {t:"depart", ttl:"Départ", when:"8 h 45", map:dir(ALIMOS, "37.9683,23.741")},
             {t:"site", ttl:"Stade panathénaïque", ll:"37.9683,23.7410", when:"9 h 15 – 10 h 30",
+             vig:"Billets à prendre au guichet, sur place : ils ne se vendent pas en ligne. Pièces d'identité pour le tarif réduit de Hilal et Layal.",
              det:"Les premiers JO modernes, 1896 — audioguide compris dans le billet",
              note:"Billets à prendre sur place, au guichet du stade : ils ne se vendent pas en ligne. 10 € plein tarif, 5 € tarif réduit sur présentation d'une carte d'étudiant. Espèces ou carte bancaire. Ouvert dès 8 h, donc aucune file à cette heure"},
             {t:"site", ttl:"Relève des evzones", ll:"37.9755,23.7348", when:"11 h", det:"Place Syntagma — la relève se fait à chaque heure pile",
@@ -1281,6 +1361,7 @@ const DAYS = [
     soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", ll:"37.9382,23.6852", note:"Réservée", sunset:true,
+            vig:"Le sac du bateau se prépare avant de quitter l'hôtel — la liste est plus bas. Rien ne se rachète une fois au large.",
             rdv:"Marina Delta, Kallithea (17674) — présentation à 15 h 45, accueil par Michalis, t-shirt blanc",
             det:"Caïque en bois : Hydrousa, barbecue grec à bord, puis Varkiza. Masques fournis, dîner et boissons compris.",
             sac:"bateau"},
@@ -1296,9 +1377,11 @@ const DAYS = [
     matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(ALIMOS, "37.9611,23.7228"),
              corrige:"Avancé de 30 min : retrait à 10 h, et il y a des papiers à signer."},
             {t:"plain", ttl:"Récupération de la voiture", when:"10 h",
+            vig:"Permis et carte bancaire au nom du conducteur, sans quoi le comptoir ne délivre rien. La référence de réservation est dans le Carnet.",
              det:"Puis route vers Saronida et installation",
              rdv:"Sixt — Syngrou Avenue 11 / Lempesi, Athina-Neos Kosmos"} ],
     aprem:[ {t:"courses", ttl:"Courses pour la semaine", when:"~12 h 30",
+            vig:"Ce sont les courses de la semaine : la prochaine occasion pratique est Markopoulo, le 24 au retour de Porto Rafti.",
              det:"Cinq petits-déjeuners au penthouse et le pique-nique du 24 : il n'y a plus d'hôtel pour vous nourrir.",
              note:"Prochaine occasion pratique : Markopoulo, le 24 au retour de Porto Rafti",
              map:"https://www.google.com/maps/search/?api=1&query=supermarket+Saronida+Anavyssos+Greece"},
@@ -1315,6 +1398,7 @@ const DAYS = [
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
             {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
+             vig:"Présentation à 8 h 30 au Resalto Terminal : le bateau part à l'heure. C'est ce qui commande le départ de 7 h 45 de Saronida.",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", parBateau:true, gear:true,
              det:"Erotospilia, Avlaki — criques et grotte-abri, pique-nique, sans précipitation. On ne repasse pas par Saronida."} ],
@@ -1344,7 +1428,8 @@ const DAYS = [
   { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", sun:SOUNION,
     matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
-            {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true} ],
+            {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true,
+            vig:"Entrée sur rochers, et des oursins dans les creux : chaussures d'eau, et on regarde avant de poser le pied."} ],
     soir:[ {t:"depart", ttl:"Départ", when:"17 h 15", map:dir("37.672,23.988","37.6503,24.0247")},
            {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true} ] },
 
@@ -1358,8 +1443,10 @@ const DAYS = [
   { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"Dernier bain, puis l'aéroport", sun:SARO,
     matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", det:"Jusqu'à 12 h"} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"13 h", map:dir(SARONIDA,"37.9364,23.9445")},
-            {t:"plain", ttl:"Restitution de la voiture", when:"13 h 30"},
-            {t:"travel", ttl:"Décollage", when:"16 h 20"} ],
+            {t:"plain", ttl:"Restitution de la voiture", when:"13 h 30",
+             vig:"Rendre la voiture avec le plein — le carburant manquant est refacturé au prix fort. Quelques photos de la carrosserie avant de laisser les clés."},
+            {t:"travel", ttl:"Décollage", when:"16 h 20",
+             vig:"Passeports en main, pas au fond des valises : le retour passe par Londres, donc hors Schengen."} ],
     soir:[] }
 ];
 
@@ -1579,7 +1666,7 @@ const itemsOf = (day, slot) => day[slot] || [];
 const allItems = day => SLOTS.flatMap(s => itemsOf(day, s.k).map((it, i) => ({ it, slot:s.k, i })));
 
 const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-function textOf(it){ return [it.ttl, it.det, it.note, it.when].filter(Boolean).join(" "); }
+function textOf(it){ return [it.ttl, it.det, it.note, it.vig, it.when].filter(Boolean).join(" "); }
 function matches(it){
   if (state.filters.size && !state.filters.has(it.t)) return false;
   const q = state.query.trim();
@@ -2067,6 +2154,48 @@ function jours(d){
   const auj = dayIndexToday();
   return auj < 0 ? 0 : Math.max(0, d.n - DAYS[auj].n);
 }
+/* ── Points de vigilance ──
+   Un champ « vig » sur l'étape : ce qu'on ne rattrape pas si on l'oublie.
+   Rare par construction — huit sur onze jours. Un rappel qui s'allume partout
+   ne se lit plus, et l'on finit par ne plus voir celui qui comptait. */
+const vigDuJour = d => allItems(d).filter(x => x.it.vig);
+
+/* Faut-il le faire battre ? Seulement s'il est encore temps d'agir : demain
+   (c'est le soir qu'on prépare le sac et qu'on vérifie les billets), ou
+   aujourd'hui tant que l'étape n'est pas passée. Jamais pour la veille. */
+function vigVive(d, slot, it){
+  const auj = dayIndexToday();
+  if (auj < 0) return false;
+  const ecart = d.n - DAYS[auj].n;
+  if (ecart < 0 || ecart > 1) return false;
+  if (ecart === 1) return true;
+  return etatEtape(d, slot, it) !== "passe";
+}
+const vigHTML = (texte, vive) => `<span class="vig${vive ? " clignote" : ""}">
+  <svg><use href="#i-info"/></svg><span><b>À ne pas oublier</b>${esc(texte)}</span></span>`;
+
+/* Le rappel de tête : la journée annonce ses points avant qu'on déroule. */
+function vigJourHTML(d){
+  const liste = vigDuJour(d);
+  if (!liste.length) return "";
+  const auj = dayIndexToday();
+  const ecart = auj < 0 ? null : d.n - DAYS[auj].n;
+  if (ecart !== null && ecart < 0) return "";       // hier n'a plus rien à préparer
+  const vive = liste.some(x => vigVive(d, x.slot, x.it));
+  const quand = ecart === 0 ? "aujourd'hui" : ecart === 1 ? "à préparer ce soir"
+    : ecart === null ? "" : `dans ${ecart} jour${ecart > 1 ? "s" : ""}`;
+  return `<article class="vigjour${vive ? " clignote" : ""}">
+    <header>
+      <span class="pastille"></span>
+      <b>${liste.length} point${liste.length > 1 ? "s" : ""} de vigilance</b>
+      ${quand ? `<span class="quand">${esc(quand)}</span>` : ""}
+    </header>
+    <ul>${liste.map(x => `<li>
+      <span class="h">${x.it.when ? esc(x.it.when.split(" – ")[0]) : "—"}</span>
+      <span><b>${esc(x.it.ttl)}</b> — ${esc(x.it.vig)}</span>
+    </li>`).join("")}</ul>
+  </article>`;
+}
 function dureeCourte(min){
   if (min < 60) return `${min} min`;
   const h = Math.floor(min / 60), r = min % 60;
@@ -2184,7 +2313,7 @@ function buildICS(){
         const r = whenRange(it.when, 60);
         if (!r) return;
         push(uid, icsStamp(d.date, r.start), icsStamp(d.date, r.end),
-          it.ttl, [it.rdv, it.det, it.note].filter(Boolean).join("\n"), null,
+          it.ttl, [it.rdv, it.det, it.vig, it.note].filter(Boolean).join("\n"), null,
           it.sacre ? "Petit-déjeuner — on ne le saute pas" : null);
       }
     });
@@ -2290,6 +2419,11 @@ function meteoAlerte(d){
   if (!w) return "";
   const { n, motifs, eau } = niveauMeteo(d);
   const titre = { vert:"Conditions favorables", orange:"Vigilance", rouge:"Conditions difficiles" }[n];
+  /* Un feu rouge bat, mais seulement quand il reste quelque chose à décider :
+     le jour même ou la veille. Rouge sur une journée passée, on n'y peut rien. */
+  const auj = dayIndexToday();
+  const ecart = auj < 0 ? null : d.n - DAYS[auj].n;
+  const vive = n === "rouge" && ecart !== null && ecart >= 0 && ecart <= 1 ? " clignote" : "";
 
   if (n === "vert"){
     return `<p class="feu vert"><span class="pastille"></span><b>${titre}</b> —
@@ -2300,7 +2434,7 @@ function meteoAlerte(d){
   const replis = !eau ? ""
     : SPOTS[d.n] ? " Le classement des criques, plus bas, dit lesquelles seront à l'abri."
     : " Les plages de sable abritées — Saronida, Anavyssos — restent agréables ; le snorkeling, beaucoup moins.";
-  return `<p class="feu ${n}"><span class="pastille"></span><b>${titre}</b> —
+  return `<p class="feu ${n}${vive}"><span class="pastille"></span><b>${titre}</b> —
     ${esc(motifs.join(" · "))}.${replis}</p>`;
 }
 
@@ -3152,14 +3286,16 @@ function avisHTML(d){
 
   if (aVenir){
     return `<section class="soir avenir">
-      <h4>Le mot du soir · ${esc(dateDite)}<span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
+      <h4>Le mot du soir · ${esc(dateDite)}<span class="etatjour ferme">fermé</span><span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
       <p class="soir-intro">Cette journée n'a pas encore eu lieu — il n'y a rien à en dire.
         ${auj >= 0 ? `Pour noter celle d'aujourd'hui, <button type="button" class="allerauj" data-i="${auj}">allez au ${esc(DOW_FULL[DAYS[auj].dow])} ${esc(DAYS[auj].dm)}</button>.` : ""}</p>
     </section>`;
   }
 
   return `<section class="soir">
-    <h4>Le mot du soir · ${esc(dateDite)}<span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
+    <h4>Le mot du soir · ${esc(dateDite)}<span class="etatjour ${
+      auj >= 0 && d.n < DAYS[auj].n ? "passe" : "ouvert"}">${
+      auj >= 0 && d.n < DAYS[auj].n ? "journée passée · encore modifiable" : "ouvert"}</span><span class="signe">${esc(nomDe(QUI))}<button type="button" class="changequi">ce n'est pas moi</button></span></h4>
     <p class="soir-intro"><b>Vous notez le ${esc(dateDite)}</b>${
       auj < 0 ? "" : d.n === DAYS[auj].n ? ", la journée en cours"
                                          : " — une journée passée, que vous pouvez encore commenter"}.
@@ -3636,6 +3772,7 @@ function itemHTML(day, slot, it, i, vedette){
         it.sacre ? `<span class="sacre">sacré</span>` : ""}</div>
       ${etat === "encours" ? `<span class="maintenant">en ce moment</span>` : ""}
       ${it.det ? `<p class="det">${highlight(it.det)}</p>` : ""}
+      ${it.vig ? vigHTML(it.vig, vigVive(day, slot, it)) : ""}
       ${it.alerte ? `<span class="note alerte"><svg><use href="#i-info"/></svg>${esc(it.alerte)}</span>` : ""}
       ${it.rdv ? `<span class="note rdv"><svg><use href="#i-map"/></svg>${esc(it.rdv)}</span>` : ""}
       ${it.corrige ? `<span class="note corr"><svg><use href="#i-info"/></svg>${esc(it.corrige)}</span>` : ""}
@@ -3681,6 +3818,7 @@ function dayHTML(d, { live }){
           <b>${esc(carte.it.ttl)}${dep ? ` — on quitte ${ph.home}` : ""}</b>
           ${carte.it.det ? `<p>${esc(carte.it.det)}</p>` : ""}
           ${carte.it.rdv ? `<p>${esc(carte.it.rdv)}</p>` : ""}
+          ${carte.it.vig ? vigHTML(carte.it.vig, vigVive(d, carte.slot, carte.it)) : ""}
         </div>
         ${carte.it.map ? `<a class="sgo" href="${carte.it.map}" target="_blank" rel="noopener noreferrer">
           <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
@@ -3706,6 +3844,7 @@ function dayHTML(d, { live }){
           <b>${esc(premiere.it.ttl)}${dep ? ` — on quitte ${ph.home}` : ""}</b>
           ${premiere.it.det ? `<p>${esc(premiere.it.det)}</p>` : ""}
           ${premiere.it.rdv ? `<p>${esc(premiere.it.rdv)}</p>` : ""}
+          ${premiere.it.vig ? vigHTML(premiere.it.vig, vigVive(d, premiere.slot, premiere.it)) : ""}
         </div>
         ${premiere.it.map ? `<a class="sgo" href="${premiere.it.map}" target="_blank" rel="noopener noreferrer">
           <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
@@ -3729,6 +3868,7 @@ function dayHTML(d, { live }){
       </span>
     </div>
     ${meteoAlerte(d)}
+    ${vigJourHTML(d)}
     ${alarm}
     ${merHTML(d)}
     ${sacBateauHTML(d)}
