@@ -723,6 +723,28 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
   content:"image indisponible"; padding:0 10px; text-align:center;
   font-family:var(--mono); font-size:.62rem; color:var(--ink-3);
 }
+/* Un champ de fichier masqué par « display:none » n'est pas toujours
+   activable depuis son étiquette sur iPhone : on le rend invisible sans le
+   sortir de la mise en page. */
+.cachefichier{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+.ajouter{position:relative}
+.refus{
+  margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
+  background:color-mix(in oklab,var(--ochre) 13%,transparent);
+  font-size:.85rem; line-height:1.55; color:var(--ink-2);
+}
+.refus b{color:var(--ochre)}
+.refus ul{list-style:none; margin-top:7px; display:flex; flex-direction:column; gap:5px}
+.refus li{padding-left:14px; position:relative}
+.refus li::before{content:"·"; position:absolute; left:4px; color:var(--ochre); font-weight:700}
+.refus .oublirefus{
+  margin-top:9px; min-height:38px; padding:0 14px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+  font-family:var(--mono); font-size:.72rem;
+}
 .albumvide{margin-top:11px; font-size:.85rem; color:var(--ink-3)}
 .quota{
   margin-top:12px; padding:9px 12px; border-radius:var(--r-sm);
@@ -2773,6 +2795,7 @@ async function lirePhotos(){
 }
 
 let ENVOI = null;                       // { faits, total } pendant un envoi
+let REFUS = null;                       // photos écartées, et pourquoi
 async function envoyerPhotos(jour, fichiers){
   if (!QUI || !fichiers.length) return;
   const jourDit = DAYS.find(x => x.n === jour);
@@ -2786,6 +2809,7 @@ async function envoyerPhotos(jour, fichiers){
      s'arrêtera en chemin. Une photo sans date reconnaissable passe : on ne
      peut pas affirmer qu'elle est du mauvais jour. */
   ENVOI = { faits: 0, total: fichiers.length, verif: true };
+  REFUS = null;
   render();
   const bons = [], ecartes = [];
   let sansDate = 0;
@@ -2802,11 +2826,16 @@ async function envoyerPhotos(jour, fichiers){
   }
   if (minus.length) toast(`${minus.length} image${minus.length > 1 ? "s" : ""} trop petite${minus.length > 1 ? "s" : ""} pour un album`);
   if (ecartes.length){
-    const p = ecartes[0].prise, autre = DAYS.find(x => x.date === p);
-    toast(ecartes.length === 1
-      ? `Photo du ${p.slice(8)}/${p.slice(5, 7)} refusée ici${autre ? ` — elle va au ${autre.dm}` : " : hors séjour"}`
-      : `${ecartes.length} photos écartées : prises un autre jour`);
-  }
+    /* Un message qui s'efface au bout de trois secondes laisse croire à un
+       blocage sans raison : on l'inscrit dans la page, avec le jour où ces
+       photos ont leur place et de quoi s'y rendre. */
+    const par = {};
+    ecartes.forEach(e => { par[e.prise] = (par[e.prise] || 0) + 1; });
+    REFUS = { jour, motifs: Object.entries(par).map(([date, n]) => {
+      const autre = DAYS.find(x => x.date === date);
+      return { date, n, va: autre ? autre.n : null, nom: autre ? `${DOW_FULL[autre.dow]} ${autre.dm}` : null };
+    }) };
+  } else REFUS = null;
   if (!bons.length){ ENVOI = null; render(); return; }
 
   ENVOI = { faits: 0, total: bons.length };
@@ -2864,6 +2893,18 @@ function photosHTML(d){
   return `<section class="album">
     <h4>Portfolio du jour${mes.length ? ` <span class="compte">${mes.length} photo${mes.length > 1 ? "s" : ""}</span>` : ""}</h4>
     ${mes.some(p => p.qui === QUI) ? `<p class="albumaide">Touchez la croix d'une de vos photos pour la retirer.</p>` : ""}
+${(() => {
+      /* Le refus appartient à la journée où l'envoi a été tenté : il ne suit
+         pas quand on va voir ailleurs. */
+      if (!REFUS || REFUS.jour !== d.n) return "";
+      const total = REFUS.motifs.reduce((n, r) => n + r.n, 0);
+      return `<div class="refus">
+        <p><b>${total} photo${total > 1 ? "s" : ""} écartée${total > 1 ? "s" : ""}</b> — la date de l'appareil ne correspond pas à cette journée.</p>
+        <ul>${REFUS.motifs.map(r => `<li>${r.n} prise${r.n > 1 ? "s" : ""} le ${r.date.slice(8)}/${r.date.slice(5, 7)} — ${
+          r.va ? `<button type="button" class="allerauj" data-i="${r.va - 1}">déposez-les au ${esc(r.nom)}</button>` : "hors séjour"}</li>`).join("")}</ul>
+        <button type="button" class="oublirefus">J'ai compris</button>
+      </div>`;
+    })()}
     ${PHOTOS.echec && !mes.length ? `<p class="albumvide alerte">Photos injoignables pour l'instant —
       ce n'est pas qu'il n'y en a pas. <button type="button" class="rafraichir" data-photos-maj>Réessayer</button></p>` : ""}
     ${mes.length ? `<div class="grillephotos">
@@ -2891,7 +2932,7 @@ function photosHTML(d){
                : reste === 1 ? "il vous reste une place."
                : `il vous reste ${reste} places.`}</p>
            ${reste > 0 ? `<label class="ajouter">
-             <input type="file" accept="image/*" multiple data-photo="${d.n}" hidden>
+             <input type="file" accept="image/*" multiple data-photo="${d.n}" class="cachefichier">
              <svg><use href="#i-partage"/></svg>Ajouter ${reste === 1 ? "une photo" : "des photos"}
            </label>` : ""}
            <p class="albumaide">Cinq photos par personne et par journée, soit cinquante-cinq au plus
@@ -3882,6 +3923,7 @@ document.addEventListener("click", e => {
   const vig = e.target.closest("[data-voir]");
   if (vig){ ouvrirPhoto(vig.dataset.voir); return; }
   if (e.target.closest(".vfermer")){ document.getElementById("visionneuse").close(); return; }
+  if (e.target.closest(".oublirefus")){ REFUS = null; render(); return; }
   if (e.target.closest(".rafraichir[data-photos-maj]")){ lirePhotos(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
