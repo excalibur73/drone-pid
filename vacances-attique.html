@@ -667,6 +667,11 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .majprev.vieux{color:var(--ochre)}
 .majprev.vieux svg{color:var(--ochre)}
 .etatsync.ok{color:var(--sea)}
+.etatsync.faux{color:#9b1c1c; font-weight:600}
+.compteur{margin-top:6px; font-family:var(--mono); font-size:.7rem; color:var(--ink-3); text-align:right}
+.compteur.plein{color:var(--ochre); font-weight:700}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .etatsync.faux{color:#fca5a5} }
+:root[data-theme="dark"] .etatsync.faux{color:#fca5a5}
 .etatsync.local{color:var(--ochre)}
 .autresavis{margin-top:14px; padding-top:13px; border-top:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
 .anontitre{font-family:var(--mono); font-size:.7rem; letter-spacing:.05em; color:var(--ink-3)}
@@ -3089,7 +3094,9 @@ function avisHTML(d){
       <span class="valeur">${mien && mien.note ? mien.note + " / 5" : "pas encore noté"}</span>
     </div>
     <label class="sr" for="avis-${d.n}">Commentaire de la journée</label>
-    <textarea id="avis-${d.n}" data-avis="${d.n}" placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
+    <textarea id="avis-${d.n}" data-avis="${d.n}" maxlength="2000"
+      placeholder="Le meilleur moment, le pire, ce qu'on refera…">${esc(mien && mien.txt || "")}</textarea>
+    <p class="compteur" id="compteur-${d.n}" hidden></p>
     <p class="soir-modif">${mien && (mien.note || (mien.txt || "").trim())
       ? "Vous avez déjà noté cette journée — réécrivez le texte ou touchez une autre étoile pour corriger ; retoucher l'étoile allumée efface la note."
       : "Touchez une étoile pour noter, écrivez si vous voulez. C'est enregistré tout seul."}</p>
@@ -3147,11 +3154,17 @@ const avisRanges = duJour => Object.entries(duJour)
    la modification attend dans une file et repart à la première occasion. */
 const ATTENTE_STORE = "attique2026:enattente";
 let ENATTENTE = (() => { try { return JSON.parse(localStorage.getItem(ATTENTE_STORE)) || []; } catch { return []; } })();
-let dernierEchange = "inconnu";     // inconnu · ok · echec
+let dernierEchange = "inconnu";     // inconnu · ok · echec · refus
+let REFUS_AVIS = null;              // { jour, raison } quand le serveur refuse
 
 /* L'état se constate au moment de l'affichage : le réseau peut tomber entre
    deux rendus, et une variable mémorisée mentirait. */
 function etatPartage(){
+  /* Un refus prime sur tout le reste tant qu'il n'est pas corrigé : la
+     relecture qui suit remettait l'état à « partagé » et effaçait le motif
+     avant qu'on ait pu le lire. */
+  if (REFUS_AVIS)
+    return { c:"faux", t:`Avis non enregistré — ${REFUS_AVIS.raison}. Corrigez-le, il repartira tout seul.` };
   if (!navigator.onLine)
     return { c:"local", t:`Hors connexion : enregistré ici, envoyé dès que le réseau revient.${
       ENATTENTE.length ? ` ${ENATTENTE.length} en attente.` : ""}` };
@@ -3221,24 +3234,55 @@ async function lireAvis(){
     DERNIERE_LECTURE = Date.now();
   } catch { dernierEchange = "echec"; }
   LECTURE_EN_COURS = false;
+  majEtatSync();
   renderSiLibre();
 }
 
+/* Deux échecs qui n'ont rien à voir. Un serveur injoignable, on réessaiera ;
+   un avis refusé — texte trop long, jour hors séjour — ne passera jamais, et
+   le garder en file bloquerait tous les suivants derrière lui indéfiniment.
+   On rend donc « refus » avec sa raison, pour le retirer et le dire. */
+const RAISONS = {
+  "trop-long": "votre texte dépasse 2000 caractères",
+  "Jour hors séjour": "ce jour n'est pas dans le séjour",
+  "Auteur inconnu": "prénom non reconnu — identifiez-vous à nouveau",
+  "Note hors barème": "note invalide"
+};
 async function poussserUn(e){
   const r = await fetch("/api/avis", {
     method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(e)
   });
-  if (!r.ok) throw new Error(r.status);
+  if (r.ok) return;
+  if (r.status >= 400 && r.status < 500){
+    const t = await r.text().catch(() => "");
+    const cle = Object.keys(RAISONS).find(k => t.includes(k));
+    const err = new Error(cle ? RAISONS[cle] : "avis refusé par le serveur");
+    err.definitif = true;
+    throw err;
+  }
+  throw new Error(r.status);
 }
 
 async function viderAttente(){
   if (!ENATTENTE.length || !navigator.onLine) return;
   const file = [...ENATTENTE];
   for (const e of file){
-    try { await poussserUn(e); ENATTENTE.shift(); garderAttente(); }
-    catch { dernierEchange = "echec"; return; }
+    try { await poussserUn(e); ENATTENTE.shift(); garderAttente(); REFUS_AVIS = null; }
+    catch (err){
+      if (err.definitif){
+        /* Sans ce retrait, l'avis fautif resterait en tête de file et
+           empêcherait tous les suivants de partir, à chaque minute. */
+        ENATTENTE.shift(); garderAttente();
+        REFUS_AVIS = { jour: e.jour, raison: err.message };
+        dernierEchange = "refus";
+        majEtatSync(); renderSiLibre();
+        continue;
+      }
+      dernierEchange = "echec";
+      return;
+    }
   }
-  dernierEchange = "ok";
+  if (dernierEchange !== "refus") dernierEchange = "ok";
   await lireAvis();
 }
 
@@ -3252,7 +3296,8 @@ function enregistrerAvis(jour, champs){
   ENATTENTE = ENATTENTE.filter(x => !(x.jour === env.jour && x.qui === env.qui));
   ENATTENTE.push(env);
   garderAttente();
-  viderAttente().then(renderSiLibre);
+  majEtatSync();
+  viderAttente().then(() => { majEtatSync(); renderSiLibre(); });
 }
 
 addEventListener("online", viderAttente);
@@ -3853,6 +3898,7 @@ function render(){
           : state.view === "chrono" ? "#chronologie" : `#j${DAYS[state.day].n}`;
   if (location.hash !== h) history.replaceState(null, "", h);
 
+  document.querySelectorAll("textarea[data-avis]").forEach(majCompteur);
   if (saisie){
     const n = document.getElementById(saisie.id);
     if (n){
@@ -3985,8 +4031,31 @@ document.addEventListener("change", e => {
   envoyerPhotos(+ch.dataset.photo, fichiers);
 });
 
+/* Le rendu est mis de côté pendant la frappe — c'est justement là que le
+   compteur sert. On le met donc à jour directement, sans redessiner. */
+/* Même raison que le compteur : l'état du partage — et surtout un refus —
+   doit s'afficher pendant qu'on écrit, sans attendre un rendu différé. */
+function majEtatSync(){
+  document.querySelectorAll(".etatsync").forEach(p => {
+    const e = etatPartage();
+    p.className = "etatsync " + e.c;
+    const bouton = p.querySelector(".rafraichir");
+    p.textContent = e.t + " ";
+    if (bouton) p.appendChild(bouton);
+  });
+}
+function majCompteur(champ){
+  const p = document.getElementById("compteur-" + champ.dataset.avis);
+  if (!p) return;
+  const n = champ.value.length, max = +champ.getAttribute("maxlength") || 2000;
+  if (n <= max * 0.8){ p.hidden = true; return; }
+  p.hidden = false;
+  p.classList.toggle("plein", n >= max);
+  p.textContent = `${n} / ${max} caractères` + (n >= max ? " — c'est le maximum" : "");
+}
 document.addEventListener("input", e => {
   const avis = e.target.closest("textarea[data-avis]");
+  if (avis) majCompteur(avis);
   if (avis && QUI){
     const j = avis.dataset.avis, v = avis.value;
     clearTimeout(saveT);

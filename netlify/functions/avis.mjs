@@ -41,7 +41,11 @@ export default async (req) => {
 
     const n = Number(note) || 0;
     if (n < 0 || n > 5) return new Response("Note hors barème", { status: 400 });
-    const t = typeof txt === "string" ? txt.slice(0, 2000) : "";
+    /* On refuse plutôt que de tronquer : rogner cinq cents caractères sans
+       le dire est pire que de refuser en l'expliquant. */
+    if (typeof txt === "string" && txt.length > 2000)
+      return Response.json({ erreur: "trop-long", limite: 2000, recu: txt.length }, { status: 422 });
+    const t = typeof txt === "string" ? txt : "";
 
     /* Lecture-modification-écriture sans risque : ce fichier n'appartient
        qu'à cette personne, et une personne n'écrit que d'un téléphone. */
