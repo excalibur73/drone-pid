@@ -1679,7 +1679,21 @@ const DAYS = [
            {t:"swim", ttl:"Baignade Hydrousa + Varkiza", parBateau:true, det:"Deux mouillages : l'îlot inhabité, puis la baie abritée"} ] },
 
   { n:5, date:"2026-08-21", dow:"Ven", dm:"21 août", phase:1, title:"Journée libre & SNFCC", sun:ATHENES,
-    matin:[ {t:"plain", ttl:"Matinée libre", det:"Plage, ou les puces de Monastiraki"} ],
+    /* Dernière vraie matinée à Athènes : samedi on part pour Saronida en fin
+       de matinée, et l'on n'y revient plus qu'à l'aéroport. Les souvenirs se
+       casent donc ici, et nulle part ailleurs. */
+    matin:[ {t:"plain", ttl:"Matinée libre à Alimos", det:"Plage à cinq minutes, ou la ville pour les derniers achats"},
+            {t:"courses", ttl:"Marché de Varvakios — les souvenirs qui se mangent", ll:"37.9800,23.7262",
+             when:"10 h – 11 h 15", map:dir(ALIMOS, "37.98,23.7262"),
+             det:"Rue Athinas — le marché couvert et, tout autour, les échoppes d'herbes, de miel et d'épices",
+             note:"Origan et sauge de montagne, miel de thym, mastic de Chios, olives, huile, safran de Kozani, fruits secs. C'est là que les prix sont ceux des Athéniens, pas ceux de Plaka. Le marché ferme en début d'après-midi.",
+             bonplan:"Tout ce qui est liquide ou pâteux — huile, miel, olives en saumure — part en soute : au-delà de 100 ml, le contrôle de Londres le confisque."},
+            {t:"courses", ttl:"Monastiraki & Plaka — le reste des souvenirs", ll:"37.9761,23.7256",
+             when:"11 h 15 – 13 h",
+             map:"https://www.google.com/maps/dir/?api=1&origin=37.98,23.7262&destination=37.9761,23.7256&travelmode=walking",
+             det:"700 m à pied en descendant Athinas depuis le marché — Ifaistou, Adrianou, la place aux antiquaires",
+             note:"Sandales de cuir faites sur place, komboloï, céramiques, copies de marbre, éponges, tissus. Ifaistou pour la brocante et les disques, Adrianou pour les boutiques. La grande brocante du dimanche n'a pas lieu un vendredi, mais tout est ouvert — et le vendredi, les commerçants d'Athènes ferment tard.",
+             bonplan:"On marchande sur les stands, pas en boutique. Et l'on ne rapporte rien qui ressemble à une vraie antiquité : leur sortie du territoire est interdite sans autorisation."} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"17 h", map:dir(ALIMOS, "37.9403,23.6929")},
             {t:"site", ttl:"SNFCC", ll:"37.9403,23.6926", det:"Fondation Niarchos — toit-belvédère et jardins", sunset:true} ],
     soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
@@ -1923,8 +1937,8 @@ const DEJEUNERS = {
       note:"Taxi à 15 h 15 — ne traînez pas à table",
       bonplan:"Léger et rapide : une pita à la boulangerie suffit. Le vrai repas est à bord ce soir." } },
   5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h 30",
-      det:"Libre comme la matinée. Les tavernes de Monastiraki si vous y êtes, sinon la marina d'Alimos.",
-      bonplan:"Jour de puces à Monastiraki : les tavernes de la place sont chères, celles des rues perpendiculaires ne le sont pas." } },
+      det:"Sur place après les achats — les tavernes de Monastiraki, ou la marina d'Alimos au retour.",
+      bonplan:"Les tavernes de la place de Monastiraki sont chères, celles des rues perpendiculaires ne le sont pas. Psiri, à deux rues, est meilleur marché encore." } },
   6:{ rang:1, it:{ t:"repas", ttl:"Déjeuner", when:"13 h 30 – 14 h 30",
       det:"À Saronida une fois installés — ou sur la terrasse, avec ce que vous venez d'acheter.",
       bonplan:"Premier jour en voiture : repérez le supermarché et la boulangerie de Saronida, vous y reviendrez cinq fois." } },
@@ -2029,6 +2043,9 @@ function packFor(day){
   if (items.some(i => i.sunset)) out.push("De quoi couvrir les épaules au couchant");
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
   if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
+  /* Les marchés grecs ne donnent pas de sac, et l'on repart rarement les
+     mains vides d'une halle aux épices. */
+  if (items.some(i => i.t === "courses")) out.push("Un sac pliable, et des espèces");
   return [...new Set(out)];
 }
 
@@ -2313,6 +2330,26 @@ const SAVOIRS = {
       "Le sable au fond des criques est fait de coquilles broyées, pas de roche : regardez-le de près."
     ],
     mot:"Pique-nique, sieste, masque — sans précipitation."
+  },
+  "Marché de Varvakios — les souvenirs qui se mangent":{
+    quoi:"La halle centrale d'Athènes, rue Athinas, ouverte depuis 1886 : viandes et poissons sous la charpente de fer, et tout autour les rues des épiciers. C'est le marché où la ville s'approvisionne, pas une reconstitution pour visiteurs — d'où les prix, et le bruit.",
+    regarder:[
+      "Les herbes de montagne, vendues en gros sachets : origan sauvage, thym, sauge, et le tsaï tou vounou — la « sauge de montagne » qu'on boit en infusion l'hiver. Un dixième du prix des mêmes sachets à Plaka.",
+      "Le mastic de Chios : une résine d'arbuste qui ne pousse que sur cette île. En larmes à mâcher, en liqueur, en pâte à tartiner. C'est le souvenir grec par excellence, et il ne s'abîme pas.",
+      "Le miel de thym, plus dense et plus parfumé que ce qu'on trouve en France. Demandez à goûter : les épiciers y tiennent.",
+      "Les rues autour de la halle : Evripidou pour les épices et les herbes, Sofokleous et Athinas pour les fruits secs, les olives et les fromages."
+    ],
+    mot:"Ce qui se mange voyage mieux que ce qui se pose sur une étagère : dans un an, il en restera quelque chose."
+  },
+  "Monastiraki & Plaka — le reste des souvenirs":{
+    quoi:"Le bas d'Athinas donne sur la place Monastiraki, et de là partent les deux rues qui comptent : Ifaistou, celle des brocanteurs et des disquaires, et Adrianou, qui remonte vers Plaka en longeant l'Agora. Tout y est ouvert sept jours sur sept.",
+    regarder:[
+      "Les sandales de cuir taillées sur place : on choisit un modèle, l'artisan ajuste à votre pied en quelques minutes. Elles se portent des années.",
+      "Le komboloï, le chapelet qu'on fait tourner entre ses doigts — ambre, os, olivier. Rien de religieux : on s'occupe les mains en parlant.",
+      "Les copies de marbre et les céramiques à figures noires : les honnêtes portent la mention « copie » et le nom de l'atelier. Prévoyez de quoi les caler dans la valise.",
+      "Ce qu'il vaut mieux éviter : les éponges décolorées à l'eau de Javel — les vraies sont brunes —, et tout ce qui se présente comme une antiquité authentique. Sortir du pays un objet ancien sans autorisation est un délit."
+    ],
+    mot:"La place est chère, les rues perpendiculaires ne le sont pas. C'est vrai des tavernes comme des boutiques."
   },
   "SNFCC":{
     quoi:"Le centre culturel Stavros-Niarchos, signé Renzo Piano, ouvert en 2016 : la Bibliothèque nationale et l'Opéra sous une même canopée, posés sur une colline artificielle qui n'existait pas.",
