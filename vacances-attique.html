@@ -184,6 +184,8 @@ main{padding-bottom:64px}
 .sc{flex:1 1 210px; min-width:0}
 .sc b{font-size:1.02rem; display:block}
 .sc p{font-size:.87rem; color:var(--ink-2); margin-top:2px}
+.sc .ensuite{margin-top:6px; font-size:.82rem; color:var(--ink-3); font-family:var(--mono)}
+.sc .ensuite b{color:var(--ink-2); font-family:var(--sans)}
 .sgo{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   min-height:46px; padding:0 20px; border-radius:99px; text-decoration:none;
@@ -1689,14 +1691,30 @@ const DAYS = [
              note:"Origan et sauge de montagne, miel de thym, mastic de Chios, olives, huile, safran de Kozani, fruits secs. C'est là que les prix sont ceux des Athéniens, pas ceux de Plaka. Le marché ferme en début d'après-midi.",
              bonplan:"Tout ce qui est liquide ou pâteux — huile, miel, olives en saumure — part en soute : au-delà de 100 ml, le contrôle de Londres le confisque."},
             {t:"courses", ttl:"Monastiraki & Plaka — le reste des souvenirs", ll:"37.9761,23.7256",
-             when:"11 h 15 – 13 h",
+             when:"11 h 15 – 12 h 30",
              map:"https://www.google.com/maps/dir/?api=1&origin=37.98,23.7262&destination=37.9761,23.7256&travelmode=walking",
              det:"700 m à pied en descendant Athinas depuis le marché — Ifaistou, Adrianou, la place aux antiquaires",
              note:"Sandales de cuir faites sur place, komboloï, céramiques, copies de marbre, éponges, tissus. Ifaistou pour la brocante et les disques, Adrianou pour les boutiques. La grande brocante du dimanche n'a pas lieu un vendredi, mais tout est ouvert — et le vendredi, les commerçants d'Athènes ferment tard.",
              bonplan:"On marchande sur les stands, pas en boutique. Et l'on ne rapporte rien qui ressemble à une vraie antiquité : leur sortie du territoire est interdite sans autorisation."} ],
-    aprem:[ {t:"depart", ttl:"Départ", when:"17 h", map:dir(ALIMOS, "37.9403,23.6929")},
-            {t:"site", ttl:"SNFCC", ll:"37.9403,23.6926", det:"Fondation Niarchos — toit-belvédère et jardins", sunset:true} ],
-    soir:[ {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
+    /* 36° annoncés : on ne traîne pas dehors entre midi et le soir. Les
+       achats se font tôt, le déjeuner se prend sur le pouce pour rentrer, et
+       l'après-midi entière se passe au frais. Le SNFCC y gagne : à 19 h la
+       lumière vaut mieux qu'à 17 h, et le couchant est à 20 h 11. */
+    aprem:[ {t:"depart", ttl:"Retour à l'hôtel", when:"13 h", map:dir("37.9761,23.7256", ALIMOS),
+             det:"12 km depuis Monastiraki — 25 à 30 min en taxi, le tram est plus long et sans climatisation",
+             alarme:"On rentre — 36° dehors, la ville devient invivable après 13 h"},
+            {t:"plain", ttl:"Longue pause à l'hôtel — au frais", when:"13 h 45 – 18 h 30",
+             vig:"36° annoncés : rien dehors entre 13 h et 18 h 30. C'est la journée la plus chaude du séjour, et l'on repart à Saronida demain matin.",
+             det:"Chambre climatisée, sieste, plage à l'ombre en fin d'après-midi si l'envie vient. Rien n'est prévu jusqu'à 18 h 30",
+             alarme:"Longue pause au frais jusqu'à 18 h 30 — rien à faire dehors",
+             note:"C'est aussi le moment de commencer les valises : le départ de samedi se fait en fin de matinée, et la voiture se récupère à Athènes."} ],
+    soir:[ {t:"depart", ttl:"Départ pour le SNFCC", when:"18 h 30", map:dir(ALIMOS, "37.9403,23.6929"),
+            corrige:"Reporté de 17 h à 18 h 30 : à 36°, le parc ne se visite pas en plein après-midi.",
+            det:"7 km le long de la côte — 15 à 20 min"},
+           {t:"site", ttl:"SNFCC", ll:"37.9403,23.6926", when:"19 h – 20 h 45", sunset:true,
+            det:"Fondation Niarchos — toit-belvédère et jardins. Coucher du soleil à 20 h 11",
+            note:"L'heure a été choisie pour la lumière autant que pour la chaleur : le canal et la canopée se regardent mieux au couchant qu'en plein soleil. Le parc reste ouvert tard ; si l'accès au toit est déjà fermé à votre arrivée, l'esplanade et les jardins suffisent largement."},
+           {t:"plain", ttl:"Dernière soirée sur la Riviera"} ] },
 
   { n:6, date:"2026-08-22", dow:"Sam", dm:"22 août", phase:2, title:"Cap sur Saronida", sun:SARO,
     /* Le transfert n'est qu'en fin de matinée, et une seule personne se
@@ -1936,9 +1954,11 @@ const DEJEUNERS = {
       det:"Léger : le barbecue de la croisière est votre dîner, et il est copieux.",
       note:"Taxi à 15 h 15 — ne traînez pas à table",
       bonplan:"Léger et rapide : une pita à la boulangerie suffit. Le vrai repas est à bord ce soir." } },
-  5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h 30",
-      det:"Sur place après les achats — les tavernes de Monastiraki, ou la marina d'Alimos au retour.",
-      bonplan:"Les tavernes de la place de Monastiraki sont chères, celles des rues perpendiculaires ne le sont pas. Psiri, à deux rues, est meilleur marché encore." } },
+  5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner sur le pouce", when:"12 h 30 – 13 h",
+      det:"Une demi-heure, pas davantage : on mange debout ou en marchant, et l'on rentre avant que la chaleur ne tombe d'aplomb.",
+      alarme:"Déjeuner sur le pouce — trente minutes, puis on rentre",
+      note:"Souvláki ou tyrópita à emporter dans les rues autour de Monastiraki, à manger sur un banc à l'ombre. Le vrai repas sera le dîner, au frais.",
+      bonplan:"À emporter, une pita coûte trois fois moins qu'assis à une table de la place — et vous ne perdez pas quarante minutes à attendre l'addition." } },
   6:{ rang:1, it:{ t:"repas", ttl:"Déjeuner", when:"13 h 30 – 14 h 30",
       det:"À Saronida une fois installés — ou sur la terrasse, avec ce que vous venez d'acheter.",
       bonplan:"Premier jour en voiture : repérez le supermarché et la boulangerie de Saronida, vous y reviendrez cinq fois." } },
@@ -2725,20 +2745,25 @@ function buildICS(){
            journée portent le même titre et paraissent faire double emploi. */
         const suite = itemsOf(d, slot).slice(i + 1).find(x => x.t !== "depart");
         const vers = suite ? suite.ttl : d.title;
+        /* Un départ qui porte déjà un nom parlant garde le sien : « Retour à
+           l'hôtel » vaut mieux que « Départ — Longue pause au frais ». */
         push(uid, icsStamp(d.date, m), icsStamp(d.date, m + 15),
-          `Départ — ${vers}`,
+          /^Départ$/.test(it.ttl) ? `Départ — ${vers}` : it.ttl,
           [`On quitte ${maison}.`,
            it.corrige,
            /* le point de rendez-vous du jour voyage avec l'alarme du départ */
            (allItems(d).map(x => x.it).find(x => x.rdv) || {}).rdv,
            it.map ? `Itinéraire : ${it.map}` : null].filter(Boolean).join("\n"),
-          it.map, `Départ dans 10 minutes — on quitte ${maison}`);
+          it.map, it.alarme || `Départ dans 10 minutes — on quitte ${maison}`);
       } else if (it.when){
         const r = whenRange(it.when, 60);
         if (!r) return;
         push(uid, icsStamp(d.date, r.start), icsStamp(d.date, r.end),
           it.ttl, [it.rdv, it.det, it.vig, it.note].filter(Boolean).join("\n"), null,
-          it.sacre ? "Petit-déjeuner — on ne le saute pas" : null);
+          /* Un champ « alarme » fait sonner n'importe quelle étape, et pas
+             seulement les départs : une longue pause qu'on oublie de prendre
+             ne sert à rien, et un déjeuner qui s'éternise fait rater le reste. */
+          it.alarme ? it.alarme : it.sacre ? "Petit-déjeuner — on ne le saute pas" : null);
       }
     });
   });
@@ -4811,10 +4836,15 @@ function dayHTML(d, { live }){
   if (live){
     /* Aujourd'hui : une seule carte répond à « et maintenant ? ». */
     const { encours, suivant, reste } = prochaineEtape(d);
-    const aMontrer = suivant || encours;
+    /* Quand une étape est en cours et que la suivante est loin — une longue
+       pause au frais, une journée à la plage —, annoncer « dans 4 h » laisse
+       croire qu'il faut attendre quelque chose. On montre alors ce qu'on est
+       en train de faire, et l'on dit la suite en dessous. */
+    const surPlace = encours && (!suivant || reste > 60);
+    const aMontrer = surPlace ? encours : (suivant || encours);
     if (aMontrer){
-      const carte = suivant || encours;
-      const enCours = !suivant;
+      const carte = surPlace ? encours : (suivant || encours);
+      const enCours = surPlace || !suivant;
       const dep = carte.it.t === "depart";
       const urgent = suivant && reste <= 90;
       vedette = `${carte.slot}.${carte.i}`;
@@ -4822,13 +4852,15 @@ function dayHTML(d, { live }){
         <div class="sq">
           <span class="lab">${enCours ? "En ce moment" : suivant ? "Prochaine étape" : "En ce moment"}</span>
           <span class="t">${esc(carte.it.when)}</span>
-          ${suivant ? `<span class="cd">dans ${dureeCourte(reste)}</span>` : ""}
+          ${suivant && !surPlace ? `<span class="cd">dans ${dureeCourte(reste)}</span>` : ""}
         </div>
         <div class="sc">
           <b>${esc(carte.it.ttl)}${dep ? ` — on quitte ${ph.home}` : ""}</b>
           ${carte.it.det ? `<p>${esc(carte.it.det)}</p>` : ""}
           ${carte.it.rdv ? `<p>${esc(carte.it.rdv)}</p>` : ""}
           ${carte.it.vig ? vigHTML(carte.it.vig, vigVive(d, carte.slot, carte.it)) : ""}
+          ${surPlace && suivant ? `<p class="ensuite">Ensuite — <b>${esc(suivant.it.ttl)}</b>
+            à ${esc(suivant.it.when)}, dans ${dureeCourte(reste)}</p>` : ""}
         </div>
         ${carte.it.map ? `<a class="sgo" href="${carte.it.map}" target="_blank" rel="noopener noreferrer">
           <svg><use href="#i-map"/></svg>Itinéraire</a>` : ""}
