@@ -753,16 +753,48 @@ tr.lnotes th{vertical-align:middle}
 .bbloc{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); overflow:hidden}
 .bbloc > header{display:flex; align-items:center; gap:10px; padding:11px 15px; border-bottom:1px solid var(--line-soft); background:var(--surface-2)}
 .bbloc > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
-.bphotos{list-style:none; padding:8px 15px 12px}
-.bphotos li{display:grid; grid-template-columns:22px 56px 1fr auto; gap:11px; align-items:center; padding:8px 0}
-.bphotos li + li{border-top:1px solid var(--line-soft)}
-.bphotos .rang{font-family:var(--mono); font-size:.9rem; color:var(--ink-3); text-align:center}
-.bphotos img{width:56px; height:56px; object-fit:cover; border-radius:var(--r-sm); background:var(--surface-2)}
-.bphotos .sig{display:flex; flex-direction:column; gap:1px; font-size:.78rem; color:var(--ink-3)}
-.bphotos .sig b{font-size:.92rem; color:var(--ink)}
-.bphotos .mo{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.05rem; color:var(--sea); text-align:right}
-.bphotos .mo em{font-style:normal; font-size:.7rem; color:var(--ink-3)}
-.bphotos .mo i{display:block; font-style:normal; font-size:.68rem; color:var(--ink-3)}
+/* ── Le best-of : le podium en grand, la suite en liste ── */
+.bbloc > header .prov{
+  margin-left:auto; font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-3); border:1px dashed var(--line); border-radius:99px; padding:2px 8px;
+}
+.bsous{
+  padding:14px 15px 2px; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
+}
+.bpodium{list-style:none; padding:10px 15px 4px; display:flex; flex-direction:column; gap:10px}
+.bpodium li{
+  display:grid; grid-template-columns:64px 1fr auto; gap:12px; align-items:center;
+  padding:10px; border-radius:var(--r-sm); border:1px solid var(--line); background:var(--surface-2);
+}
+.bpodium .p1{border-color:color-mix(in oklab,var(--ochre) 55%,transparent); background:var(--ochre-soft)}
+.bpodium img{grid-row:1 / span 2; width:64px; height:64px; object-fit:cover; border-radius:var(--r-sm); background:var(--surface)}
+.bpodium .med{
+  grid-column:2; font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-3); align-self:end;
+}
+.bpodium .p1 .med{color:var(--ochre)}
+.bpodium .p2 .med{color:#8e9298}
+.bpodium .p3 .med{color:#a9743f}
+.bpodium .sig{grid-column:2; display:flex; flex-direction:column; gap:1px; min-width:0}
+.bpodium .sig b{font-size:1rem}
+.bpodium .sig i{font-style:normal; font-size:.76rem; color:var(--ink-3)}
+.bpodium .sig em{font-style:normal; font-size:.72rem; color:var(--ink-2); font-family:var(--mono)}
+.bpodium .pts{
+  grid-column:3; grid-row:1 / span 2; text-align:right;
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.5rem; color:var(--sea);
+}
+.bpodium .pts em{font-style:normal; display:block; font-size:.66rem; color:var(--ink-3)}
+.bsuite{list-style:none; padding:4px 15px 8px}
+.bsuite li{display:grid; grid-template-columns:20px 38px 1fr auto; gap:10px; align-items:center; padding:7px 0}
+.bsuite li + li{border-top:1px solid var(--line-soft)}
+.bsuite .rg{font-family:var(--mono); font-size:.82rem; color:var(--ink-3); text-align:center}
+.bsuite img{width:38px; height:38px; object-fit:cover; border-radius:6px; background:var(--surface-2)}
+.bsuite .sig{display:flex; flex-direction:column; gap:1px; min-width:0}
+.bsuite .sig b{font-size:.88rem}
+.bsuite .sig i{font-style:normal; font-size:.72rem; color:var(--ink-3)}
+.bsuite .pts{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.95rem; color:var(--sea)}
+.bsuite .pts em{font-style:normal; font-size:.66rem; color:var(--ink-3); margin-left:2px}
 .bjours,.bgens{list-style:none; padding:6px 15px 12px}
 .bjours li{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:10px 0; align-items:center}
 .bjours li + li,.bgens li + li{border-top:1px solid var(--line-soft)}
@@ -3268,21 +3300,44 @@ function classementDuJour(n){
     .filter(x => x.photo)
     .sort((a, b) => b.p - a.p || b.voix.length - a.voix.length);
 }
-/* Le même calcul sur tout le séjour, pour le best-of. */
+/* Le même calcul sur tout le séjour, pour le best-of — avec le détail des
+   médailles, car deux photos à égalité de points ne se valent pas : celle
+   qu'on a mise première trois fois l'emporte sur celle qu'on a citée six
+   fois en dernier. */
 function classementDuSejour(){
-  const pts = {}, voix = {};
+  const par = {};
   Object.keys(PHOTOS.podiums).forEach(j => {
     Object.values(PHOTOS.podiums[j]).forEach(liste => {
       liste.slice(0, PHOTOS.podium).forEach((id, i) => {
-        pts[id] = (pts[id] || 0) + POINTS[i];
-        voix[id] = (voix[id] || 0) + 1;
+        const e = par[id] = par[id] || { p: 0, n: 0, med: [0, 0, 0] };
+        e.p += POINTS[i]; e.n++; e.med[i]++;
       });
     });
   });
-  return Object.entries(pts)
-    .map(([id, p]) => ({ id, p, n: voix[id], photo: PHOTOS.liste.find(x => x.id === id) }))
+  return Object.entries(par)
+    .map(([id, e]) => ({ id, ...e, photo: PHOTOS.liste.find(x => x.id === id) }))
     .filter(x => x.photo)
-    .sort((a, b) => b.p - a.p || b.n - a.n);
+    .sort((a, b) => b.p - a.p || b.med[0] - a.med[0] || b.med[1] - a.med[1] || b.n - a.n);
+}
+
+/* Et le classement des personnes : ce que leurs photos ont récolté. Une
+   moyenne par photo serait injuste — déposer cinq clichés et n'en réussir
+   qu'un vaut mieux que n'en déposer qu'un. On additionne donc, et l'on dit
+   à côté sur combien de photos c'est réparti. */
+function classementDesPhotographes(){
+  const cl = classementDuSejour();
+  return FAMILLE.map(f => {
+    const siennes = cl.filter(x => x.photo.qui === f.id);
+    return {
+      f,
+      p: siennes.reduce((t, x) => t + x.p, 0),
+      med: [0, 1, 2].map(i => siennes.reduce((t, x) => t + x.med[i], 0)),
+      distinguees: siennes.length,
+      deposees: PHOTOS.liste.filter(x => x.qui === f.id).length,
+      meilleure: siennes[0] || null
+    };
+  }).filter(x => x.deposees)
+    .sort((a, b) => b.p - a.p || b.med[0] - a.med[0] || b.distinguees - a.distinguees);
 }
 
 /* Un geste : on distingue, ou l'on retire. Le rang suivant libre est
@@ -4016,30 +4071,72 @@ function renderBilan(){
       </article>` : `<p class="baide">Aucune note pour l'instant : le bilan se remplit tout seul, soir après soir.</p>`}
 
       ${(() => {
-        /* Le best-of se fait tout seul : on classe par moyenne, et à moyenne
-           égale c'est le nombre de votes qui départage — une photo notée par
-           trois personnes vaut mieux qu'une notée par une seule. */
-        const classees = classementDuSejour().slice(0, 5).map(x => ({ ...x, p2: x.p, p: x.photo }));
-        const notees = classementDuSejour().length;
+        /* Le best-of se fait tout seul : chacun a distingué trois photos par
+           journée, il ne reste qu'à additionner. Trois blocs, du plus parlant
+           au plus détaillé — le podium, la suite du classement jusqu'à dix,
+           puis ce que chacun a récolté. */
         if (!PHOTOS.liste.length) return "";
+        const cl = classementDuSejour();
+        const podium = cl.slice(0, 3), suite = cl.slice(3, 10);
+        const gens = classementDesPhotographes();
+        const MED = ["Or", "Argent", "Bronze"];
+        const meds = x => [
+          x.med[0] ? `${x.med[0]} fois 1<sup>er</sup>` : "",
+          x.med[1] ? `${x.med[1]} fois 2<sup>e</sup>` : "",
+          x.med[2] ? `${x.med[2]} fois 3<sup>e</sup>` : ""
+        ].filter(Boolean).join(" · ");
+        if (!cl.length) return `<article class="bbloc">
+          <header><h3>Le best-of du séjour</h3></header>
+          <p class="baide">Aucune photo distinguée pour l'instant. Dans l'album d'une journée,
+            touchez le ＋ de vos trois préférées : le classement se fait tout seul.</p>
+        </article>`;
         return `<article class="bbloc">
-          <header><h3>Le best-of</h3></header>
-          ${classees.length ? `<ol class="bphotos">
-            ${classees.map((x, i) => `<li>
-              <span class="rang">${i + 1}</span>
-              <img src="${imgReduite(x.p.id, 200, 70)}" data-id="${x.p.id}" data-voir="${x.p.id}"
-                   width="200" height="200" loading="lazy" decoding="async"
-                   onerror="vignetteSecours(this)" alt="Photo de ${esc(nomDe(x.p.qui))}">
-              <span class="sig"><b>${esc(nomDe(x.p.qui))}</b>Jour ${x.p.jour}</span>
-              <span class="mo">${x.p2}<em>pt${x.p2 > 1 ? "s" : ""}</em>
-                <i>${x.n} voix</i></span>
+          <header><h3>Le best-of du séjour</h3>${
+            reste > 0 ? `<span class="prov">provisoire</span>` : ""}</header>
+          ${reste > 0 ? `<p class="baide">Il reste ${reste} journée${reste > 1 ? "s" : ""} :
+            le classement bougera encore. Il sera définitif au retour.</p>` : ""}
+
+          <ol class="bpodium">
+            ${podium.map((x, i) => `<li class="p${i + 1}">
+              <span class="med">${MED[i]}</span>
+              <img src="${imgReduite(x.id, 400, 74)}" data-id="${x.id}" data-voir="${x.id}"
+                   width="400" height="400" loading="lazy" decoding="async"
+                   onerror="vignetteSecours(this)" alt="Photo de ${esc(nomDe(x.photo.qui))}">
+              <span class="sig"><b>${esc(nomDe(x.photo.qui))}</b>
+                <i>Jour ${x.photo.jour} · ${esc(DOW_FULL[DAYS[+x.photo.jour - 1].dow])} ${esc(DAYS[+x.photo.jour - 1].dm)}</i>
+                <em>${meds(x)}</em></span>
+              <span class="pts">${x.p}<em>pt${x.p > 1 ? "s" : ""}</em></span>
             </li>`).join("")}
           </ol>
-          <p class="bnote">${notees} photo${notees > 1 ? "s" : ""} distinguée${notees > 1 ? "s" : ""} sur ${
+
+          ${suite.length ? `<p class="bsous">La suite du classement</p>
+            <ol class="bsuite" start="4">
+              ${suite.map((x, i) => `<li>
+                <span class="rg">${i + 4}</span>
+                <img src="${imgReduite(x.id, 160, 70)}" data-id="${x.id}" data-voir="${x.id}"
+                     width="160" height="160" loading="lazy" decoding="async"
+                     onerror="vignetteSecours(this)" alt="Photo de ${esc(nomDe(x.photo.qui))}">
+                <span class="sig"><b>${esc(nomDe(x.photo.qui))}</b><i>Jour ${x.photo.jour}</i></span>
+                <span class="pts">${x.p}<em>pt${x.p > 1 ? "s" : ""}</em></span>
+              </li>`).join("")}
+            </ol>` : ""}
+
+          <p class="bsous">Qui a le plus plu</p>
+          <ul class="bgens">
+            ${gens.map((g, i) => `<li class="${g.f.id === QUI ? "moi" : ""}">
+              <span class="qn">${i + 1}. ${esc(g.f.nom)}${g.f.id === QUI ? " <i>vous</i>" : ""}</span>
+              <span class="mo">${g.p}<em>pts</em></span>
+              <span class="de">${g.distinguees} photo${g.distinguees > 1 ? "s" : ""} distinguée${
+                g.distinguees > 1 ? "s" : ""} sur ${g.deposees} déposée${g.deposees > 1 ? "s" : ""}${
+                meds(g) ? ` · ${meds(g)}` : ""}</span>
+              ${g.meilleure ? `<span class="ext">Sa meilleure : jour ${g.meilleure.photo.jour}, ${
+                g.meilleure.p} point${g.meilleure.p > 1 ? "s" : ""}</span>` : ""}
+            </li>`).join("")}
+          </ul>
+
+          <p class="bnote">${cl.length} photo${cl.length > 1 ? "s" : ""} distinguée${cl.length > 1 ? "s" : ""} sur ${
             PHOTOS.liste.length}. Chacun désigne ses trois préférées du jour — 3 points, 2, puis 1 —
-            et le séjour additionne. Les vôtres, ce sont les autres qui les choisissent.</p>`
-          : `<p class="baide">Aucune photo distinguée pour l'instant. Dans l'album d'une journée,
-             touchez le ＋ de vos trois préférées : le classement se fait tout seul.</p>`}
+            et le séjour additionne. Les vôtres, ce sont les autres qui les choisissent.</p>
         </article>`;
       })()}
 
