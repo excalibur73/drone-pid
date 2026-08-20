@@ -945,6 +945,8 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
 .quota.plein{background:color-mix(in oklab,var(--ochre) 12%,transparent)}
 .quota.plein b{color:var(--ochre)}
 .albumaide{margin-top:8px; font-size:.76rem; color:var(--ink-3); line-height:1.5}
+.albumaide.fort{color:var(--ink-2); font-size:.83rem}
+.ajouter.survol{border-color:var(--sea); background:var(--sea-soft); color:var(--sea)}
 .ajouter{
   display:inline-flex; align-items:center; gap:8px; margin-top:12px;
   min-height:46px; padding:0 18px; border-radius:99px; cursor:pointer;
@@ -3608,10 +3610,14 @@ ${(() => {
                reste <= 0 ? "c'est complet. Retirez-en une pour libérer la place."
                : reste === 1 ? "il vous reste une place."
                : `il vous reste ${reste} places.`}</p>
-           ${reste > 0 ? `<label class="ajouter">
+           ${reste > 0 ? `<label class="ajouter" data-glisse="${d.n}">
              <input type="file" accept="image/*" multiple data-photo="${d.n}" class="cachefichier">
-             <svg><use href="#i-partage"/></svg>Ajouter ${reste === 1 ? "une photo" : "des photos"}
+             <svg><use href="#i-partage"/></svg>${reste === 1 ? "Ajouter une photo"
+               : `Ajouter jusqu'à ${reste} photos d'un coup`}
            </label>` : ""}
+           ${reste > 1 ? `<p class="albumaide fort">Elles se choisissent ensemble : dans la photothèque,
+             touchez-en plusieurs — chacune se coche — puis « Ajouter ». Elles partent trois par trois,
+             sans attendre les précédentes.</p>` : ""}
            <p class="albumaide">Cinq photos par personne et par journée, soit cinquante-cinq au plus
              chacun sur le séjour. Toute image est acceptée, quelle que soit sa date : si l'appareil
              la date d'un autre jour, on vous le signale sans rien refuser. Elles sont réduites
@@ -5187,6 +5193,38 @@ document.addEventListener("change", e => {
   const fichiers = [...ch.files];
   ch.value = "";                       // pour pouvoir reprendre la même photo
   envoyerPhotos(+ch.dataset.photo, fichiers);
+});
+
+/* ── Déposer, ou coller ──
+   Le sélecteur reste le chemin du téléphone. Sur un iPad ou un ordinateur,
+   faire glisser une poignée de photos sur le bouton — ou les coller — évite
+   d'ouvrir un dialogue pour rien. Trois chemins vers le même envoi groupé. */
+["dragenter", "dragover"].forEach(ev => document.addEventListener(ev, e => {
+  const z = e.target.closest && e.target.closest("[data-glisse]");
+  if (!z) return;
+  e.preventDefault();
+  z.classList.add("survol");
+}));
+document.addEventListener("dragleave", e => {
+  const z = e.target.closest && e.target.closest("[data-glisse]");
+  if (z) z.classList.remove("survol");
+});
+document.addEventListener("drop", e => {
+  const z = e.target.closest && e.target.closest("[data-glisse]");
+  if (!z) return;
+  e.preventDefault();
+  z.classList.remove("survol");
+  const f = [...(e.dataTransfer.files || [])].filter(x => /^image\//.test(x.type));
+  if (f.length) envoyerPhotos(+z.dataset.glisse, f);
+});
+document.addEventListener("paste", e => {
+  if (state.view !== "day" || !QUI) return;
+  const actif = document.activeElement;
+  if (actif && actif.matches && actif.matches("textarea, input")) return;   // on colle du texte
+  const f = [...(e.clipboardData ? e.clipboardData.files : [])].filter(x => /^image\//.test(x.type));
+  if (!f.length) return;
+  e.preventDefault();
+  envoyerPhotos(DAYS[state.day].n, f);
 });
 
 /* Le rendu est mis de côté pendant la frappe — c'est justement là que le
