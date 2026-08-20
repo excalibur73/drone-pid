@@ -795,6 +795,13 @@ tr.lnotes th{vertical-align:middle}
 .bsuite .sig i{font-style:normal; font-size:.72rem; color:var(--ink-3)}
 .bsuite .pts{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.95rem; color:var(--sea)}
 .bsuite .pts em{font-style:normal; font-size:.66rem; color:var(--ink-3); margin-left:2px}
+/* ── Ce que chacun a écrit ── */
+.becrits{padding:8px 15px 4px}
+.bjour + .bjour{border-top:1px solid var(--line-soft); margin-top:10px; padding-top:10px}
+.bj{font-family:var(--mono); font-size:.76rem; color:var(--ink-3); margin-bottom:5px}
+.bj b{color:var(--ink-2)}
+.bt{font-size:.9rem; line-height:1.55; color:var(--ink-2); margin-top:4px}
+.bt b{color:var(--sea); font-family:var(--mono); font-size:.78rem}
 .bjours,.bgens{list-style:none; padding:6px 15px 12px}
 .bjours li{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:10px 0; align-items:center}
 .bjours li + li,.bgens li + li{border-top:1px solid var(--line-soft)}
@@ -1271,6 +1278,12 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
 
 /* ─────────────────────────────  CARNET  ───────────────────────────── */
 .carnet{margin-top:22px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); align-items:start}
+.carnetintro{
+  grid-column:1/-1; margin:0; padding:11px 14px; border-radius:var(--r-sm);
+  background:var(--surface-2); border:1px solid var(--line-soft);
+  font-size:.85rem; line-height:1.55; color:var(--ink-2);
+}
+.carnetintro b{color:var(--sea)}
 .card{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow); overflow:hidden}
 .card > header{padding:12px 16px; border-bottom:1px solid var(--line-soft); background:var(--surface-2)}
 .card > header h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
@@ -4140,6 +4153,31 @@ function renderBilan(){
         </article>`;
       })()}
 
+      ${(() => {
+        /* Les textes du soir, journée par journée. Ils vivaient dans le
+           carnet, à côté des adresses et des numéros d'urgence : deux choses
+           différentes, l'une pour se repérer pendant le séjour, l'autre pour
+           le relire ensuite. Et ils y étaient nominatifs, ce qui vendait la
+           mèche du jeu — ici, ils suivent le même masque qu'ailleurs. */
+        const jours = DAYS.filter(d => AVIS[d.n] && avisRanges(AVIS[d.n]).some(x => (x.a.txt || "").trim()));
+        if (!jours.length) return "";
+        return `<article class="bbloc">
+          <header><h3>Ce que chacun a écrit</h3></header>
+          <div class="becrits">
+            ${jours.map(d => `<div class="bjour">
+              <p class="bj"><b>Jour ${d.n}</b> ${esc(DOW_FULL[d.dow])} ${esc(d.dm)} — ${esc(d.title)}</p>
+              ${avisRanges(AVIS[d.n]).filter(x => (x.a.txt || "").trim()).map((x, i) => `<p class="bt">
+                <b>${REVELER ? esc(nomDe(x.id)) : `Avis ${i + 1}`}</b>${
+                  REVELER && x.a.note ? ` · ${x.a.note}/5` : ""} — ${esc(x.a.txt)}</p>`).join("")}
+            </div>`).join("")}
+          </div>
+          <div class="bactions">
+            <button type="button" class="reveler">${
+              REVELER ? "Masquer les auteurs" : "Révéler qui a écrit quoi"}</button>
+          </div>
+        </article>`;
+      })()}
+
       <article class="bbloc">
         <header><h3>Chacun de nous</h3></header>
         <ul class="bgens">
@@ -4956,6 +4994,9 @@ function renderCarnet(){
   const notees = Object.entries(NOTES).filter(([, v]) => v && v.trim());
   document.getElementById("carnetView").innerHTML = `
     <div class="carnet">
+      <p class="carnetintro">De quoi se débrouiller sur place : les alarmes, les mots grecs, les
+        adresses, les numéros et vos propres références. Ce qu'on a pensé du séjour — notes,
+        commentaires, photos, best-of — se lit dans <b>Bilan</b>.</p>
       <article class="card">
         <header>
           <h3>Alarmes sur le téléphone</h3>
@@ -5017,25 +5058,6 @@ function renderCarnet(){
               ${BASES[ph].lien ? `<a class="maplink" href="${BASES[ph].lien.u}" target="_blank" rel="noopener noreferrer">${esc(BASES[ph].lien.t)}</a>` : ""}
             </div>
           </div>`).join("")}
-        </div>
-      </article>
-
-      <article class="card" style="grid-column:1/-1">
-        <header>
-          <h3>Carnet de bord</h3>
-          <p>Ce que chacun a noté sur cet appareil. Rien ne circule tout seul : envoyez le journal pour le partager.</p>
-        </header>
-        <div class="inner">
-          ${(() => {
-            const jours = DAYS.filter(d => AVIS[d.n] && Object.keys(AVIS[d.n]).length);
-            if (!jours.length) return `<p style="font-size:.88rem;color:var(--ink-3)">Rien de noté pour l'instant. La notation se fait en bas de chaque journée.</p>`;
-            return jours.map(d => `<div class="fld">
-              <span>${DOW_FULL[d.dow]} ${esc(d.dm)} — ${esc(d.title)}</span>
-              ${Object.entries(AVIS[d.n]).map(([id, v]) => `<p style="font-size:.88rem">
-                <b>${esc(nomDe(id))}</b>${v.note ? ` · ${v.note}/5` : ""}${v.txt ? ` — ${esc(v.txt)}` : ""}</p>`).join("")}
-            </div>`).join("");
-          })()}
-          <button class="bigbtn" id="journalBtn"><svg><use href="#i-partage"/></svg>Envoyer le journal</button>
         </div>
       </article>
 
