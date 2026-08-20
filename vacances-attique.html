@@ -5137,13 +5137,17 @@ function goToDay(i){
    et il revient à la journée du jour, sur l'étape qui vient : c'est ce qu'on
    veut voir en le reprenant.
 
+   Une seule cause : trente secondes sans un geste. Rien d'autre ne déclenche
+   le retour — reprendre le téléphone après une heure ne déplace pas l'écran
+   sous les doigts, le décompte repart simplement de zéro, et il faut à
+   nouveau trente secondes de calme.
+
    Trois retenues. On ne bouge pas si l'on est déjà sur cette page — arracher
    quelqu'un à sa lecture serait pire que le mal. Ni pendant une saisie, ni
    devant une photo ouverte : un écran qui se dérobe en pleine phrase est une
-   trahison. Et l'écran éteint ne compte pas comme de l'inactivité : c'est au
-   retour, si l'absence a duré, que le programme se remet en place aussitôt. */
+   trahison. */
 const INACTIF_MS = 30000;
-let inactifT = null, masqueDepuis = 0;
+let inactifT = null;
 
 const surLaJourneeDuJour = () => {
   const auj = dayIndexToday();
@@ -5184,12 +5188,12 @@ function relancerInactivite(){
      désactivait le retour pour le reste de la soirée. */
   inactifT = setTimeout(() => { revenirALaJournee(); relancerInactivite(); }, INACTIF_MS);
 }
-["pointerdown", "keydown", "wheel", "touchstart", "scroll", "input"].forEach(ev =>
-  addEventListener(ev, relancerInactivite, { passive:true }));
+["pointerdown", "pointerup", "click", "keydown", "wheel", "touchstart", "touchmove", "scroll", "input"]
+  .forEach(ev => addEventListener(ev, relancerInactivite, { passive:true }));
+/* L'écran éteint arrête le décompte au lieu de le poursuivre : au retour,
+   on repart de trente secondes pleines. */
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden){ masqueDepuis = Date.now(); clearTimeout(inactifT); return; }
-  if (masqueDepuis && Date.now() - masqueDepuis >= INACTIF_MS) revenirALaJournee();
-  masqueDepuis = 0;
+  if (document.hidden){ clearTimeout(inactifT); return; }
   relancerInactivite();
 });
 relancerInactivite();
