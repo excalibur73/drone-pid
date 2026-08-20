@@ -1613,7 +1613,14 @@ const DAYS = [
              note:"Billets à prendre sur place, au guichet du stade : ils ne se vendent pas en ligne. 10 € plein tarif, 5 € tarif réduit sur présentation d'une carte d'étudiant. Espèces ou carte bancaire. Ouvert dès 8 h, donc aucune file à cette heure"},
             {t:"site", ttl:"Relève des evzones", ll:"37.9755,23.7348", when:"11 h", det:"Place Syntagma — la relève se fait à chaque heure pile",
              note:"Dix minutes à pied depuis le stade en traversant le Jardin national, à l'ombre"} ],
-    aprem:[ {t:"swim", ttl:"Plage d'Alimos", ll:"37.9007,23.7060"} ],
+    /* Ce n'était pas une après-midi de plage : entre la relève de 11 h et
+       l'embarquement, il n'y a que le temps de rentrer, de déjeuner léger et
+       de préparer le sac. Annoncer une baignade laissait croire à un moment
+       libre qui n'existe pas. */
+    aprem:[ {t:"plain", ttl:"Retour à l'hôtel — on se prépare", when:"13 h 30 – 15 h",
+             corrige:"Ce n'est pas une après-midi de plage : le créneau sert à se préparer pour la croisière.",
+             det:"Sac du bateau et un peu de repos, une fois le déjeuner pris — l'embarquement est à 15 h 45 et la soirée sera longue",
+             note:"Maillot déjà mis sous les vêtements : on ne se change pas à bord sans gêne. La plage de l'hôtel est à 500 m si quelqu'un veut se tremper, mais il faut être sec et prêt à 15 h"} ],
     soir:[ {t:"depart", ttl:"Départ", when:"15 h", map:dir(ALIMOS, "37.938196,23.6852153"),
             corrige:"Avancé : l'embarquement est à 15 h 45, le PDF partait à 16 h 15."},
            {t:"site", ttl:"Croisière au couchant", ll:"37.9382,23.6852", note:"Réservée", sunset:true,
