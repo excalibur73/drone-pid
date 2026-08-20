@@ -3383,25 +3383,41 @@ async function dateDePriseDeVue(fichier){
   } catch { return null; }
 }
 
-async function tailleDe(fichier){
-  try {
-    const bm = await createImageBitmap(fichier);
-    const t = { w: bm.width, h: bm.height };
-    bm.close();
-    return t;
-  } catch { return null; }
+/* ── Décompresser sans étouffer le téléphone ──
+   Une photo d'iPhone fait 4032 × 3024 : décompressée, elle occupe près de
+   cinquante mégaoctets en mémoire vive. En décoder trois en même temps —
+   et deux fois chacune, une fois pour connaître sa taille, une fois pour la
+   réduire — dépasse ce que Safari accorde à un onglet : le décodage échoue,
+   ou la page se recharge d'elle-même en pleine série. Vu du téléphone, cela
+   ressemble à « l'ajout groupé ne marche pas ».
+
+   D'où deux règles. Une seule image se décompresse à la fois, quel que soit
+   le nombre d'envois en vol ; et chaque fichier n'est décodé qu'une fois,
+   ses dimensions venant de la même image que sa réduction. */
+let fileDecodage = Promise.resolve();
+function enFileDeDecodage(travail){
+  const tour = fileDecodage.then(travail, travail);
+  /* La file ne doit pas se rompre sur un échec : on la referme aussitôt. */
+  fileDecodage = tour.then(() => {}, () => {});
+  return tour;
 }
 
 async function reduire(fichier){
   const bitmap = await createImageBitmap(fichier, { imageOrientation: "from-image" });
-  const f = Math.min(1, COTE_MAX / Math.max(bitmap.width, bitmap.height));
-  const w = Math.round(bitmap.width * f), h = Math.round(bitmap.height * f);
+  const wSource = bitmap.width, hSource = bitmap.height;
+  const f = Math.min(1, COTE_MAX / Math.max(wSource, hSource));
+  const w = Math.round(wSource * f), h = Math.round(hSource * f);
   const toile = document.createElement("canvas");
   toile.width = w; toile.height = h;
   toile.getContext("2d").drawImage(bitmap, 0, 0, w, h);
   bitmap.close();
   const blob = await new Promise(r => toile.toBlob(r, "image/jpeg", 0.82));
-  return { blob, w, h };
+  /* Ramener la toile à zéro rend sa mémoire tout de suite : sans cela, iOS
+     la garde jusqu'au prochain ramasse-miettes, et la photo suivante se
+     décompresse dans ce qu'il en reste. */
+  toile.width = toile.height = 0;
+  if (!blob) throw new Error("le navigateur n'a pas su la lire");
+  return { blob, w, h, wSource, hSource };
 }
 
 async function lirePhotos(){
@@ -3424,7 +3440,8 @@ async function lirePhotos(){
 }
 
 let ENVOI = null;                       // { faits, total } pendant un envoi
-let REFUS = null;                       // photos écartées, et pourquoi
+let REFUS = null;                       // photos d'un autre jour, signalées
+let ECHECS = null;                      // photos qui ne sont pas passées, et pourquoi
 async function envoyerPhotos(jour, fichiers){
   if (!QUI || !fichiers.length) return;
   const jourDit = DAYS.find(x => x.n === jour);
@@ -3444,18 +3461,16 @@ async function envoyerPhotos(jour, fichiers){
      Seule la taille reste éliminatoire : un rectangle de vingt pixels dans
      un album, c'est un défaut d'affichage, pas une photo. */
   ENVOI = { faits: 0, total: fichiers.length, verif: true };
-  REFUS = null;
+  REFUS = null; ECHECS = null;
   render();
   const bons = [], dautresJours = [];
-  const minus = [];
+  /* La date de prise de vue se lit sur les 256 premiers kilo-octets : aucune
+     image n'est décompressée ici, la mémoire reste libre pour la suite. */
   for (const f of fichiers){
     const prise = await dateDePriseDeVue(f);
-    const t = await tailleDe(f);
-    if (t && Math.max(t.w, t.h) < 200){ minus.push(f); continue; }
     if (prise && prise !== jourDit.date) dautresJours.push({ f, prise });
     bons.push({ f, prise });
   }
-  if (minus.length) toast(`${minus.length} image${minus.length > 1 ? "s" : ""} trop petite${minus.length > 1 ? "s" : ""} pour un album`);
   if (dautresJours.length){
     const par = {};
     dautresJours.forEach(e => { par[e.prise] = (par[e.prise] || 0) + 1; });
@@ -3478,31 +3493,39 @@ async function envoyerPhotos(jour, fichiers){
   const uneVoie = async () => {
     while (suivant < bons.length){
       const { f, prise } = bons[suivant++];
+      const nom = f.name || "photo";
       try {
-        const { blob, w, h } = await reduire(f);
+        /* La réduction passe par la file : une seule à la fois. L'envoi, lui,
+           reste parallèle — c'est le réseau qui est lent, pas le calcul. */
+        const paquet = await enFileDeDecodage(() => reduire(f));
+        if (Math.max(paquet.wSource, paquet.hSource) < 200)
+          throw new Error("image trop petite pour un album");
+        const { blob, w, h } = paquet;
         const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}${prise ? `&pris=${prise}` : ""}`, {
           method:"POST", headers:{ "content-type":"image/jpeg" }, body:blob
         });
         if (!r.ok){
           const t = await r.text();
           throw new Error(t.includes("quota") ? `vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`
-            : t.includes("jour") ? "cette photo n'a pas été prise ce jour-là"
             : t.includes("trop-petite") ? "image trop petite pour un album"
-            : t.slice(0, 60));
+            : t.slice(0, 60) || `refus du serveur (${r.status})`);
         }
         if (ENVOI) ENVOI.faits++;
       } catch (e){
         /* Une photo refusée ou un réseau qui cligne n'emporte pas les
            autres : chaque voie continue, et le compte est dit à la fin. */
-        rates.push(String(e.message || e).slice(0, 70));
+        const m = String((e && e.message) || e);
+        rates.push({ nom, pourquoi: /decode|Image|bitmap|source/i.test(m) && !/trop petite/.test(m)
+          ? "le navigateur n'a pas su la lire" : m.slice(0, 70) });
       }
       majEnvoi();
     }
   };
   await Promise.all(Array.from({ length: Math.min(FRONT, bons.length) }, uneVoie));
   ENVOI = null;
-  if (rates.length) toast(rates.length === 1 ? "Une photo n'est pas passée : " + rates[0]
-    : `${rates.length} photos ne sont pas passées — ${rates[0]}`);
+  /* Un message qui s'efface en trois secondes ne dit rien à qui regarde
+     ailleurs pendant l'envoi : les échecs restent affichés, nommés. */
+  ECHECS = rates.length ? { jour, liste: rates, reussies: bons.length - rates.length } : null;
 
   await lirePhotos();
 }
@@ -3565,6 +3588,16 @@ ${(() => {
         <ul>${REFUS.motifs.map(r => `<li>${r.n} prise${r.n > 1 ? "s" : ""} le ${r.date.slice(8)}/${r.date.slice(5, 7)}${
           r.va ? ` — <button type="button" class="allerauj" data-i="${r.va - 1}">voir le ${esc(r.nom)}</button>` : " — hors séjour"}</li>`).join("")}</ul>
         <button type="button" class="oublirefus">J'ai compris</button>
+      </div>`;
+    })()}
+${(() => {
+      if (!ECHECS || ECHECS.jour !== d.n) return "";
+      const n = ECHECS.liste.length, ok2 = ECHECS.reussies;
+      return `<div class="refus">
+        <p><b>${n} photo${n > 1 ? "s" : ""} n'${n > 1 ? "ont" : "a"} pas pu être envoyée${n > 1 ? "s" : ""}</b>${
+          ok2 ? ` — ${ok2 > 1 ? `les ${ok2} autres sont bien arrivées` : "l'autre est bien arrivée"}.` : "."}</p>
+        <ul>${ECHECS.liste.map(x => `<li>${esc(x.nom)} — ${esc(x.pourquoi)}</li>`).join("")}</ul>
+        <button type="button" class="oubliechecs">J'ai compris</button>
       </div>`;
     })()}
     ${PHOTOS.echec && !mes.length ? `<p class="albumvide alerte">Photos injoignables pour l'instant —
@@ -5135,6 +5168,7 @@ document.addEventListener("click", e => {
   if (vig){ ouvrirPhoto(vig.dataset.voir); return; }
   if (e.target.closest(".vfermer")){ document.getElementById("visionneuse").close(); return; }
   if (e.target.closest(".oublirefus")){ REFUS = null; render(); return; }
+  if (e.target.closest(".oubliechecs")){ ECHECS = null; render(); return; }
   if (e.target.closest(".rafraichir[data-photos-maj]")){ lirePhotos(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
