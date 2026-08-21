@@ -5380,10 +5380,14 @@ function goToDay(i){
    sous les doigts, le décompte repart simplement de zéro, et il faut à
    nouveau trente secondes de calme.
 
-   Trois retenues. On ne bouge pas si l'on est déjà sur cette page — arracher
-   quelqu'un à sa lecture serait pire que le mal. Ni pendant une saisie, ni
-   devant une photo ouverte : un écran qui se dérobe en pleine phrase est une
-   trahison. */
+   Quatre retenues. On ne bouge pas si l'on est déjà sur cette page —
+   arracher quelqu'un à sa lecture serait pire que le mal. Ni pendant une
+   saisie, ni devant une photo ouverte : un écran qui se dérobe en pleine
+   phrase est une trahison. Ni, surtout, tant qu'un morceau de texte est
+   sélectionné : choisir un passage au doigt, puis viser « Copier » dans le
+   menu du téléphone, prend facilement plus de trente secondes, et pendant
+   ce temps la page ne reçoit aucun geste — le menu appartient à iOS, pas à
+   nous. L'écran changeait alors sous la sélection, qui se perdait. */
 const INACTIF_MS = 30000;
 let inactifT = null;
 
@@ -5402,6 +5406,9 @@ function occupeAilleurs(){
   const a = document.activeElement;
   if (a && a.matches && a.matches("textarea, input, select")) return true;
   if (document.querySelector("dialog[open]")) return true;
+  /* Une sélection en cours, c'est quelqu'un qui s'apprête à copier. */
+  const sel = window.getSelection && window.getSelection();
+  if (sel && !sel.isCollapsed && String(sel).trim()) return true;
   /* Le répit ne vaut que si la journée commentée est bien celle qu'on a sous
      les yeux : partir voir la vue parallèle, c'est avoir fini d'écrire. */
   return state.view === "day" && AVIS_TOUCHE.jour === DAYS[state.day].n
@@ -5428,6 +5435,9 @@ function relancerInactivite(){
 }
 ["pointerdown", "pointerup", "click", "keydown", "wheel", "touchstart", "touchmove", "scroll", "input"]
   .forEach(ev => addEventListener(ev, relancerInactivite, { passive:true }));
+/* Déplacer une poignée de sélection n'envoie pas toujours d'événement tactile
+   à la page : le changement de sélection, lui, se voit toujours. */
+document.addEventListener("selectionchange", relancerInactivite);
 /* L'écran éteint arrête le décompte au lieu de le poursuivre : au retour,
    on repart de trente secondes pleines. */
 document.addEventListener("visibilitychange", () => {
