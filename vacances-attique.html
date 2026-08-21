@@ -134,8 +134,28 @@ h1 em{font-style:italic; color:var(--sea)}
 /* ─────────────────────────────  TOOLBAR  ───────────────────────────── */
 .toolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:16px 0 4px}
 .seg{display:flex; border:1px solid var(--line); border-radius:99px; overflow:hidden; background:var(--surface)}
-.seg button{padding:7px 15px; font-size:.86rem; font-weight:600; color:var(--ink-2); transition:background .18s,color .18s}
+/* Quarante pixels de haut : un onglet se touche aussi sur une tablette. */
+.seg button{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:40px; padding:0 15px; font-size:.86rem; font-weight:600;
+  color:var(--ink-2); transition:background .18s,color .18s;
+}
 .seg button[aria-pressed="true"]{background:var(--ink); color:var(--ground)}
+/* Cinq onglets ne tiennent pas sur la largeur d'un téléphone : la pilule les
+   rognait, et « Bilan » — le dernier — était purement inaccessible. Sous
+   620 px, on abandonne la pilule pour des pastilles qui se rangent sur deux
+   lignes : tout est visible, rien ne se cache derrière un débordement. */
+@media (max-width:620px){
+  .seg{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
+    border:none; border-radius:0; background:none; overflow:visible; width:100%;
+  }
+  .seg button{
+    min-height:40px; padding:0 6px; font-size:.8rem;
+    border:1px solid var(--line); border-radius:99px; background:var(--surface);
+  }
+  .seg button[aria-pressed="true"]{border-color:var(--ink)}
+}
 .filters{display:flex; gap:7px; flex-wrap:wrap}
 .f{
   display:inline-flex; align-items:center; gap:6px;
