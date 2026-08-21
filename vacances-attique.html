@@ -650,6 +650,11 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .etatjour.ouvert{color:var(--sea)}
 .etatjour.passe{color:var(--ink-3)}
 .etatjour.ferme{color:var(--ink-3); border-style:dashed}
+.relance{
+  display:inline-flex; align-items:center; min-height:34px; padding:0 13px; margin-left:6px;
+  border:1px solid var(--sea); border-radius:99px; background:var(--sea-soft);
+  color:var(--sea); font-size:.82rem;
+}
 .allerauj{
   color:var(--sea); font-weight:600; text-decoration:underline; text-underline-offset:3px;
   font-size:inherit; padding:0;
@@ -4574,11 +4579,14 @@ document.addEventListener("focusout", () => {
   if (!RENDU_DIFFERE) return;
   setTimeout(() => { if (RENDU_DIFFERE && !enSaisie()) renderSiLibre(); }, 60);
 });
-/* La sélection relâchée, de même. */
-document.addEventListener("selectionchange", () => {
-  if (!RENDU_DIFFERE || enSelection()) return;
-  setTimeout(() => { if (RENDU_DIFFERE && !enSaisie() && !enSelection()) renderSiLibre(); }, 200);
-});
+/* La sélection relâchée, on ne se précipite pas : iOS la referme au moment
+   même où l'on touche « Copier », et redessiner là serait aussi brutal
+   qu'avant. On attend le geste suivant — un doigt qui reprend la page. */
+["pointerdown", "touchstart", "wheel", "keydown"].forEach(ev =>
+  addEventListener(ev, () => {
+    if (!RENDU_DIFFERE || enSaisie() || enSelection()) return;
+    setTimeout(() => { if (RENDU_DIFFERE && !enSaisie() && !enSelection()) renderSiLibre(); }, 250);
+  }, { passive:true }));
 
 let DERNIERE_LECTURE = 0, LECTURE_EN_COURS = false;
 
@@ -4945,7 +4953,16 @@ function renderRail(){
       </button>`;
   }).join("");
   const sel = rail.querySelector('[aria-selected="true"]');
-  if (sel) sel.scrollIntoView({ block:"nearest", inline:"center" });
+  if (sel){
+    /* Centrer la pastille dans sa barre, sans jamais toucher au défilement de
+       la page. scrollIntoView, lui, remonte tous les parents jusqu'au
+       document : au moindre redessin — et il y en a un toutes les trente
+       secondes — le lecteur était ramené en haut de la journée, exactement
+       comme s'il avait été renvoyé ailleurs. */
+    const cible = sel.offsetLeft - (rail.clientWidth - sel.offsetWidth) / 2;
+    const max = Math.max(0, rail.scrollWidth - rail.clientWidth);
+    rail.scrollLeft = Math.max(0, Math.min(max, cible));
+  }
 }
 
 /* ════════════════════════════  VUE JOUR  ════════════════════════════ */
@@ -5244,6 +5261,19 @@ function renderCarnet(){
 
       <article class="card">
         <header>
+          <h3>Quelle version ai-je ?</h3>
+          <p>Utile quand une correction ne semble pas arriver : c'est presque toujours une page restée en mémoire.</p>
+        </header>
+        <div class="inner">
+          <p class="fixe"><span>Version chargée</span><b id="versionIci">${esc(MA_VERSION || "inconnue")}</b></p>
+          <p class="fixe"><span>Version publiée</span><b id="versionLa">—</b></p>
+          <p id="versionDit" class="albumaide">Touchez « Vérifier » pour comparer.</p>
+          <button class="bigbtn" id="versionBtn"><svg><use href="#i-cal"/></svg>Vérifier, et recharger si besoin</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <header>
           <h3>Le programme en PDF</h3>
           <p>À envoyer à qui n'a pas l'application — ou à garder, tout simplement.</p>
         </header>
@@ -5391,6 +5421,9 @@ function render(){
   }
 }
 function goToDay(i){
+  /* Un indice absent — un bouton qui porte la classe sans le numéro — donnait
+     NaN, et la page se redessinait sur une journée inexistante. */
+  if (!Number.isFinite(i)) return;
   state.day = Math.max(0, Math.min(DAYS.length - 1, i));
   if (state.view !== "day"){ state.view = "day"; syncSeg(); }
   render();
@@ -5657,7 +5690,7 @@ document.getElementById("viewBilan").addEventListener("click", () => { state.vie
    ferait perdre le curseur au milieu d'une phrase. */
 let saveT;
 document.addEventListener("click", e => {
-  const versAuj = e.target.closest(".allerauj");
+  const versAuj = e.target.closest(".allerauj[data-i]");
   if (versAuj){ goToDay(+versAuj.dataset.i); return; }
   if (e.target.closest(".changequi")){
     QUI = null; RECONNUS = null; CHOIX = null; ERREUR_CODE = "";
@@ -5709,6 +5742,8 @@ document.addEventListener("click", e => {
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
   if (e.target.closest("#journalBtn") || e.target.closest("#journalBtn2")) envoyerJournal();
+  if (e.target.closest("#rechargerDur")){ rechargerDur(); return; }
+  if (e.target.closest("#versionBtn")){ comparerVersions(); return; }
   if (e.target.closest("#pdfBtn")){ ouvrirDossier(); return; }
   if (e.target.closest("#pdfgo")){ imprimerDossier(); return; }
 });
@@ -5996,6 +6031,38 @@ async function verifierVersion(){
     if (v && v !== MA_VERSION && !banniereMontree && Date.now() >= REPORT_MAJ) montrerMaj(v);
   } catch { /* hors connexion : rien à signaler */ }
 }
+/* Comparer à la demande, et le dire en clair. Une correction qui « n'arrive
+   pas » vient presque toujours d'une page gardée en mémoire par le téléphone,
+   surtout depuis l'écran d'accueil où l'application n'est jamais rechargée. */
+async function comparerVersions(){
+  const la = document.getElementById("versionLa");
+  const dit = document.getElementById("versionDit");
+  if (!la || !dit) return;
+  la.textContent = "…"; dit.textContent = "Vérification en cours…";
+  try {
+    const v = (await (await fetch("/version.txt", { cache:"no-store" })).text()).trim();
+    la.textContent = v || "?";
+    if (!MA_VERSION){ dit.textContent = "Cette page ne porte pas de version : ouvrez athenes-2026.netlify.app."; return; }
+    if (v === MA_VERSION){
+      dit.textContent = "Vous avez la dernière version. Si quelque chose ne va pas, c'est un vrai défaut — dites-le.";
+      return;
+    }
+    dit.innerHTML = `Votre page est ancienne. <button type="button" class="relance" id="rechargerDur">Recharger maintenant</button>`;
+  } catch { dit.textContent = "Vérification impossible — pas de réseau."; }
+}
+/* Recharger en contournant tout ce qui a pu être gardé : le cache du
+   navigateur, et celui du service worker. */
+async function rechargerDur(){
+  try {
+    if ("caches" in window) await Promise.all((await caches.keys()).map(k => caches.delete(k)));
+    if (navigator.serviceWorker){
+      const rs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(rs.map(r => r.update().catch(() => {})));
+    }
+  } catch {}
+  location.replace(location.pathname + "?v=" + Date.now() + location.hash);
+}
+
 /* Le bandeau était discret, en bas de l'écran, là où le pouce le masque et
    où l'œil ne va pas. Il occupe désormais le haut sur toute la largeur, au
    premier plan, et repousse la page pour ne rien recouvrir — y compris
