@@ -6098,9 +6098,16 @@ addEventListener("focus", revoirPrevisions);
 addEventListener("online", () => chargerPrevisions(true));
 setInterval(revoirPrevisions, 5 * 60 * 1000);
 chargerPrevisions(true);
+/* Toutes les trente secondes, les compteurs se remettent à l'heure. C'est ce
+   rythme-là qui cassait le copier-coller : redessiner la journée détruit les
+   nœuds qui portent la sélection, et l'on perdait le texte choisi avant même
+   d'avoir atteint « Copier » dans le menu du téléphone. On s'abstient donc
+   pendant une sélection comme pendant une frappe — et l'on repasse par
+   renderSiLibre, qui sait mettre le rendu de côté et le rattraper. */
 setInterval(() => {
   renderStatus();
-  const enSaisie = document.activeElement && document.activeElement.closest("textarea,input");
-  if (state.view === "day" && !state.query && !enSaisie) renderDay();
+  if (state.view !== "day" || state.query) return;
+  if (enSaisie() || enSelection()){ RENDU_DIFFERE = true; DIFFERE_DEPUIS = DIFFERE_DEPUIS || Date.now(); return; }
+  renderDay();
 }, 30000);
 </script>
