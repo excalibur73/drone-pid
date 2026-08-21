@@ -1951,6 +1951,10 @@ DAYS.forEach(d => {
     if (it.t === "depart"){ dejaMontre = true; return; }
     if (it.parBateau){ dejaMontre = false; ici = it.ll || ici; return; }   // on y va par la mer
     if (!it.ll){ return; }
+    /* Le départ qui précède porte déjà cet itinéraire : le répéter sur
+       l'étape faisait deux boutons identiques l'un sous l'autre, et le second
+       proposait de repartir de l'hôtel alors qu'on y était déjà arrivé. */
+    if (it.ll !== ici && dejaMontre) it.itiDejaDit = true;
     if (it.ll !== ici && !dejaMontre){
       const e = estimer(ici, it.ll, d.phase);
       /* Un lien posé à la main garde sa destination : on n'ajoute que la durée. */
@@ -4833,9 +4837,11 @@ function renderRail(){
 function itemHTML(day, slot, it, i, vedette){
   const etat = etatEtape(day, slot, it);
   const done = etat === "passe";
-  /* La carte du haut porte déjà l'itinéraire de cette étape : inutile de le
-     répéter à un écran d'écart. */
-  const repete = vedette === `${slot}.${i}`;
+  /* On ne masque le bouton que devant un vrai doublon : le départ juste
+     au-dessus. La carte du haut est à un écran de là — la lui laisser en
+     exclusivité privait de son itinéraire l'étape qu'on est en train de
+     faire, celle-là même qu'on cherche à rejoindre. */
+  const repete = !!it.itiDejaDit;
   return `${it.depuis ? `<p class="trajetlien${done ? " passe" : ""}">
     <svg><use href="#${it.depuis.pied ? "i-plain" : "i-depart"}"/></svg>
     <span>Depuis ${esc(it.depuis.de)} — <b>${esc(it.depuis.km)}</b>, ≈ ${it.depuis.min} min ${
