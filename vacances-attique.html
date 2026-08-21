@@ -6024,11 +6024,41 @@ addEventListener("hashchange", () => { if (fromHash()) render(); });
 const MA_VERSION = (document.querySelector('meta[name="version"]') || {}).content || null;
 let banniereMontree = false;
 
-async function verifierVersion(){
+/* ── Se remettre à jour tout seul ──
+   Depuis l'écran d'accueil, iOS ne recharge jamais l'application : il la
+   suspend et la restaure telle quelle, indéfiniment. On peut ainsi utiliser
+   pendant des jours une page d'avant-hier sans le soupçonner, et croire que
+   les corrections n'arrivent pas — c'est arrivé.
+
+   Le bandeau ne suffit pas : il se repousse, et l'on finit par ne plus le
+   voir. Quand la page a été mise de côté un long moment et qu'une version
+   plus récente existe, on recharge donc sans rien demander. Jamais au milieu
+   de quelque chose : ni pendant une frappe, une sélection, un envoi de
+   photos, une fenêtre ouverte, ni s'il reste des avis à envoyer — ils sont
+   gardés sur le téléphone, mais autant les laisser partir d'abord. */
+let MASQUE_DEPUIS = 0;
+const ABSENCE_LONGUE = 5 * 60 * 1000;
+
+function peutSeRecharger(){
+  if (enSaisie() || enSelection()) return false;
+  if (document.querySelector("dialog[open]")) return false;
+  if (ENVOI) return false;
+  if (ENATTENTE.length) return false;
+  return true;
+}
+
+/* La durée d'absence se mesure avant l'attente du réseau : la lire après
+   donnerait zéro, puisque le retour au premier plan l'a déjà remise à zéro. */
+async function verifierVersion(absence){
   if (!MA_VERSION || !navigator.onLine) return;
   try {
     const v = (await (await fetch("/version.txt", { cache:"no-store" })).text()).trim();
-    if (v && v !== MA_VERSION && !banniereMontree && Date.now() >= REPORT_MAJ) montrerMaj(v);
+    if (!v || v === MA_VERSION) return;
+    if (absence >= ABSENCE_LONGUE && peutSeRecharger()){
+      location.replace(location.pathname + "?v=" + Date.now() + location.hash);
+      return;
+    }
+    if (!banniereMontree && Date.now() >= REPORT_MAJ) montrerMaj(v);
   } catch { /* hors connexion : rien à signaler */ }
 }
 /* Comparer à la demande, et le dire en clair. Une correction qui « n'arrive
@@ -6100,7 +6130,7 @@ function montrerMaj(version){
     /* Rendez-vous pris à la minute près : s'en remettre au cycle de
        vérification aurait repoussé le retour jusqu'à un quart d'heure. */
     clearTimeout(RAPPEL_MAJ);
-    RAPPEL_MAJ = setTimeout(verifierVersion, 10 * 60 * 1000);
+    RAPPEL_MAJ = setTimeout(() => verifierVersion(0), 10 * 60 * 1000);
   });
   document.body.appendChild(el);
   /* La hauteur dépend du texte et de la largeur de l'écran : on la mesure
@@ -6118,12 +6148,16 @@ function fermerMaj(el){
 /* Une appli installée sur iOS peut rester gelée des jours : elle est restaurée
    depuis le cache mémoire sans rien recharger. On multiplie donc les occasions
    de vérifier — reprise d'onglet, retour de veille, retour du réseau, focus. */
-document.addEventListener("visibilitychange", () => { if (!document.hidden) verifierVersion(); });
-addEventListener("pageshow", verifierVersion);
-addEventListener("focus", verifierVersion);
-addEventListener("online", verifierVersion);
-setTimeout(verifierVersion, 2000);
-setInterval(verifierVersion, 5 * 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden){ MASQUE_DEPUIS = Date.now(); return; }
+  verifierVersion(MASQUE_DEPUIS ? Date.now() - MASQUE_DEPUIS : 0);
+  MASQUE_DEPUIS = 0;
+});
+addEventListener("pageshow", () => verifierVersion(0));
+addEventListener("focus", () => verifierVersion(0));
+addEventListener("online", () => verifierVersion(0));
+setTimeout(() => verifierVersion(0), 2000);
+setInterval(() => verifierVersion(0), 5 * 60 * 1000);
 
 /* Hors connexion — le service worker n'existe que sur le site déployé. */
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
