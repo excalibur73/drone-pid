@@ -4541,15 +4541,43 @@ const enSaisie = () => {
      doivent pas retenir le rafraîchissement de la page. */
   return !!(a && a.matches && a.matches("textarea, input:is([type=text],[type=password],[type=search],[type=number],[type=email],[type=tel],:not([type]))"));
 };
+/* Une sélection de texte est aussi fragile qu'une saisie, et pour la même
+   raison : redessiner la page détruit les nœuds qui la portent, et elle
+   disparaît. Or copier une adresse au doigt demande du temps — poser la
+   sélection, ajuster les poignées, viser « Copier » dans le menu d'iOS. La
+   relecture des avis, qui revient chaque minute, tombait au milieu.
+
+   On diffère donc le rendu tant qu'un passage est sélectionné, exactement
+   comme pendant la frappe. Avec une limite : si la sélection reste posée
+   longtemps — un doigt qui l'a oubliée —, la page finit par se remettre à
+   jour, sans quoi elle vieillirait indéfiniment. */
+const enSelection = () => {
+  const s = window.getSelection && window.getSelection();
+  return !!(s && !s.isCollapsed && String(s).trim());
+};
+let DIFFERE_DEPUIS = 0;
+const PATIENCE_SELECTION = 180000;
+
 function renderSiLibre(){
-  if (enSaisie()){ RENDU_DIFFERE = true; return; }
+  const patiente = DIFFERE_DEPUIS && Date.now() - DIFFERE_DEPUIS >= PATIENCE_SELECTION;
+  if ((enSaisie() || enSelection()) && !patiente){
+    if (!RENDU_DIFFERE) DIFFERE_DEPUIS = Date.now();
+    RENDU_DIFFERE = true;
+    return;
+  }
   RENDU_DIFFERE = false;
+  DIFFERE_DEPUIS = 0;
   render();
 }
 /* Le champ quitté, on rattrape ce qui a été mis de côté. */
 document.addEventListener("focusout", () => {
   if (!RENDU_DIFFERE) return;
   setTimeout(() => { if (RENDU_DIFFERE && !enSaisie()) renderSiLibre(); }, 60);
+});
+/* La sélection relâchée, de même. */
+document.addEventListener("selectionchange", () => {
+  if (!RENDU_DIFFERE || enSelection()) return;
+  setTimeout(() => { if (RENDU_DIFFERE && !enSaisie() && !enSelection()) renderSiLibre(); }, 200);
 });
 
 let DERNIERE_LECTURE = 0, LECTURE_EN_COURS = false;
@@ -5406,9 +5434,11 @@ function occupeAilleurs(){
   const a = document.activeElement;
   if (a && a.matches && a.matches("textarea, input, select")) return true;
   if (document.querySelector("dialog[open]")) return true;
-  /* Une sélection en cours, c'est quelqu'un qui s'apprête à copier. */
-  const sel = window.getSelection && window.getSelection();
-  if (sel && !sel.isCollapsed && String(sel).trim()) return true;
+  /* Une sélection en cours, c'est quelqu'un qui s'apprête à copier — et le
+     menu d'iOS peut la refermer sans qu'on le sache, alors qu'il vise encore
+     « Copier ». On laisse donc une minute de battement après la dernière. */
+  if (enSelection()) return true;
+  if (Date.now() - DERNIERE_SELECTION < 60000) return true;
   /* Le répit ne vaut que si la journée commentée est bien celle qu'on a sous
      les yeux : partir voir la vue parallèle, c'est avoir fini d'écrire. */
   return state.view === "day" && AVIS_TOUCHE.jour === DAYS[state.day].n
@@ -5437,7 +5467,17 @@ function relancerInactivite(){
   .forEach(ev => addEventListener(ev, relancerInactivite, { passive:true }));
 /* Déplacer une poignée de sélection n'envoie pas toujours d'événement tactile
    à la page : le changement de sélection, lui, se voit toujours. */
-document.addEventListener("selectionchange", relancerInactivite);
+/* Le battement se compte à partir du moment où la sélection disparaît — pas
+   du moment où elle a été posée. Un passage sélectionné puis laissé en place
+   trois minutes est protégé tant qu'il tient ; c'est juste après qu'il faut
+   du répit, quand iOS l'a refermé mais qu'on vise encore « Copier ». */
+let DERNIERE_SELECTION = 0, SELECTION_VIVE = false;
+document.addEventListener("selectionchange", () => {
+  const vive = enSelection();
+  if (vive || SELECTION_VIVE) DERNIERE_SELECTION = Date.now();
+  SELECTION_VIVE = vive;
+  relancerInactivite();
+});
 /* L'écran éteint arrête le décompte au lieu de le poursuivre : au retour,
    on repart de trente secondes pleines. */
 document.addEventListener("visibilitychange", () => {
