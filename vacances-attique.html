@@ -1700,14 +1700,19 @@ const DAYS = [
     /* Dernière vraie matinée à Athènes : samedi on part pour Saronida en fin
        de matinée, et l'on n'y revient plus qu'à l'aéroport. Les souvenirs se
        casent donc ici, et nulle part ailleurs. */
-    matin:[ {t:"plain", ttl:"Matinée libre à Alimos", det:"Plage à cinq minutes, ou la ville pour les derniers achats"},
+    /* Parti à 10 h de l'hôtel : la matinée n'est plus « libre », elle est
+       engagée, et tout ce qui suit se décale d'une demi-heure de route. */
+    matin:[ {t:"depart", ttl:"Départ pour le marché", when:"10 h", map:dir(ALIMOS, "37.98,23.7262"),
+             corrige:"Parti à 10 h — arrivée au marché vers 10 h 30.",
+             det:"11 km par Syngrou — 25 à 30 min en taxi",
+             alarme:"En route pour Varvakios — 30 min de trajet"},
             {t:"courses", ttl:"Marché de Varvakios — les souvenirs qui se mangent", ll:"37.9800,23.7262",
-             when:"10 h – 11 h 15", map:dir(ALIMOS, "37.98,23.7262"),
+             when:"10 h 30 – 11 h 30", map:dir(ALIMOS, "37.98,23.7262"),
              det:"Rue Athinas — le marché couvert et, tout autour, les échoppes d'herbes, de miel et d'épices",
              note:"Origan et sauge de montagne, miel de thym, mastic de Chios, olives, huile, safran de Kozani, fruits secs. C'est là que les prix sont ceux des Athéniens, pas ceux de Plaka. Le marché ferme en début d'après-midi.",
              bonplan:"Tout ce qui est liquide ou pâteux — huile, miel, olives en saumure — part en soute : au-delà de 100 ml, le contrôle de Londres le confisque."},
             {t:"courses", ttl:"Monastiraki & Plaka — le reste des souvenirs", ll:"37.9761,23.7256",
-             when:"11 h 15 – 12 h 30",
+             when:"11 h 30 – 12 h 45",
              map:"https://www.google.com/maps/dir/?api=1&origin=37.98,23.7262&destination=37.9761,23.7256&travelmode=walking",
              det:"À pied en descendant Athinas depuis le marché — Ifaistou, Adrianou, la place aux antiquaires",
              note:"Sandales de cuir faites sur place, komboloï, céramiques, copies de marbre, éponges, tissus. Ifaistou pour la brocante et les disques, Adrianou pour les boutiques. La grande brocante du dimanche n'a pas lieu un vendredi, mais tout est ouvert — et le vendredi, les commerçants d'Athènes ferment tard.",
@@ -1716,12 +1721,12 @@ const DAYS = [
        achats se font tôt, le déjeuner se prend sur le pouce pour rentrer, et
        l'après-midi entière se passe au frais. Le SNFCC y gagne : à 19 h la
        lumière vaut mieux qu'à 17 h, et le couchant est à 20 h 11. */
-    aprem:[ {t:"depart", ttl:"Retour à l'hôtel", when:"13 h", map:dir("37.9761,23.7256", ALIMOS),
+    aprem:[ {t:"depart", ttl:"Retour à l'hôtel", when:"13 h 15", map:dir("37.9761,23.7256", ALIMOS),
              det:"12 km depuis Monastiraki — 25 à 30 min en taxi, le tram est plus long et sans climatisation",
-             alarme:"On rentre — 36° dehors, la ville devient invivable après 13 h"},
-            {t:"plain", ttl:"Longue pause à l'hôtel — au frais", when:"13 h 45 – 18 h 30",
-             vig:"36° annoncés : rien dehors entre 13 h et 18 h 30. C'est la journée la plus chaude du séjour, et l'on repart à Saronida demain matin.",
-             det:"Chambre climatisée, sieste, plage à l'ombre en fin d'après-midi si l'envie vient. Rien n'est prévu jusqu'à 18 h 30",
+             alarme:"On rentre — 36° dehors, la ville devient invivable l'après-midi"},
+            {t:"plain", ttl:"Longue pause à l'hôtel — au frais", when:"14 h – 18 h 30",
+             vig:"36° annoncés : rien dehors entre 13 h 15 et 18 h 30. C'est la journée la plus chaude du séjour, et l'on repart à Saronida demain matin.",
+             det:"Chambre climatisée, sieste, plage à l'ombre en fin d'après-midi si l'envie vient. Rien n'est prévu jusqu'à 18 h 30 — quatre heures et demie",
              alarme:"Longue pause au frais jusqu'à 18 h 30 — rien à faire dehors",
              note:"C'est aussi le moment de commencer les valises : le départ de samedi se fait en fin de matinée, et la voiture se récupère à Athènes."} ],
     soir:[ {t:"depart", ttl:"Départ pour le SNFCC", when:"18 h 30", map:dir(ALIMOS, "37.9403,23.6929"),
@@ -1985,7 +1990,7 @@ const DEJEUNERS = {
       det:"Léger : le barbecue de la croisière est votre dîner, et il est copieux.",
       note:"Taxi à 15 h 15 — ne traînez pas à table",
       bonplan:"Léger et rapide : une pita à la boulangerie suffit. Le vrai repas est à bord ce soir." } },
-  5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner sur le pouce", when:"12 h 30 – 13 h",
+  5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner sur le pouce", when:"12 h 45 – 13 h 15",
       det:"Une demi-heure, pas davantage : on mange debout ou en marchant, et l'on rentre avant que la chaleur ne tombe d'aplomb.",
       alarme:"Déjeuner sur le pouce — trente minutes, puis on rentre",
       note:"Souvláki ou tyrópita à emporter dans les rues autour de Monastiraki, à manger sur un banc à l'ombre. Le vrai repas sera le dîner, au frais.",
