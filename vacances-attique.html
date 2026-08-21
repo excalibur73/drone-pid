@@ -1712,11 +1712,20 @@ const DAYS = [
              note:"Origan et sauge de montagne, miel de thym, mastic de Chios, olives, huile, safran de Kozani, fruits secs. C'est là que les prix sont ceux des Athéniens, pas ceux de Plaka. Le marché ferme en début d'après-midi.",
              bonplan:"Tout ce qui est liquide ou pâteux — huile, miel, olives en saumure — part en soute : au-delà de 100 ml, le contrôle de Londres le confisque."},
             {t:"courses", ttl:"Monastiraki & Plaka — le reste des souvenirs", ll:"37.9761,23.7256",
-             when:"11 h 30 – 12 h 45",
+             when:"11 h 30 – 11 h 50",
              map:"https://www.google.com/maps/dir/?api=1&origin=37.98,23.7262&destination=37.9761,23.7256&travelmode=walking",
              det:"À pied en descendant Athinas depuis le marché — Ifaistou, Adrianou, la place aux antiquaires",
              note:"Sandales de cuir faites sur place, komboloï, céramiques, copies de marbre, éponges, tissus. Ifaistou pour la brocante et les disques, Adrianou pour les boutiques. La grande brocante du dimanche n'a pas lieu un vendredi, mais tout est ouvert — et le vendredi, les commerçants d'Athènes ferment tard.",
-             bonplan:"On marchande sur les stands, pas en boutique. Et l'on ne rapporte rien qui ressemble à une vraie antiquité : leur sortie du territoire est interdite sans autorisation."} ],
+             bonplan:"On marchande sur les stands, pas en boutique. Et l'on ne rapporte rien qui ressemble à une vraie antiquité : leur sortie du territoire est interdite sans autorisation."},
+            /* Arrêt pris sur place, rue Aiolou : le café tient lieu de
+               déjeuner, et c'est ce qui remplace le « sur le pouce » prévu
+               plus tard — on est assis, à l'ombre, autant en profiter. */
+            {t:"food", ttl:"Pause à l'Αιολική οδός — rue Aiolou", when:"11 h 50 – 12 h 45",
+             map:"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Αιολική οδός Αιόλου Αθήνα"),
+             det:"Café et de quoi manger, à deux pas des boutiques — ΚΑΦΕΣ ΦΑΓΗΤΟ sur l'enseigne",
+             corrige:"Choisi sur place : cette pause remplace le déjeuner sur le pouce prévu à 12 h 45.",
+             note:"Rue Aiolou monte de l'Agora romaine vers Omonia, à l'écart du flot d'Adrianou. Il reste une demi-heure de boutiques après, entre 12 h 45 et le taxi de 13 h 15.",
+             bonplan:"Un freddo espresso plutôt qu'un café chaud : c'est la boisson de l'été ici, et elle coûte moins cher qu'un jus."} ],
     /* 36° annoncés : on ne traîne pas dehors entre midi et le soir. Les
        achats se font tôt, le déjeuner se prend sur le pouce pour rentrer, et
        l'après-midi entière se passe au frais. Le SNFCC y gagne : à 19 h la
@@ -1994,11 +2003,7 @@ const DEJEUNERS = {
       det:"Léger : le barbecue de la croisière est votre dîner, et il est copieux.",
       note:"Taxi à 15 h 15 — ne traînez pas à table",
       bonplan:"Léger et rapide : une pita à la boulangerie suffit. Le vrai repas est à bord ce soir." } },
-  5:{ rang:0, it:{ t:"repas", ttl:"Déjeuner sur le pouce", when:"12 h 45 – 13 h 15",
-      det:"Une demi-heure, pas davantage : on mange debout ou en marchant, et l'on rentre avant que la chaleur ne tombe d'aplomb.",
-      alarme:"Déjeuner sur le pouce — trente minutes, puis on rentre",
-      note:"Souvláki ou tyrópita à emporter dans les rues autour de Monastiraki, à manger sur un banc à l'ombre. Le vrai repas sera le dîner, au frais.",
-      bonplan:"À emporter, une pita coûte trois fois moins qu'assis à une table de la place — et vous ne perdez pas quarante minutes à attendre l'addition." } },
+
   6:{ rang:1, it:{ t:"repas", ttl:"Déjeuner", when:"13 h 30 – 14 h 30",
       det:"À Saronida une fois installés — ou sur la terrasse, avec ce que vous venez d'acheter.",
       bonplan:"Premier jour en voiture : repérez le supermarché et la boulangerie de Saronida, vous y reviendrez cinq fois." } },
