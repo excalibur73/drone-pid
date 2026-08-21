@@ -273,6 +273,22 @@ main{padding-bottom:64px}
 .item{display:grid; grid-template-columns:26px 1fr; gap:11px; padding:14px 16px; border-top:1px solid var(--line-soft); transition:background .18s, opacity .25s}
 .items > .item:first-child{border-top:none}
 .item:hover{background:var(--surface-2)}
+/* ── Le saut d'une étape à l'autre ──
+   Une demi-journée qui enchaîne plusieurs lieux ne dit pas d'elle-même s'il
+   faut marcher ou prendre un taxi. La ligne se glisse entre les deux cartes,
+   là où le trajet a lieu. */
+.trajetlien{
+  display:flex; align-items:center; gap:8px;
+  padding:7px 16px 7px 20px; border-top:1px solid var(--line-soft);
+  background:var(--surface-2);
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.02em; color:var(--ink-3);
+}
+.items > .trajetlien:first-child{border-top:none}
+.items > .trajetlien + .item{border-top:none}
+.trajetlien svg{width:12px; height:12px; flex:0 0 auto; color:var(--stone)}
+.trajetlien span{min-width:0}
+.trajetlien b{color:var(--ink-2); font-weight:600}
+.trajetlien.passe{opacity:.5}
 .item.dim{opacity:.45}
 .item.passe{opacity:.5}
 .item.passe .body .ttl{text-decoration:line-through; text-decoration-thickness:1px; color:var(--ink-3)}
@@ -1693,7 +1709,7 @@ const DAYS = [
             {t:"courses", ttl:"Monastiraki & Plaka — le reste des souvenirs", ll:"37.9761,23.7256",
              when:"11 h 15 – 12 h 30",
              map:"https://www.google.com/maps/dir/?api=1&origin=37.98,23.7262&destination=37.9761,23.7256&travelmode=walking",
-             det:"700 m à pied en descendant Athinas depuis le marché — Ifaistou, Adrianou, la place aux antiquaires",
+             det:"À pied en descendant Athinas depuis le marché — Ifaistou, Adrianou, la place aux antiquaires",
              note:"Sandales de cuir faites sur place, komboloï, céramiques, copies de marbre, éponges, tissus. Ifaistou pour la brocante et les disques, Adrianou pour les boutiques. La grande brocante du dimanche n'a pas lieu un vendredi, mais tout est ouvert — et le vendredi, les commerçants d'Athènes ferment tard.",
              bonplan:"On marchande sur les stands, pas en boutique. Et l'on ne rapporte rien qui ressemble à une vraie antiquité : leur sortie du territoire est interdite sans autorisation."} ],
     /* 36° annoncés : on ne traîne pas dehors entre midi et le soir. Les
@@ -1913,20 +1929,35 @@ function estimer(a, b, phase){
   const min = Math.round(km / v * 60 / 5) * 5;
   return { km, pied, min: Math.max(5, min) };
 }
+/* « 650 m », « 1,2 km », « 11 km » — on ne donne pas trois décimales à une
+   estimation à vol d'oiseau majorée d'un tiers. */
+/* « Marché de Varvakios — les souvenirs qui se mangent » devient « Marché de
+   Varvakios » : la ligne dit d'où l'on part, pas le programme de l'étape. */
+const court = t => String(t).split(/\s+—\s+/)[0];
+const distanceDite = km => km < 1
+  ? `${Math.max(50, Math.round(km * 1000 / 50) * 50)} m`
+  : km < 10 ? `${km.toFixed(1).replace(".", ",")} km` : `${Math.round(km)} km`;
+
 DAYS.forEach(d => {
   let ici = d.phase === 1 ? ALIMOS : SARONIDA;
+  let dOu = PHASES[d.phase].home;         // d'où l'on vient, en toutes lettres
   let dejaMontre = false;                 // un départ vient-il d'afficher ce trajet ?
   SLOTS.forEach(sl => (d[sl.k] || []).forEach(it => {
     if (it.t === "depart"){ dejaMontre = true; return; }
-    if (it.parBateau){ dejaMontre = false; return; }   // on y va par la mer
+    if (it.parBateau){ dejaMontre = false; ici = it.ll || ici; return; }   // on y va par la mer
     if (!it.ll){ return; }
     if (it.ll !== ici && !dejaMontre){
       const e = estimer(ici, it.ll, d.phase);
       /* Un lien posé à la main garde sa destination : on n'ajoute que la durée. */
       if (!it.map) it.map = dir(ici, it.ll, e.pied ? "pied" : "voiture");
       it.trajet = `≈ ${e.min} min ${e.pied ? "à pied" : "en voiture"}`;
+      /* Le saut d'une étape à la suivante, dit entre les deux plutôt que sur
+         un bouton : quand une demi-journée en enchaîne plusieurs, c'est la
+         distance qui manque pour savoir si l'on y va à pied ou en taxi. */
+      it.depuis = { de: court(dOu), km: distanceDite(e.km), min: e.min, pied: e.pied };
     }
     ici = it.ll;
+    dOu = it.ttl;
     dejaMontre = false;
   }));
 });
@@ -4800,7 +4831,11 @@ function itemHTML(day, slot, it, i, vedette){
   /* La carte du haut porte déjà l'itinéraire de cette étape : inutile de le
      répéter à un écran d'écart. */
   const repete = vedette === `${slot}.${i}`;
-  return `<div class="item ${etat}${matches(it) ? "" : " dim"}" data-t="${it.t}">
+  return `${it.depuis ? `<p class="trajetlien${done ? " passe" : ""}">
+    <svg><use href="#${it.depuis.pied ? "i-plain" : "i-depart"}"/></svg>
+    <span>Depuis ${esc(it.depuis.de)} — <b>${esc(it.depuis.km)}</b>, ≈ ${it.depuis.min} min ${
+      it.depuis.pied ? "à pied" : "en voiture"}</span></p>` : ""}
+  <div class="item ${etat}${matches(it) ? "" : " dim"}" data-t="${it.t}">
     <span class="mark"><svg><use href="#${ICON[it.t]}"/></svg></span>
     <div class="body">
       <div class="ttl">${highlight(it.ttl)}${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}${
@@ -4815,7 +4850,8 @@ function itemHTML(day, slot, it, i, vedette){
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       ${it.bonplan ? `<p class="bonplan"><b>Bon plan</b> ${esc(it.bonplan)}</p>` : ""}
       <div class="acts">
-        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire${it.trajet ? ` · ${esc(it.trajet)}` : ""}</a>` : ""}
+        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire${
+          it.trajet && !it.depuis ? ` · ${esc(it.trajet)}` : ""}</a>` : ""}
         ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
       </div>
     </div>
