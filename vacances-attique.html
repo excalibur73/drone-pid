@@ -1440,6 +1440,85 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
   /* Le pouce atteint mal le haut de l'écran : la barre des jours descend. */
   .railbar{position:sticky; top:0}
 }
+/* ─────────────────────────────  DOSSIER IMPRIMABLE  ─────────────────────────────
+   Invisible à l'écran, seul sur le papier. Les couleurs y sont fixes : une
+   feuille imprimée ne suit pas le thème du téléphone. */
+#dossier{display:none}
+#pdfdlg{
+  border:none; border-radius:var(--r); padding:20px; max-width:min(94vw,480px);
+  background:var(--surface); color:var(--ink); box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+#pdfdlg::backdrop{background:rgba(0,0,0,.55)}
+#pdfdlg h3{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-2)}
+#pdfdlg fieldset{border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; margin-top:14px}
+#pdfdlg legend{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); padding:0 5px}
+#pdfdlg label{display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:7px 0; font-size:.9rem; line-height:1.4}
+#pdfdlg input[type=radio],#pdfdlg input[type=checkbox]{width:20px; height:20px; accent-color:var(--sea); flex:0 0 auto}
+#pdfdlg select{
+  flex:1 1 160px; min-height:36px; padding:0 8px; border:1px solid var(--line);
+  border-radius:var(--r-sm); background:var(--surface); color:var(--ink); font-size:.86rem;
+}
+.pdfaide{margin-top:10px; font-size:.8rem; line-height:1.55; color:var(--ink-3)}
+.pdfboutons{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+.pdfboutons .vfermer{
+  min-height:40px; padding:0 16px; border-radius:99px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink-2); font-size:.88rem;
+}
+
+@media print{
+  @page{ size:A4; margin:14mm 13mm; }
+  body{background:#fff !important; color:#111 !important; padding:0 !important}
+  body > *{display:none !important}
+  #dossier{display:block !important}
+  .dossier{max-width:none; font-size:10.5pt; line-height:1.5; color:#111}
+  .dossier h1,.dossier h2,.dossier h3{color:#0E6E6E}
+  .dcouv{text-align:center; padding:26mm 0 10mm; border-bottom:2px solid #0E6E6E; break-after:page}
+  .dsur{font-size:9pt; letter-spacing:.2em; text-transform:uppercase; color:#666}
+  .dcouv h1{font-size:30pt; margin:6mm 0 2mm; letter-spacing:-.01em}
+  .ddates{font-size:13pt; color:#444}
+  .dphases{margin-top:12mm; font-size:10pt; color:#333}
+  .dphases p{margin:2mm 0}
+  .dpied{margin-top:10mm; font-style:italic; color:#666}
+  .dsom{break-after:page}
+  .dsom h2{font-size:13pt; margin-bottom:4mm}
+  .dsom ol{padding-left:6mm}
+  .dsom li{margin:1.6mm 0}
+  .dsom li span{color:#555; margin-left:3mm}
+  .djour{break-before:page; break-inside:auto}
+  .djour h2{font-size:14pt; border-bottom:1px solid #ccc; padding-bottom:2mm; margin-bottom:2mm}
+  .djour h2 .dn{font-size:9pt; letter-spacing:.15em; text-transform:uppercase; color:#888; display:block}
+  .djour h2 em{font-style:normal; color:#555; font-weight:400}
+  .dsoleil{font-size:9pt; color:#777; margin-bottom:3mm}
+  .dvig,.dprep{
+    border:1px solid #c98a2e; background:#fdf5ea; border-radius:2mm;
+    padding:3mm 4mm; margin:3mm 0; break-inside:avoid;
+  }
+  .dprep{border-color:#0E6E6E; background:#eef6f6}
+  .dvig b,.dprep b{font-size:8.5pt; letter-spacing:.12em; text-transform:uppercase; color:#8a5200}
+  .dprep > b{color:#0E6E6E}
+  .dvig ul,.dprep ul{margin:1.5mm 0 0 4mm}
+  .dvig li,.dprep li{margin:1mm 0}
+  .dslot{margin-top:4mm; break-inside:avoid-page}
+  .dslot h3{font-size:9pt; letter-spacing:.15em; text-transform:uppercase; color:#888; margin-bottom:1.5mm}
+  .dit{padding:2mm 0 2mm 4mm; border-left:2px solid #ddd; margin-bottom:1.5mm; break-inside:avoid}
+  .dtt{font-size:11pt}
+  .dh{font-family:ui-monospace,monospace; color:#0E6E6E; margin-right:3mm}
+  .ddet{color:#444; margin-top:.8mm}
+  .dtr{font-size:9pt; color:#777; margin-top:.8mm}
+  .drdv{font-size:9.5pt; color:#0E6E6E; margin-top:.8mm}
+  .dnote{font-size:9.5pt; color:#555; margin-top:1mm}
+  .dbon{font-size:9.5pt; color:#333; background:#f2f2f2; padding:1.5mm 2.5mm; border-radius:1.5mm; margin-top:1.5mm}
+  .dbon b{font-size:8pt; letter-spacing:.1em; text-transform:uppercase; color:#0E6E6E; margin-right:2mm}
+  .dsav{margin-top:2mm; padding-left:3mm; border-left:1px dotted #bbb; font-size:9.5pt; color:#555}
+  .dsav ul{margin:1.5mm 0 0 4mm}
+  .dsav li{margin:1mm 0}
+  .dmot{font-style:italic; margin-top:1.5mm}
+  .dpack{margin-top:3mm; font-size:9.5pt; color:#444}
+  .dpack b{font-size:8pt; letter-spacing:.1em; text-transform:uppercase; color:#888; margin-right:2mm}
+  .dfin{margin-top:8mm; padding-top:3mm; border-top:1px solid #ccc; font-size:8.5pt; color:#888}
+  a{text-decoration:none; color:inherit}
+}
+
 @media (prefers-reduced-motion:reduce){
   *{transition-duration:.01ms !important; animation:none !important; scroll-behavior:auto !important}
 }
@@ -5132,6 +5211,19 @@ function renderCarnet(){
         </div>
       </article>
 
+      <article class="card">
+        <header>
+          <h3>Le programme en PDF</h3>
+          <p>À envoyer à qui n'a pas l'application — ou à garder, tout simplement.</p>
+        </header>
+        <div class="inner">
+          <p style="font-size:.87rem;color:var(--ink-2)">Le séjour entier ou une seule journée,
+            avec ou sans les notes et les fiches. C'est le navigateur qui fabrique le PDF :
+            le texte y reste du texte, il se cherche et se copie.</p>
+          <button class="bigbtn" id="pdfBtn"><svg><use href="#i-partage"/></svg>Exporter le programme</button>
+        </div>
+      </article>
+
       <article class="card" style="grid-column:1/-1">
         <header>
           <h3>Le grec de survie</h3>
@@ -5341,6 +5433,152 @@ document.addEventListener("visibilitychange", () => {
 });
 relancerInactivite();
 
+/* ════════════════════════════  DOSSIER IMPRIMABLE  ════════════════════════════
+   Un programme se partage encore en PDF : on l'envoie à des amis qui n'ont
+   pas l'application, on l'imprime avant de partir, on le garde quand le site
+   n'existera plus. Aucune bibliothèque pour cela — le navigateur sait
+   fabriquer un PDF depuis une page, et il le fait mieux qu'un dessin en
+   JavaScript : le texte reste du texte, il se cherche et se copie.
+
+   On construit donc une page à part, faite pour le papier, et l'on demande
+   l'impression. Sur iPhone : Partager → Imprimer → pincer pour agrandir →
+   Enregistrer dans Fichiers.
+
+   Ce qui n'en fait jamais partie : les avis du soir, les photos, les notes
+   personnelles et les références du carnet. Un programme se partage, une
+   vie de famille non. */
+const DOSSIER_CHOIX = { tout:true, jour:null, details:true, savoirs:false, preparatifs:true };
+
+function dossierHTML(){
+  const c = DOSSIER_CHOIX;
+  const jours = c.tout ? DAYS : DAYS.filter(d => d.n === c.jour);
+  const titre = c.tout ? "17 → 27 août 2026" :
+    `${DOW_FULL[jours[0].dow]} ${jours[0].dm}`;
+  return `<div class="dossier">
+    <header class="dcouv">
+      <p class="dsur">Programme de séjour</p>
+      <h1>Athènes & l'Attique</h1>
+      <p class="ddates">${esc(titre)}</p>
+      ${c.tout ? `<div class="dphases">
+        ${[1, 2].map(ph => `<p><b>${esc(PHASES[ph].name)}</b> · ${esc(PHASES[ph].range)}
+          — ${esc(BASES[ph].quoi)}, déplacements en ${esc(PHASES[ph].mode)}</p>`).join("")}
+      </div>` : ""}
+      <p class="dpied">${c.tout ? "Onze journées, de l'Acropole au cap Sounion."
+        : `Une journée du séjour — ${esc(jours[0].title)}.`}</p>
+    </header>
+
+    ${c.tout ? `<section class="dsom">
+      <h2>Les onze journées</h2>
+      <ol>${DAYS.map(d => `<li><b>${esc(DOW_FULL[d.dow])} ${esc(d.dm)}</b>
+        <span>${esc(d.title)}</span></li>`).join("")}</ol>
+    </section>` : ""}
+
+    ${jours.map(d => {
+      const prep = c.preparatifs ? preparatifs(d) : [];
+      const vigs = c.preparatifs ? vigDuJour(d) : [];
+      return `<section class="djour">
+        <h2><span class="dn">Jour ${d.n}</span> ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}
+          <em>${esc(d.title)}</em></h2>
+        <p class="dsoleil">Lever ${hhmm(d.sunT.rise)} · coucher ${hhmm(d.sunT.set)} ·
+          ${esc(PHASES[d.phase].short)}, ${esc(PHASES[d.phase].mode)}</p>
+        ${vigs.length ? `<div class="dvig">
+          <b>À ne pas oublier</b>
+          <ul>${vigs.map(x => `<li>${esc(x.it.ttl)}${x.it.when ? ` (${esc(x.it.when.split(" – ")[0])})` : ""} — ${esc(x.it.vig)}</li>`).join("")}</ul>
+        </div>` : ""}
+        ${SLOTS.map(sl => {
+          const items = itemsOf(d, sl.k);
+          if (!items.length) return "";
+          return `<div class="dslot">
+            <h3>${sl.label}</h3>
+            ${items.map(it => `<div class="dit">
+              <p class="dtt">${it.when ? `<span class="dh">${esc(it.when)}</span>` : ""}<b>${esc(it.ttl)}</b></p>
+              ${it.det ? `<p class="ddet">${esc(it.det)}</p>` : ""}
+              ${it.depuis ? `<p class="dtr">Depuis ${esc(it.depuis.de)} — ${esc(it.depuis.km)}, environ ${it.depuis.min} min ${it.depuis.pied ? "à pied" : "en voiture"}</p>` : ""}
+              ${c.details && it.rdv ? `<p class="drdv">${esc(it.rdv)}</p>` : ""}
+              ${c.details && it.note ? `<p class="dnote">${esc(it.note)}</p>` : ""}
+              ${c.details && it.bonplan ? `<p class="dbon"><b>Bon plan</b> ${esc(it.bonplan)}</p>` : ""}
+              ${c.savoirs && savoirDe(it) ? `<div class="dsav">
+                <p>${esc(savoirDe(it).quoi)}</p>
+                <ul>${savoirDe(it).regarder.map(r => `<li>${esc(String(r).replace(/<[^>]+>/g, ""))}</li>`).join("")}</ul>
+                ${savoirDe(it).mot ? `<p class="dmot">« ${esc(savoirDe(it).mot)} »</p>` : ""}
+              </div>` : ""}
+            </div>`).join("")}
+          </div>`;
+        }).join("")}
+        ${prep.length ? `<div class="dprep">
+          <b>À préparer la veille</b>
+          <ul>${prep.map(x => `<li><b>${esc(x.t)}</b> — ${esc(x.d)}</li>`).join("")}</ul>
+        </div>` : ""}
+        ${packFor(d).length ? `<p class="dpack"><b>À prendre</b> ${packFor(d).map(esc).join(" · ")}</p>` : ""}
+      </section>`;
+    }).join("")}
+
+    <footer class="dfin">
+      <p>Programme établi pour un séjour du 17 au 27 août 2026 en Attique.
+        Les horaires sont ceux du programme, pas des engagements ; les durées de trajet
+        sont des estimations.</p>
+    </footer>
+  </div>`;
+}
+
+function ouvrirDossier(){
+  let dlg = document.getElementById("pdfdlg");
+  if (!dlg){
+    dlg = document.createElement("dialog");
+    dlg.id = "pdfdlg";
+    document.body.appendChild(dlg);
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  }
+  const c = DOSSIER_CHOIX;
+  const auj = dayIndexToday();
+  dlg.innerHTML = `<h3>Exporter le programme</h3>
+    <p class="pdfaide">Le navigateur fabrique le PDF lui-même : le texte y reste
+      du texte, il se cherche et se copie. Sur iPhone, dans la fenêtre d'impression,
+      touchez <b>Partager</b> puis <b>Enregistrer dans Fichiers</b>.</p>
+    <fieldset>
+      <legend>Ce qu'on exporte</legend>
+      <label><input type="radio" name="pdfquoi" value="tout"${c.tout ? " checked" : ""}> Le séjour entier, onze journées</label>
+      <label><input type="radio" name="pdfquoi" value="jour"${!c.tout ? " checked" : ""}> Une seule journée —
+        <select id="pdfjour">${DAYS.map(d => `<option value="${d.n}"${
+          d.n === (c.jour || (auj >= 0 ? DAYS[auj].n : 1)) ? " selected" : ""}>${
+          esc(DOW_FULL[d.dow])} ${esc(d.dm)} · ${esc(d.title)}</option>`).join("")}</select></label>
+    </fieldset>
+    <fieldset>
+      <legend>Avec</legend>
+      <label><input type="checkbox" id="pdfdet"${c.details ? " checked" : ""}> Les détails, notes et bons plans</label>
+      <label><input type="checkbox" id="pdfprep"${c.preparatifs ? " checked" : ""}> Les points de vigilance et les préparatifs</label>
+      <label><input type="checkbox" id="pdfsav"${c.savoirs ? " checked" : ""}> Les fiches « Comprendre » — plus long, plus complet</label>
+    </fieldset>
+    <p class="pdfaide">Les avis du soir, les photos, vos notes et les références du
+      carnet n'y figurent jamais : un programme se partage, le reste non.</p>
+    <div class="pdfboutons">
+      <button type="button" class="partage" id="pdfgo"><svg><use href="#i-partage"/></svg>Fabriquer le PDF</button>
+      <button type="button" class="vfermer">Fermer</button>
+    </div>`;
+  dlg.showModal();
+}
+
+function imprimerDossier(){
+  const dlg = document.getElementById("pdfdlg");
+  const quoi = dlg.querySelector('input[name="pdfquoi"]:checked').value;
+  DOSSIER_CHOIX.tout = quoi === "tout";
+  DOSSIER_CHOIX.jour = +dlg.querySelector("#pdfjour").value;
+  DOSSIER_CHOIX.details = dlg.querySelector("#pdfdet").checked;
+  DOSSIER_CHOIX.preparatifs = dlg.querySelector("#pdfprep").checked;
+  DOSSIER_CHOIX.savoirs = dlg.querySelector("#pdfsav").checked;
+  let hote = document.getElementById("dossier");
+  if (!hote){
+    hote = document.createElement("div");
+    hote.id = "dossier";
+    document.body.appendChild(hote);
+  }
+  hote.innerHTML = dossierHTML();
+  dlg.close();
+  /* Laisser le navigateur poser la page avant d'ouvrir l'aperçu : sans ce
+     répit, Safari imprime parfois une page vide. */
+  setTimeout(() => window.print(), 120);
+}
+
 /* ════════════════════════════  ÉVÉNEMENTS  ════════════════════════════ */
 document.getElementById("rail").addEventListener("click", e => {
   const b = e.target.closest(".chip"); if (b) goToDay(+b.dataset.i);
@@ -5410,13 +5648,16 @@ document.addEventListener("click", e => {
   }
   const vig = e.target.closest("[data-voir]");
   if (vig){ ouvrirPhoto(vig.dataset.voir); return; }
-  if (e.target.closest(".vfermer")){ document.getElementById("visionneuse").close(); return; }
+  const fer = e.target.closest(".vfermer");
+  if (fer){ const d = fer.closest("dialog") || document.getElementById("visionneuse"); if (d) d.close(); return; }
   if (e.target.closest(".oublirefus")){ REFUS = null; render(); return; }
   if (e.target.closest(".oubliechecs")){ ECHECS = null; render(); return; }
   if (e.target.closest(".rafraichir[data-photos-maj]")){ lirePhotos(); return; }
   if (e.target.closest(".rafraichir[data-prev]")){ chargerPrevisions(true); return; }
   if (e.target.closest(".rafraichir")){ lireAvis(); return; }
   if (e.target.closest("#journalBtn") || e.target.closest("#journalBtn2")) envoyerJournal();
+  if (e.target.closest("#pdfBtn")){ ouvrirDossier(); return; }
+  if (e.target.closest("#pdfgo")){ imprimerDossier(); return; }
 });
 
 /* Identification par la date de naissance. On compare des empreintes : la date
@@ -5572,7 +5813,7 @@ document.addEventListener("click", e => {
   const sv = e.target.closest(".savoir");
   if (sv) ouvrirSavoir(sv.dataset.savoir);
   if (e.target.closest("#icsBtn, #icsFoot")) telechargerICS();
-  const pa = e.target.closest(".partage");
+  const pa = e.target.closest(".partage[data-jour]");
   if (pa) partagerJour(DAYS.find(x => x.n === +pa.dataset.jour));
   const t = e.target.closest(".chiffres");
   if (t){
