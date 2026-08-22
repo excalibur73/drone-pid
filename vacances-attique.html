@@ -1884,32 +1884,42 @@ const DAYS = [
             {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
     soir:[ {t:"food", ttl:"Dîner au Lavraki", ll:"37.7445,23.9020", det:"Front de mer — ou terrasse du penthouse"} ] },
 
-  { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Criques de Limanakia", sun:SARO,
-    /* Phase 2 : on récupère. Le départ passe de 8 h à 9 h, ce qui pose le
-       petit-déjeuner à 7 h 50 et le réveil à 7 h 30. La contrepartie tombe
-       bien : c'est la journée la plus chaude du séjour — 35° à 11 h, 38 à
-       13 h, 39 de ressenti — et Limanakia n'a pas un mètre d'ombre. La mer se
-       fait donc le matin, et l'après-midi se passe au frais. */
-    prep:[{ t:"Le panier du pique-nique",
-            d:"Pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque — rien de crémeux. Et les pains de glace au congélateur dès ce soir. Le départ étant passé à 9 h, la boulangerie de Saronida sera ouverte : le pain peut se prendre frais au passage." }],
+  { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Journée entière à Limanakia", sun:SARO,
+    /* On reste sur place jusqu'à 15 h 30, et c'est tenable : la brise de mer
+       se lève à partir de 13 h — 13 km/h, puis 19 à 14 h, 25 à 16 h — et le
+       ressenti redescend sous la température de l'air. Le pic d'inconfort est
+       entre 12 h et 14 h, pas l'après-midi. Ce qui reste dangereux, c'est
+       l'UV : 7,8 à 14 h, sur une roche sans un mètre d'ombre. D'où le
+       parasol, non négociable, et trois litres d'eau par personne. */
+    prep:[{ t:"Le panier, le parasol et l'eau",
+            d:"Vous restez sur place jusqu'à 15 h 30 : le parasol n'est pas une option, c'est la condition. Prévoyez trois litres d'eau par personne, pas deux — l'air est à 25 % d'humidité, la sueur s'évapore avant de se voir et l'on se déshydrate sans avoir soif. Pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque — rien de crémeux, et les pains de glace au congélateur dès ce soir. Départ à 9 h : la boulangerie de Saronida sera ouverte, le pain se prend frais au passage." }],
     matin:[ {t:"depart", ttl:"Départ", when:"9 h", map:dir(SARONIDA,"37.8065,23.7785"),
-             corrige:"Repoussé d'une heure : en phase 2 on dort jusqu'à 7 h 30, sauf le jour de la croisière.",
              det:"18 km par la côte — une trentaine de minutes",
-             alarme:"Départ pour Limanakia — le pain frais se prend au passage"},
+             alarme:"Départ pour Limanakia — parasol, glacière, et le pain frais au passage"},
             {t:"swim", ttl:"Snorkeling", ll:"37.8065,23.7785", when:"9 h 30 – 12 h 30", gear:true,
              det:"Criques de Limanakia — fonds rocheux, et une mer d'huile annoncée",
-             vig:"Pas un souffle de vent, donc pas un souffle d'air : 30° à 9 h, 33 à 10 h, 35 à 11 h, et la roche devient brûlante. Chaussons aux pieds dès la sortie de l'eau, et l'on ne s'installe pas sans parasol.",
-             note:"Mer à 27,5 °C et 8 cm de houle : les meilleures conditions de snorkeling du séjour. Profitez-en le matin, il n'y aura pas de seconde manche l'après-midi."} ],
-    aprem:[ {t:"depart", ttl:"Retour au penthouse", when:"13 h 15", map:dir("37.8065,23.7785",SARONIDA),
-             alarme:"On rentre — 38° dehors et 39 de ressenti, il n'y a plus d'ombre nulle part"},
-            {t:"plain", ttl:"Longue pause au frais", when:"14 h – 18 h 30",
-             det:"Terrasse à l'ombre, sieste, tri des photos — le pic est à 13 h",
-             vig:"Journée la plus chaude du séjour, et sans un souffle de vent pour la tempérer : 38,1° et 39,3 de ressenti à 13 h. Buvez avant d'avoir soif — deux litres par personne aujourd'hui, pas un de moins.",
-             note:"Si quelqu'un veut absolument retourner à l'eau, les pointes ouest de Varkiza sont à 20 min — mais attendez 18 h, la roche ne cesse de cuire qu'après."} ],
-    soir:[ {t:"swim", ttl:"Les rochers de Saronida", ll:"37.7448,23.9013", when:"18 h 30 – 19 h 30", gear:true,
-            det:"Pas le sable : la côte rocheuse qui ferme la baie au sud, à 450 m — accès libre, petites criques enchaînées, eau claire au bord",
-            note:"On y va masque en main depuis l'appartement. La lumière de 19 h est basse, mais l'eau est encore transparente et il n'y a plus personne."},
-           {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
+             vig:"La roche devient brûlante avant midi : 30° à 9 h, 33 à 10 h, 36 à 11 h. Chaussons aux pieds dès la sortie de l'eau, et l'on plante le parasol en arrivant, pas quand le soleil tape.",
+             note:"Mer à 27,5 °C et 8 cm de houle : les meilleures conditions de snorkeling du séjour. La matinée est le meilleur moment — l'eau est la plus claire avant que la brise ne ride la surface."} ],
+    aprem:[ {t:"swim", ttl:"L'après-midi aux criques", ll:"37.8065,23.7785", when:"13 h 30 – 15 h 30", gear:true,
+             det:"On explore plus loin — les criques s'enchaînent vers le sud, et la brise rend l'après-midi tenable",
+             vig:"C'est l'UV qui est le danger, pas la chaleur : indice 7,8 à 14 h, sur roche claire et avec la réverbération de l'eau. Crème toutes les deux heures, t-shirt anti-UV pour Hilal et Layal pendant le snorkeling, et l'on reste sous le parasol entre deux bains.",
+             note:"La brise de mer se lève à 13 h et monte à 25 km/h : le ressenti redescend de 38,5 à 13 h à 36 à 16 h. C'est l'inverse de ce qu'on croit — l'après-midi est plus supportable que midi."},
+            {t:"depart", ttl:"Retour au penthouse", when:"15 h 30", map:dir("37.8065,23.7785",SARONIDA),
+             alarme:"On rentre — sieste méritée après six heures de caillou"},
+            {t:"plain", ttl:"Sieste et repos", when:"16 h – 18 h 30",
+             det:"Douche, terrasse à l'ombre, tri des photos — la journée a été longue",
+             note:"Buvez encore en rentrant : la déshydratation se rattrape le soir, pas le lendemain matin."} ],
+    soir:[ {t:"swim", ttl:"Les rochers de Saronida", ll:"37.7448,23.9013", when:"18 h 45 – 19 h 45", gear:true,
+            det:"À pied depuis l'appartement — la côte rocheuse qui ferme la baie au sud, à 450 m",
+            note:"Pas la plage : les petites criques enchaînées, accès libre. Trempette du soir plutôt qu'une vraie session — l'eau est encore transparente à 19 h et il n'y a plus personne. Coucher du soleil à 20 h 04."},
+           {t:"food", ttl:"Pizza, ou gaufres au Nutella", when:"~20 h 15",
+            det:"Deux envies, deux adresses — à moins de dix minutes",
+            note:"Côté sucré : Siropi à Anavyssos (le mieux noté du coin) ou la pâtisserie Amarantos à Saronida, réputée sur toute la Riviera. Côté pizza : Saronida Pizza, dans le village. Les horaires d'août ne sont confirmés nulle part en ligne — un coup de fil avant de sortir évite l'aller-retour.",
+            map:"https://www.google.com/maps/search/?api=1&query=Siropi+Anavyssos+Greece"},
+           {t:"plain", ttl:"Les autres adresses", 
+            det:"Si la première est fermée",
+            note:"Amarantos, Saronida — pâtisserie. Saronida Pizza, Saronida. Et la terrasse du penthouse reste le repli : il reste de quoi faire des grillades.",
+            map:"https://www.google.com/maps/search/?api=1&query=Amarantos+Saronida+Greece"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Palea Fokea, avant le vent", sun:SARO,
     /* East Attica Cruises a reporté la croisière au 26 : meltémi de nord-est,
@@ -2247,10 +2257,10 @@ const DEJEUNERS = {
       det:"Avec ce que vous venez de rapporter — les enfants auront eu le temps de s'installer.",
       note:"Prévoyez de quoi tenir tout de suite dans le premier sac : ils n'auront rien mangé depuis le petit-déjeuner de l'hôtel.",
       bonplan:"Premier jour en voiture : repérez le supermarché et la boulangerie de Saronida, vous y reviendrez cinq fois." } },
-  7:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"12 h 30 – 13 h 15",
+  7:{ rang:0, it:{ t:"repas", ttl:"Pique-nique sous le parasol", when:"12 h 30 – 13 h 30",
       det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
-      note:"À préparer la veille au soir — puis on rentre",
-      bonplan:"Mangez à l'ombre du parasol et ne traînez pas : à 13 h il fait 38° sur la roche, et c'est l'heure où l'on reprend la voiture." } },
+      note:"À préparer la veille au soir",
+      bonplan:"C'est l'heure la plus dure de la journée — 38,5 de ressenti à 13 h. On mange à l'ombre et on ne bouge pas : après 14 h la brise se lève et tout redevient supportable." } },
   8:{ rang:2, it:{ t:"repas", ttl:"Déjeuner au penthouse", when:"12 h 30 – 13 h 30",
       det:"Avec les courses du matin, au frais : dehors c'est 34° et des rafales à 70.",
       note:"Rentrer plutôt que s'attabler dehors",
@@ -3418,7 +3428,7 @@ const MER_H_STORE = "attique2026:merh";
 const COURBES = new Map();          // identifiant du graphe → points, pour le survol
 const MER_SPOTS = {
   4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
-  7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:13 }],
+  7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:16 }],
   8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
   9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
   10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:13 }]
