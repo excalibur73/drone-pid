@@ -2012,9 +2012,10 @@ const DAYS = [
              note:"Mer à 28 °C et pas un souffle de vent cet après-midi : c'est le dernier bain tranquille du séjour, le meltémi revient demain matin."} ],
     soir:[ {t:"food", ttl:"Dernier dîner — Porto ou Galene", ll:"37.7290,23.9330",
             det:"Grill de poisson à Anavyssos — le meilleur du coin, gardé pour la fin"},
-           {t:"plain", ttl:"Les valises, ce soir et pas demain", when:"après le dîner",
-            vig:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen. Vérifiez aussi les fils à linge de la terrasse, le frigo, et sous les lits.",
-            det:"Demain il ne reste qu'un bain, la route et le plein"} ],
+           {t:"plain", ttl:"Rincer, étendre, puis les valises", when:"dès le retour de la plage",
+            vig:"C'est ce soir que tout se joue pour le séchage : palmes, masques, tubas, shortys et serviettes à l'eau douce, puis étendus sur la terrasse pour la nuit, les shortys retournés. Demain il n'y aura pas le temps, et il n'y aura pas de plage.",
+            note:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen.",
+            det:"Demain il ne reste que la terrasse, le déjeuner, la route et le plein"} ],
     autour:{
       titre:"Autour de Porto Rafti",
       intro:"Hors programme — vous êtes à 55 km de Saronida, autant ne pas repartir tout de suite. Tout est à moins de 20 min du terminal, sur le chemin du retour.",
@@ -2035,18 +2036,28 @@ const DAYS = [
       vent:"Journée sans vent : moins de 10 km/h jusqu'à midi, une brise d'est qui se lève ensuite sans dépasser 14 km/h. Toutes les criques de la baie sont praticables — c'est pour cette raison que la sortie a été déplacée ici."
     } },
 
-  { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"Dernier bain, puis l'aéroport", sun:SARO,
-    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", when:"9 h 30 – 11 h",
-             det:"Le dernier — puis douche, et l'on charge",
-             vig:"Le meltémi est de retour : 28 km/h et des rafales à 50 dès 10 h. Le sable vole et rien ne doit rester posé — le bain sera court, prenez-le dès la sortie de table."},
-            {t:"plain", ttl:"Chargement et état des lieux", when:"11 h 15 – 12 h 15",
+  { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"La terrasse, puis l'aéroport", sun:SARO,
+    /* Pas de plage le dernier jour. Entre le bain, la douche et le départ,
+       rien n'aurait le temps de sécher, et des palmes trempées ne se mettent
+       pas au fond d'une valise pour six heures d'avion. Tout ce qui touche
+       l'eau a été rincé et étendu le 26 au soir : c'est là, et nulle part
+       ailleurs, que le séchage se joue. */
+    prep:[{ t:"Rincer et étendre — ce soir ou jamais",
+            d:"Demain il n'y aura plus le temps. Palmes, masques, tubas, shortys et serviettes passent à l'eau douce et vont sur la terrasse pour la nuit, les shortys retournés. Le sel est ce qui garde tout humide : un néoprène mal rincé reste moite pendant des jours et sent le renfermé jusqu'à Cergy. Vingt-cinq degrés et du vent cette nuit — étendu à 18 h, tout sera sec au matin." }],
+    matin:[ {t:"plain", ttl:"La terrasse, sans rien prévoir", when:"9 h 30 – 10 h 30",
+             det:"Le dernier café face à la mer — c'est tout le programme de la matinée"},
+            {t:"plain", ttl:"Valises et état des lieux", when:"10 h 30 – 11 h 30",
              det:"Rien sous les lits, rien sur les fils de la terrasse, rien au frigo",
-             alarme:"On charge la voiture — départ dans une heure"} ],
-    aprem:[ {t:"depart", ttl:"Départ pour l'aéroport", when:"12 h 15", map:dir(SARONIDA,"37.9364,23.9445"),
-             corrige:"Avancé de 45 min : 45 km de route, et il faut le plein avant de rendre la voiture.",
+             vig:"Vérifiez que tout ce qui a été étendu hier soir est bien sec avant de le plier. Ce qui ne l'est pas voyage à part, dans un sac plastique laissé ouvert — jamais au fond d'une valise fermée.",
+             alarme:"Les valises — on charge dans une heure"},
+            {t:"repas", ttl:"Déjeuner sur la terrasse", when:"11 h 30 – 12 h 15",
+             det:"Avec ce qui reste des courses : on finit le frigo, il n'y a rien à ramener",
+             alarme:"Dernier déjeuner au penthouse — après, ce sera l'aéroport",
+             note:"C'est le dernier vrai repas avant l'avion. À Athènes il ne restera qu'un sandwich pris debout, et il est plus cher."} ],
+    aprem:[ {t:"depart", ttl:"Départ pour l'aéroport", when:"12 h 30", map:dir(SARONIDA,"37.9364,23.9445"),
              alarme:"Départ pour l'aéroport — plein de carburant en route, à Markopoulo ou à Koropi",
-             det:"45 km par la Lavriou puis l'Attiki Odos — 45 min sans incident"},
-            {t:"plain", ttl:"Restitution de la voiture", when:"13 h 15",
+             det:"45 km par la Lavriou puis l'Attiki Odos — 45 min sans incident, plus l'arrêt à la pompe"},
+            {t:"plain", ttl:"Restitution de la voiture", when:"13 h 30",
              vig:"Rendre la voiture avec le plein — le carburant manquant est refacturé au prix fort. La dernière station commode est à Koropi, à 10 min de l'aéroport, et il n'y en a plus après. Quelques photos de la carrosserie avant de laisser les clés.",
              det:"Comptoir Sixt au parking des loueurs de l'aéroport"},
             {t:"travel", ttl:"Décollage", when:"16 h 20",
@@ -2243,10 +2254,8 @@ const DEJEUNERS = {
       det:"Pendant la sortie, à l'un des mouillages. Le prestataire s'occupe de tout, comme le 20.",
       note:"Rien à emporter — la sortie rend à quai à 13 h",
       bonplan:"Une journée sans glacière ni panier : le sac du bateau suffit." } },
-  11:{ rang:2, it:{ t:"repas", ttl:"Déjeuner", when:"14 h 15 – 15 h 15",
-      det:"À l'aéroport, une fois la voiture rendue et les bagages déposés.",
-      note:"Décollage 16 h 20",
-      bonplan:"À l'aéroport d'Athènes, le choix est plus large côté départs avant les contrôles qu'après. Mangez avant de passer." } }
+  /* Le 27, on déjeune au penthouse avant de partir : le repas est dans la
+     matinée, pas ici. */
 };
 DAYS.forEach(d => {
   const dj = DEJEUNERS[d.n];
@@ -3403,8 +3412,7 @@ const MER_SPOTS = {
   7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:13 }],
   8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
   9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
-  10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:13 }],
-  11:[{ n:"Plage de Saronida", lat:37.7448, lon:23.9013, de:8, a:11 }]
+  10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:13 }]
 };
 const TOUS_SPOTS = (() => {
   const vus = new Map();
