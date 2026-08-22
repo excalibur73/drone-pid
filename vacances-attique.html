@@ -596,6 +596,20 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 
 /* ─────────────────────────────  COURBES HORAIRES  ───────────────────────────── */
 .autour.heure > header svg{color:var(--sea)}
+.autour.drone > header svg{color:var(--ochre)}
+.autour.drone .dloi{
+  display:flex; gap:9px; margin:13px 16px 0; padding:11px 13px;
+  background:var(--surface-2); border-left:3px solid var(--ochre); border-radius:0 8px 8px 0;
+  font-size:.84rem; color:var(--ink-2); line-height:1.5;
+}
+.autour.drone .dloi svg{width:15px; height:15px; color:var(--ochre); flex:0 0 auto; margin-top:3px}
+.autour.drone .dloi b{color:var(--ink)}
+.autour.drone .dnon{border-left-color:var(--ink-3)}
+.autour.drone .dnon svg{color:var(--ink-3)}
+.autour.drone .quand{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ochre);
+}
 .hcarte{padding:4px 16px 14px; border-top:1px solid var(--line-soft)}
 .hcarte:first-of-type{border-top:none}
 .htete{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:12px 0 6px}
@@ -3355,6 +3369,89 @@ const SAC_BATEAU = {
       quai:"Douches à la plage d'Avlaki, au fond de la baie, à 700 m du quai.",
       repli:"Sinon : les tavernes du port acceptent qu'on remplisse une bouteille — demandez avant de commander, pas après." }
 };
+/* ════════════════════════════  LE DRONE  ════════════════════════════
+   La Grèce est un des pays d'Europe les plus stricts sur le sujet, et les
+   amendes se comptent en dizaines de milliers d'euros. Trois interdits
+   absolus : les sites archéologiques, les zones de contrôle d'aérodrome, et
+   le vol sans notification préalable. Le reste — le vent, la chaleur, le
+   magnétisme de la roche — n'est que technique, mais décide de la réussite.
+
+   Rien ici ne remplace DAGR : la carte officielle fait foi, elle seule, et
+   elle change. On donne le lieu et le créneau ; la légalité se vérifie le
+   jour même.                                                              */
+const DAGR = "https://dagr.hasp.gov.gr/";
+const DRONE_LOI = [
+  { t:"loi", d:"<b>DAGR fait foi, et lui seul.</b> La carte officielle (dagr.hasp.gov.gr) donne les zones en temps réel — rouge interdit, jaune restreint, vert libre. Elle change d'un jour à l'autre. Vérifiez le matin même, jamais la veille." },
+  { t:"loi", d:"<b>Notification de vol obligatoire.</b> Les sources publiques donnent un préavis de cinq jours ouvrés via DAGR — soit, depuis aujourd'hui, un délai qui dépasse la fin du séjour. Créez le compte et lisez ce que le système exige réellement pour un vol en catégorie ouverte en zone verte : c'est la seule réponse qui vaut." },
+  { t:"non", d:"<b>Sites archéologiques : interdiction absolue.</b> Le temple de Poséidon et le sanctuaire de Brauron sont hors de question, à toute altitude, sans autorisation écrite du ministère de la Culture — qui ne se donne qu'aux tournages. C'est le seul point sur lequel il y a eu des arrestations." },
+  { t:"non", d:"<b>Aéroport d'Athènes : 8 km au moins.</b> Markopoulo et Porto Rafti sont dans ou au bord de la zone de contrôle. Le 26, on ne sort pas le drone — ni à terre, ni depuis le bateau." },
+  { t:"loi", d:"<b>Le reste des règles ouvertes :</b> 120 m maximum, drone toujours à vue, jamais au-dessus de personnes rassemblées, et l'enregistrement d'exploitant européen — le français est valable en Grèce. Les amendes montent à 250 000 €." }
+];
+const DRONE = {
+  7:{ intro:"Deux fenêtres, et la seconde est la plus belle du séjour. Le matin la mer est d'huile et l'air immobile ; le soir, le soleil se couche droit dans le golfe.",
+      spots:[
+        { n:"Falaises de Limanakia", quand:"9 h 30 – 11 h", km:"sur place",
+          d:"Des criques turquoise taillées dans une falaise pâle, et le bâtiment en ruine sur la pointe. Le sujet le plus fort du séjour vu d'en haut : le contraste roche claire / eau profonde y est maximal en fin de matinée, quand le soleil est encore oblique. Arrivez tôt — c'est un lieu fréquenté et l'on ne filme pas des gens qui se baignent.",
+          q:"Limanakia Vouliagmeni Greece" },
+        { n:"Rochers de Saronida, au couchant", quand:"19 h 15 – 20 h 04", km:"450 m à pied",
+          d:"Le soleil se couche plein ouest sur le golfe Saronique, avec Égine en silhouette à l'horizon. La côte rocheuse au sud de la baie donne un premier plan découpé, et il n'y a personne à cette heure. C'est le meilleur créneau lumière de toute la semaine.",
+          q:"Saronida beach Greece" }
+      ],
+      vent:"Conditions idéales : moins de 9 km/h jusqu'à 13 h, et 13 km/h au couchant. Attention en revanche aux rabattants le long de la falaise de Limanakia — le vent y accélère par-dessus l'arête, même faible au sol." },
+  8:{ intro:"Journée sans vol. Ce n'est pas une précaution, c'est une limite matérielle : la plupart des appareils grand public décrochent au-delà de 40 km/h de vent, et l'on est au-dessus de l'eau.",
+      spots:[],
+      vent:"Meltémi de 20 km/h à 9 h, 36 km/h établis à 14 h, rafales à 71. Le drone reste dans le sac — et si vous le sortez malgré tout, ce sera pour le regarder partir vers Égine." },
+  9:{ intro:"Une fenêtre le matin, sur la côte la plus graphique du secteur. L'après-midi est perdu pour le drone : le KAPE est à deux kilomètres et demi du temple de Poséidon, et l'on ne s'approche pas d'un site archéologique avec un appareil en main.",
+      spots:[
+        { n:"Criques noires de Mavro Lithari", quand:"9 h 45 – 11 h 30", km:"sur place",
+          d:"De la roche volcanique noire contre une eau turquoise : vu à la verticale, c'est le contraste le plus net qu'on trouvera. Le top-down est ici plus fort que le plan large. Attention au décollage — cette roche sombre est riche en magnétite et fausse la boussole : décollez à la main ou depuis une serviette posée sur du sable, jamais du rocher lui-même, et refaites l'étalonnage si l'appareil le réclame.",
+          q:"Mavro Lithari Anavyssos Greece" }
+      ],
+      vent:"10 à 15 km/h le matin, puis 20 avec des rafales à 39 l'après-midi. La fenêtre propre se ferme vers 11 h 30." },
+  10:{ intro:"Rien à Porto Rafti — l'aéroport est à douze kilomètres et la zone de contrôle mord sur la baie. Mais l'après-midi à Saronida est le créneau le plus calme de la semaine, et il reste de quoi faire.",
+      spots:[
+        { n:"Chapelle Agios Nikolaos, Palea Fokea", quand:"18 h 30 – 19 h 30", km:"15 min au sud",
+          d:"Une chapelle blanche posée sur son rocher, cernée d'eau claire — le plan circulaire au-dessus de la chapelle est le cliché du genre parce qu'il fonctionne. Le 24 le vent l'interdisait ; ce soir-là il n'y a rien du tout. Vingt minutes de détour depuis le penthouse, et la lumière est basse.",
+          q:"Agios Nikolaos Palaia Fokaia Greece" },
+        { n:"Rochers de Saronida", quand:"16 h – 17 h 30", km:"450 m à pied",
+          d:"Quatre centimètres de houle et pas un souffle : l'eau est si claire qu'on lit les fonds à la verticale depuis 60 m. C'est le jour à faire les plans de transparence — les criques, les rochers immergés, les nageurs vus d'aplomb.",
+          q:"Saronida beach Greece" }
+      ],
+      vent:"Le meilleur jour de la semaine : 0,7 km/h à 10 h, moins de 12 km/h toute la journée, rafales sous 25. Si vous ne devez voler qu'une fois, c'est aujourd'hui." },
+  11:{ intro:"Journée de départ, et le meltémi revient. Le drone est rangé dans un bagage — pensez aux batteries.",
+      spots:[],
+      vent:"15 km/h à 9 h, puis 30 et des rafales à 55 dès 10 h. Rien à tenter.",
+      bagage:"Batteries en cabine, jamais en soute, bornes protégées et charge autour de 30 %. C'est une règle de compagnie, pas une recommandation : une batterie en soute se fait retirer, au mieux." }
+};
+function droneHTML(d){
+  const b = DRONE[d.n];
+  if (!b) return "";
+  const loi = DRONE_LOI.map(r => `<p class="dloi${r.t === "non" ? " dnon" : ""}">
+    <svg><use href="#i-${r.t === "non" ? "info" : "info"}"/></svg><span>${r.d}</span></p>`).join("");
+  return `<article class="autour drone">
+    <header>
+      <svg><use href="#i-travel"/></svg>
+      <h3>Le drone</h3>
+      <span class="hors">hors programme</span>
+    </header>
+    <p class="intro">${esc(b.intro)}</p>
+    ${b.spots.length ? `<div class="lieux">
+      ${b.spots.map(l => `<div class="lieu">
+        <div class="tete"><b>${esc(l.n)}</b><span>${esc(l.km)}</span></div>
+        <div class="quand">${esc(l.quand)}</div>
+        <p>${esc(l.d)}</p>
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.q)}"
+           target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Situer</a>
+      </div>`).join("")}
+    </div>` : ""}
+    <p class="ventnote"><svg><use href="#i-wind"/></svg>${esc(b.vent)}</p>
+    ${b.bagage ? `<p class="dloi"><svg><use href="#i-info"/></svg><span><b>Dans les bagages :</b> ${esc(b.bagage)}</span></p>` : ""}
+    ${loi}
+    <p class="dloi"><svg><use href="#i-map"/></svg><span>La carte officielle, à ouvrir avant chaque vol :
+      <a class="maplink" href="${DAGR}" target="_blank" rel="noopener noreferrer">DAGR — dagr.hasp.gov.gr</a></span></p>
+  </article>`;
+}
+
 function sacBateauHTML(d){
   const s = SAC_BATEAU[d.n];
   if (!s) return "";
@@ -5308,6 +5405,7 @@ function dayHTML(d, { live }){
       </div>
       ${d.autour.vent ? `<p class="ventnote"><svg><use href="#i-wind"/></svg>${esc(d.autour.vent)}</p>` : ""}
     </article>` : ""}
+    ${droneHTML(d)}
     ${pack.length ? `<div class="pack">
       <span class="lbl">À prendre</span>
       <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
