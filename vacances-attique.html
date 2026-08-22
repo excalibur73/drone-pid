@@ -1885,12 +1885,30 @@ const DAYS = [
     soir:[ {t:"food", ttl:"Dîner au Lavraki", ll:"37.7445,23.9020", det:"Front de mer — ou terrasse du penthouse"} ] },
 
   { n:7, date:"2026-08-23", dow:"Dim", dm:"23 août", phase:2, title:"Criques de Limanakia", sun:SARO,
+    /* Phase 2 : on récupère. Le départ passe de 8 h à 9 h, ce qui pose le
+       petit-déjeuner à 7 h 50 et le réveil à 7 h 30. La contrepartie tombe
+       bien : c'est la journée la plus chaude du séjour — 35° à 11 h, 38 à
+       13 h, 39 de ressenti — et Limanakia n'a pas un mètre d'ombre. La mer se
+       fait donc le matin, et l'après-midi se passe au frais. */
     prep:[{ t:"Le panier du pique-nique",
-            d:"Départ à 8 h : rien n'ouvre avant. Pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque — rien de crémeux. Et les pains de glace au congélateur dès ce soir." }],
-    matin:[ {t:"depart", ttl:"Départ", when:"8 h", map:dir(SARONIDA,"37.8065,23.7785")},
-            {t:"swim", ttl:"Snorkeling tôt", ll:"37.8065,23.7785", det:"Criques de Limanakia — fonds rocheux", gear:true} ],
-    aprem:[ {t:"swim", ttl:"Suite des criques", ll:"37.8065,23.7785", det:"Limanakia, ou les pointes ouest de Varkiza", gear:true} ],
-    soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
+            d:"Pain de campagne, feta en bloc dans sa saumure, tomates, concombre, olives, une pastèque — rien de crémeux. Et les pains de glace au congélateur dès ce soir. Le départ étant passé à 9 h, la boulangerie de Saronida sera ouverte : le pain peut se prendre frais au passage." }],
+    matin:[ {t:"depart", ttl:"Départ", when:"9 h", map:dir(SARONIDA,"37.8065,23.7785"),
+             corrige:"Repoussé d'une heure : en phase 2 on dort jusqu'à 7 h 30, sauf le jour de la croisière.",
+             det:"18 km par la côte — une trentaine de minutes",
+             alarme:"Départ pour Limanakia — le pain frais se prend au passage"},
+            {t:"swim", ttl:"Snorkeling", ll:"37.8065,23.7785", when:"9 h 30 – 12 h 30", gear:true,
+             det:"Criques de Limanakia — fonds rocheux, et une mer d'huile annoncée",
+             vig:"Pas un souffle de vent, donc pas un souffle d'air : 30° à 9 h, 33 à 10 h, 35 à 11 h, et la roche devient brûlante. Chaussons aux pieds dès la sortie de l'eau, et l'on ne s'installe pas sans parasol.",
+             note:"Mer à 27,5 °C et 8 cm de houle : les meilleures conditions de snorkeling du séjour. Profitez-en le matin, il n'y aura pas de seconde manche l'après-midi."} ],
+    aprem:[ {t:"depart", ttl:"Retour au penthouse", when:"13 h 15", map:dir("37.8065,23.7785",SARONIDA),
+             alarme:"On rentre — 38° dehors et 39 de ressenti, il n'y a plus d'ombre nulle part"},
+            {t:"plain", ttl:"Longue pause au frais", when:"14 h – 18 h 30",
+             det:"Terrasse à l'ombre, sieste, tri des photos — le pic est à 13 h",
+             vig:"Journée la plus chaude du séjour, et sans un souffle de vent pour la tempérer : 38,1° et 39,3 de ressenti à 13 h. Buvez avant d'avoir soif — deux litres par personne aujourd'hui, pas un de moins.",
+             note:"Si quelqu'un veut absolument retourner à l'eau, les pointes ouest de Varkiza sont à 20 min — mais attendez 18 h, la roche ne cesse de cuire qu'après."} ],
+    soir:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", when:"18 h 30 – 19 h 30",
+            det:"En bas de l'immeuble, quand la chaleur retombe — la mer est à 28°"},
+           {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Palea Fokea, avant le vent", sun:SARO,
     /* East Attica Cruises a reporté la croisière au 26 : meltémi de nord-est,
@@ -1899,15 +1917,15 @@ const DAYS = [
        prendre. Reste que le vent souffle ici aussi : la mer se fait le matin,
        et l'après-midi se passe à l'abri. */
     prep:[{ t:"Masques et chaussons près de la porte",
-            d:"Rien à porter aujourd'hui, mais la fenêtre de mer se ferme à 11 h : au-delà, le vent hache la surface et le masque ne sert plus à rien. Sortez ce soir les palmes, les masques et les chaussons de rochers — les fonds de Palea Fokea sont les meilleurs du séjour et ce sera la dernière occasion." }],
-    matin:[ {t:"depart", ttl:"Départ", when:"8 h 30", map:dir(SARONIDA,"37.718,23.945"),
-             corrige:"Journée réorganisée : la croisière de Porto Rafti est reportée au 26.",
-             alarme:"Palea Fokea — 15 min de route, et la mer reste plate jusqu'à 10 h",
+            d:"Rien à porter aujourd'hui, mais la fenêtre de mer se ferme à 11 h et le départ est à 9 h : au-delà, le vent hache la surface et le masque ne sert plus à rien. Sortez ce soir les palmes, les masques et les chaussons de rochers — les fonds de Palea Fokea sont les meilleurs du séjour et ce sera la dernière occasion." }],
+    matin:[ {t:"depart", ttl:"Départ", when:"9 h", map:dir(SARONIDA,"37.718,23.945"),
+             corrige:"Journée réorganisée : la croisière est reportée au 26, et le départ recule à 9 h pour dormir jusqu'à 7 h 30.",
+             alarme:"Palea Fokea — 15 min de route, et la mer reste praticable jusqu'à 11 h",
              det:"10 km par la côte vers le sud"},
             {t:"site", ttl:"Palea Fokea", ll:"37.7180,23.9450", det:"Chapelle Agios Nikolaos, posée sur son rocher au bord de l'eau"},
-            {t:"swim", ttl:"Rochers & faune", ll:"37.7180,23.9450", gear:true, when:"9 h – 11 h",
+            {t:"swim", ttl:"Rochers & faune", ll:"37.7180,23.9450", gear:true, when:"9 h 15 – 11 h",
              det:"Les meilleurs fonds du séjour — oursins, girelles, parfois un poulpe dans une anfractuosité",
-             vig:"Le meltémi monte d'heure en heure : 20 km/h à 9 h, 28 à 10 h, 32 à 11 h, avec des rafales à 60. Tenez-vous dans l'anse au sud de la chapelle, dos au vent. Passé 11 h la surface se hache et l'on ne voit plus rien sous l'eau.",
+             vig:"Le meltémi monte d'heure en heure : 28 km/h à 10 h, 32 à 11 h, avec des rafales à 60. Tenez-vous dans l'anse au sud de la chapelle, dos au vent. Passé 11 h la surface se hache et l'on ne voit plus rien sous l'eau — c'est la seule journée où une heure de grasse matinée coûte quelque chose.",
              note:"Entrée sur rochers : chaussons obligatoires, et l'on regarde avant de poser le pied."} ],
     aprem:[ {t:"depart", ttl:"Retour par Anavyssos", when:"~11 h 30", map:dir("37.718,23.945","37.7290,23.9330"),
              det:"5 min le long de la côte"},
@@ -2209,10 +2227,10 @@ const DEJEUNERS = {
       det:"Avec ce que vous venez de rapporter — les enfants auront eu le temps de s'installer.",
       note:"Prévoyez de quoi tenir tout de suite dans le premier sac : ils n'auront rien mangé depuis le petit-déjeuner de l'hôtel.",
       bonplan:"Premier jour en voiture : repérez le supermarché et la boulangerie de Saronida, vous y reviendrez cinq fois." } },
-  7:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"12 h 30 – 13 h 30",
+  7:{ rang:0, it:{ t:"repas", ttl:"Pique-nique", when:"12 h 30 – 13 h 15",
       det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
-      note:"À préparer la veille au soir",
-      bonplan:"Le panier se prépare la veille au soir : le 23 vous partez à 8 h, rien n'est ouvert avant." } },
+      note:"À préparer la veille au soir — puis on rentre",
+      bonplan:"Mangez à l'ombre du parasol et ne traînez pas : à 13 h il fait 38° sur la roche, et c'est l'heure où l'on reprend la voiture." } },
   8:{ rang:2, it:{ t:"repas", ttl:"Déjeuner au penthouse", when:"12 h 30 – 13 h 30",
       det:"Avec les courses du matin, au frais : dehors c'est 34° et des rafales à 70.",
       note:"Rentrer plutôt que s'attabler dehors",
@@ -2564,7 +2582,7 @@ const SAVOIRS = {
     mot:"Le sel et un couteau : c'est ce qu'on oublie, et ce qui manque le plus devant une pastèque."
   },
   "Courses pour la semaine":{
-    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 26, repas et boissons sont fournis à bord pendant la croisière. Les deux petits-déjeuners les plus matinaux — 6 h 50 le 23, 6 h 35 le 26 — se prennent avant l'ouverture de tout commerce, et les départs suivent à 8 h et 7 h 45. Un réapprovisionnement est prévu le 24 à Anavyssos : cette course-ci doit tenir jusque-là, et l'eau jusqu'au bout.",
+    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 26, repas et boissons sont fournis à bord pendant la croisière. Le rythme de la phase 2 est celui de la récupération : on dort jusqu'à 7 h 30 ou 8 h, les départs ne sont jamais avant 9 h, et les petits-déjeuners se prennent entre 7 h 50 et 9 h 30 sur la terrasse. Une seule exception, le 26 : la croisière impose 6 h 35 et un départ à 7 h 45. C'est le seul matin du séjour où il faut un réveil. Un réapprovisionnement est prévu le 24 à Anavyssos : cette course-ci doit tenir jusque-là, et l'eau jusqu'au bout.",
     regarder:[
       "Le petit-déjeuner : café ou thé, lait, pain ou biscottes, yaourt grec et miel — le vrai, celui de thym —, fruits de saison, œufs, jus. Comptez large : les pêches et les figues d'août ne survivent pas à cinq jours.",
       "Le pique-nique du 23 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace — la voiture restera au soleil, et les criques n'ont pas d'ombre.",
@@ -3382,7 +3400,7 @@ const MER_H_STORE = "attique2026:merh";
 const COURBES = new Map();          // identifiant du graphe → points, pour le survol
 const MER_SPOTS = {
   4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
-  7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:8, a:18 }],
+  7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:13 }],
   8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
   9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
   10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:13 }],
