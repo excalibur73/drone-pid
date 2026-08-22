@@ -31,3 +31,14 @@
     Cache-Control = "public, max-age=0, must-revalidate"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Le fichier de version décide si l'application se met à jour. Servi depuis le
+# cache de bordure, il annonçait pendant un quart d'heure une version déjà
+# remplacée — et l'application, se croyant à jour, ne proposait rien. On le
+# sort donc de tous les caches, celui du navigateur comme celui de Netlify.
+[[headers]]
+  for = "/version.txt"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"
+    Netlify-CDN-Cache-Control = "no-store, max-age=0"
+    Content-Type = "text/plain; charset=utf-8"

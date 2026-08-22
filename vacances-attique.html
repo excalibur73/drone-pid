@@ -6096,7 +6096,7 @@ function peutSeRecharger(){
 async function verifierVersion(absence){
   if (!MA_VERSION || !navigator.onLine) return;
   try {
-    const v = (await (await fetch("/version.txt", { cache:"no-store" })).text()).trim();
+    const v = (await (await fetch(`/version.txt?t=${Date.now()}`, { cache:"no-store" })).text()).trim();
     if (!v || v === MA_VERSION) return;
     if (absence >= ABSENCE_LONGUE && peutSeRecharger()){
       location.replace(location.pathname + "?v=" + Date.now() + location.hash);
@@ -6114,7 +6114,7 @@ async function comparerVersions(){
   if (!la || !dit) return;
   la.textContent = "…"; dit.textContent = "Vérification en cours…";
   try {
-    const v = (await (await fetch("/version.txt", { cache:"no-store" })).text()).trim();
+    const v = (await (await fetch(`/version.txt?t=${Date.now()}`, { cache:"no-store" })).text()).trim();
     la.textContent = v || "?";
     if (!MA_VERSION){ dit.textContent = "Cette page ne porte pas de version : ouvrez athenes-2026.netlify.app."; return; }
     if (v === MA_VERSION){
