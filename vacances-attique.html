@@ -1664,7 +1664,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       </div>
       <div class="lg swim">
         <div class="ic"><svg><use href="#i-swim"/></svg></div>
-        <div><h4>Baignade &amp; snorkeling</h4><p>Fonds rocheux (Limanakia, KAPE, Palea Fokea) = faune visible. Sable (Saronida, Anavyssos) = détente.</p></div>
+        <div><h4>Baignade &amp; snorkeling</h4><p>Les criques rocheuses d'abord — Limanakia, Palea Fokea, Mavro Lithari, le KAPE, les rochers de Saronida : c'est là que la faune se voit. Le sable ne sert qu'à sécher.</p></div>
       </div>
       <div class="lg depart">
         <div class="ic"><svg><use href="#i-depart"/></svg></div>
@@ -1906,8 +1906,9 @@ const DAYS = [
              det:"Terrasse à l'ombre, sieste, tri des photos — le pic est à 13 h",
              vig:"Journée la plus chaude du séjour, et sans un souffle de vent pour la tempérer : 38,1° et 39,3 de ressenti à 13 h. Buvez avant d'avoir soif — deux litres par personne aujourd'hui, pas un de moins.",
              note:"Si quelqu'un veut absolument retourner à l'eau, les pointes ouest de Varkiza sont à 20 min — mais attendez 18 h, la roche ne cesse de cuire qu'après."} ],
-    soir:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", when:"18 h 30 – 19 h 30",
-            det:"En bas de l'immeuble, quand la chaleur retombe — la mer est à 28°"},
+    soir:[ {t:"swim", ttl:"Les rochers de Saronida", ll:"37.7448,23.9013", when:"18 h 30 – 19 h 30", gear:true,
+            det:"Pas le sable : la côte rocheuse qui ferme la baie au sud, à 450 m — accès libre, petites criques enchaînées, eau claire au bord",
+            note:"On y va masque en main depuis l'appartement. La lumière de 19 h est basse, mais l'eau est encore transparente et il n'y a plus personne."},
            {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Palea Fokea, avant le vent", sun:SARO,
@@ -1967,7 +1968,14 @@ const DAYS = [
        ce qui précède doit lui céder le pas, y compris le bain du KAPE. */
     prep:[{ t:"Les billets de Sounion, et les pièces d'identité",
             d:"Le créneau d'entrée est horodaté et ne se déplace pas. Les billets sont des QR codes sur le téléphone : mettez-les en captures d'écran ce soir, pour ne pas dépendre du réseau ni d'une batterie vidée par une journée de plage. Et sortez les pièces d'identité de Hilal et Layal — le billet gratuit « 18-25 ans, UE » se contrôle au portail, sur justificatif d'âge et de nationalité." }],
-    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
+    matin:[ {t:"depart", ttl:"Départ", when:"9 h 30", map:"https://www.google.com/maps/search/?api=1&query=Mavro+Lithari+Anavyssos+Greece",
+             det:"10 min vers le sud, entre Saronida et Anavyssos",
+             alarme:"Départ pour Mavro Lithari — les criques noires, et le matin est le bon moment"},
+            {t:"swim", ttl:"Criques noires de Mavro Lithari", when:"9 h 45 – 11 h 45", gear:true,
+             map:"https://www.google.com/maps/search/?api=1&query=Mavro+Lithari+Anavyssos+Greece",
+             det:"Une enfilade de petites criques de roche noire, eau profonde et claire dès le bord — la côte la moins fréquentée du secteur",
+             vig:"Roche volcanique sombre : elle chauffe vite et elle coupe. Chaussons du départ au retour, et l'on regarde le fond avant de se mettre à l'eau — l'eau devient profonde tout de suite.",
+             note:"On choisit sa crique sur place : il y en a une enfilade sur deux kilomètres, et aucune n'est balisée. Ni buvette ni ombre — eau et parasol depuis le penthouse. Le matin est le bon créneau, avant que la brise d'après-midi ne lève le clapot."} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
             {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true, when:"14 h 20 – 16 h 45",
             note:"Le bain s'arrête à 16 h 45, sans discussion : le créneau de Sounion ne se rattrape pas.",
@@ -1998,7 +2006,7 @@ const DAYS = [
              det:"55 km par Markopoulo — c'est le plus long trajet de la phase 2"},
             {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", when:"9 h – 13 h",
              corrige:"Reportée du lundi 24 par East Attica Cruises : trop de vent ce jour-là.",
-             det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu — quatre heures en mer",
+             det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu — quatre heures en mer, trois mouillages sur roche",
              vig:"Présentation à 8 h 30 au Resalto Terminal, appareillage à 9 h : c'est ce qui commande le départ de 7 h 45 de Saronida. Mer annoncée à 0,10 m et vent quasi nul avant midi — les meilleures conditions de tout le séjour.",
              note:"Réservée — nouvelle date du 26 août, 9 h – 13 h", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"swim", ttl:"Baignades depuis le bateau", parBateau:true, gear:true,
@@ -2007,9 +2015,10 @@ const DAYS = [
              map:dir("37.8868674,24.0143872","37.8813,23.9333"),
              det:"10 min à l'intérieur des terres, puis 35 min jusqu'à Saronida",
              note:"Dernier passage en ville : pharmacie si besoin, et surtout le plein de carburant — la voiture se rend pleine demain, et il n'y a que 45 km d'ici à l'aéroport."},
-            {t:"plain", ttl:"Après-midi libre à Saronida", when:"~15 h",
-             det:"La journée a commencé à 6 h 45 — la plage est en bas, la terrasse à l'ombre",
-             note:"Mer à 28 °C et pas un souffle de vent cet après-midi : c'est le dernier bain tranquille du séjour, le meltémi revient demain matin."} ],
+            {t:"swim", ttl:"Le dernier masque — rochers de Saronida", when:"~16 h", ll:"37.7448,23.9013", gear:true,
+             det:"La côte rocheuse au sud de la baie, à 450 m à pied — la journée a commencé à 6 h 35, on ne reprend pas la voiture",
+             note:"Mer à 28 °C, 4 cm de houle et pas un souffle de vent : la meilleure visibilité de la semaine. Le meltémi revient demain matin — c'est vraiment la dernière fois.",
+             vig:"En remontant, tout passe à l'eau douce et s'étend avant 18 h : c'est la seule nuit de séchage avant l'avion."} ],
     soir:[ {t:"food", ttl:"Dernier dîner — Porto ou Galene", ll:"37.7290,23.9330",
             det:"Grill de poisson à Anavyssos — le meilleur du coin, gardé pour la fin"},
            {t:"plain", ttl:"Rincer, étendre, puis les valises", when:"dès le retour de la plage",
@@ -3562,11 +3571,12 @@ function merHoraireHTML(d){
    ce classement dit où chercher, pas où se garer.                            */
 const SPOTS = {
  8:[
-  { n:"Anse sud de la chapelle, Palea Fokea", ouvert:200, d:"Sous le rocher d'Agios Nikolaos, dos au vent — le bon choix du jour" },
-  { n:"Baie d'Anavyssos",       ouvert:225, d:"Grande baie ouverte au sud-ouest, entrée de sable en pente douce" },
-  { n:"Plage de Saronida",      ouvert:250, d:"Abritée par la pointe nord : ça souffle sur le sable, mais la mer reste basse" },
-  { n:"Criques du KAPE",        ouvert:200, d:"Rochers ; le ressac s'y installe quand le nord force" },
-  { n:"Côte nord de Saronida",  ouvert:20,  d:"Face au vent — c'est là que ça tape, et il n'y a rien à y voir sous l'eau" }
+  { n:"Anse sud de la chapelle, Palea Fokea", ouvert:200, d:"Roche, sous le rocher d'Agios Nikolaos, dos au vent — les meilleurs fonds du séjour et le bon choix du jour" },
+  { n:"Criques noires de Mavro Lithari", ouvert:215, d:"Roche volcanique, eau profonde dès le bord — le repli si Palea Fokea est pris" },
+  { n:"Rochers sud de Saronida", ouvert:250, d:"Roche, à 450 m à pied du penthouse — petites criques enchaînées, accès libre" },
+  { n:"Criques du KAPE",        ouvert:200, d:"Roche ; le ressac s'y installe quand le nord force" },
+  { n:"Plage de Saronida",      ouvert:250, d:"Du sable : bon pour sécher, rien à voir sous l'eau" },
+  { n:"Côte nord de Saronida",  ouvert:20,  d:"Face au vent — c'est là que ça tape, et le fond y est brassé" }
  ],
  10:[
   { n:"Erotospilia",            ouvert:135, d:"Criques et grotte-abri — le repli du programme" },
