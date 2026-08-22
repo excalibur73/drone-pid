@@ -1877,7 +1877,7 @@ const DAYS = [
              note:"Chambres à choisir, wifi, terrasse : ils ont de quoi s'occuper. La plage est en bas si l'attente leur pèse.",
              rdv:"47 Μυτιλήνης (Mytilinis), Saronida"},
             {t:"courses", ttl:"Courses pour six jours — AAB et Sana", when:"~13 h",
-            vig:"Six jours à tenir, jusqu'au 27 au matin : c'est la seule grande course du séjour. La prochaine occasion pratique est Markopoulo, le 24 au retour de Porto Rafti.",
+            vig:"Six jours à tenir, jusqu'au 27 au matin : c'est la grande course du séjour. Un réapprovisionnement est prévu le 24 à Anavyssos, mais tout ce qui pèse — l'eau surtout — se prend maintenant.",
              det:"Les enseignes de la côte vers Anavyssos, à dix minutes — cinq petits-déjeuners au penthouse, le pique-nique du 23, l'eau et le reste",
              note:"Il n'y a plus d'hôtel pour vous nourrir : petits-déjeuners, eau en grandes bouteilles, fruits, de quoi grignoter au retour de la plage. Repérez au passage la boulangerie de Saronida, vous y reviendrez.",
              map:"https://www.google.com/maps/search/?api=1&query=supermarket+Saronida+Anavyssos+Greece"},
@@ -1892,35 +1892,98 @@ const DAYS = [
     aprem:[ {t:"swim", ttl:"Suite des criques", ll:"37.8065,23.7785", det:"Limanakia, ou les pointes ouest de Varkiza", gear:true} ],
     soir:[ {t:"food", ttl:"Grillades sur la terrasse du penthouse"} ] },
 
-  { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
-    /* Repas et boissons sont fournis à bord, comme le 20 : rien à porter.
-       Reste le petit-déjeuner, pris au penthouse à 6 h 35. */
-    prep:[{ t:"Le petit-déjeuner de 6 h 35",
-            d:"Plus de buffet ni de service à 7 h depuis le 23 : sortez ce soir de quoi tenir un départ à 7 h 45. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h." }],
+  { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Palea Fokea, avant le vent", sun:SARO,
+    /* East Attica Cruises a reporté la croisière au 26 : meltémi de nord-est,
+       35 km/h établis dans la baie et des rafales à 70. Le report est une
+       bonne décision, et il libère la journée — que le programme du 26 vient
+       prendre. Reste que le vent souffle ici aussi : la mer se fait le matin,
+       et l'après-midi se passe à l'abri. */
+    prep:[{ t:"Masques et chaussons près de la porte",
+            d:"Rien à porter aujourd'hui, mais la fenêtre de mer se ferme à 11 h : au-delà, le vent hache la surface et le masque ne sert plus à rien. Sortez ce soir les palmes, les masques et les chaussons de rochers — les fonds de Palea Fokea sont les meilleurs du séjour et ce sera la dernière occasion." }],
+    matin:[ {t:"depart", ttl:"Départ", when:"8 h 30", map:dir(SARONIDA,"37.718,23.945"),
+             corrige:"Journée réorganisée : la croisière de Porto Rafti est reportée au 26.",
+             alarme:"Palea Fokea — 15 min de route, et la mer reste plate jusqu'à 10 h",
+             det:"10 km par la côte vers le sud"},
+            {t:"site", ttl:"Palea Fokea", ll:"37.7180,23.9450", det:"Chapelle Agios Nikolaos, posée sur son rocher au bord de l'eau"},
+            {t:"swim", ttl:"Rochers & faune", ll:"37.7180,23.9450", gear:true, when:"9 h – 11 h",
+             det:"Les meilleurs fonds du séjour — oursins, girelles, parfois un poulpe dans une anfractuosité",
+             vig:"Le meltémi monte d'heure en heure : 20 km/h à 9 h, 28 à 10 h, 32 à 11 h, avec des rafales à 60. Tenez-vous dans l'anse au sud de la chapelle, dos au vent. Passé 11 h la surface se hache et l'on ne voit plus rien sous l'eau.",
+             note:"Entrée sur rochers : chaussons obligatoires, et l'on regarde avant de poser le pied."} ],
+    aprem:[ {t:"depart", ttl:"Retour par Anavyssos", when:"~11 h 30", map:dir("37.718,23.945","37.7290,23.9330"),
+             det:"5 min le long de la côte"},
+            {t:"courses", ttl:"Réapprovisionnement — AAB et Sana", when:"~11 h 45",
+             det:"Les enseignes d'Anavyssos : de quoi tenir jusqu'au 27 au matin",
+             note:"C'est la course de mi-séjour, celle qui devait se faire à Markopoulo. Ne la reportez pas : le 26 vous rentrez de Porto Rafti à 14 h 30, et le 27 vous partez.",
+             map:"https://www.google.com/maps/search/?api=1&query=supermarket+Anavyssos+Greece"},
+            {t:"plain", ttl:"Longue pause au penthouse", when:"12 h 30 – 18 h 30",
+             alarme:"On rentre au frais — 34° dehors et des rafales à 70 km/h",
+             det:"Terrasse à l'ombre, sieste, tri des photos — la journée a commencé tôt",
+             vig:"Le pic de vent est entre 13 h et 16 h : 36 km/h établis, rafales à 71. Rentrez le linge et repliez les parasols de la terrasse avant de vous installer — c'est le genre de vent qui casse.",
+             note:"Si l'envie de sortir revient, le pavé « Se mettre à l'abri du meltémi » plus bas donne les quatre replis du coin, tous à moins de 25 min."} ],
+    soir:[ {t:"food", ttl:"Dîner Stou Stavrou", ll:"37.7440,23.9050",
+            det:"À Saronida même — pas de route à faire après une journée qui a commencé tôt",
+            note:"Le vent retombe vers 19 h : une terrasse abritée redevient tenable."} ],
+    autour:{
+      titre:"Se mettre à l'abri du meltémi",
+      intro:"Hors programme — pour l'après-midi, si rester au penthouse ne suffit pas. Quatre endroits où le vent ne vous suivra pas, tous à moins de 25 min.",
+      lieux:[
+        { n:"Lac de Vouliagméni", km:"~25 min au nord",
+          d:"Un lac thermal à 24 °C toute l'année, encaissé au pied d'une falaise qui coupe entièrement le vent du nord — le seul plan d'eau parfaitement calme un jour de meltémi. Les petits poissons y grignotent les pieds, ce qui amuse beaucoup les enfants. Payant, transats et cafétéria sur place.",
+          q:"Lake Vouliagmeni Greece" },
+        { n:"Musée minéralogique de Lavrio", km:"~20 min au sud",
+          d:"Les mines d'argent du Laurion ont financé la flotte qui a gagné Salamine. Le musée expose les minéraux qui en sortent — plus de six cents espèces, dont certaines n'existent nulle part ailleurs. Petit, climatisé, et spectaculaire pour des enfants.",
+          q:"Mineralogical Museum Lavrio Greece" },
+        { n:"Musée archéologique de Lavrio", km:"~20 min au sud",
+          d:"Ce que les mines et le site voisin de Thorikos ont livré : stèles, outils de mineurs, et le rappel que ces galeries étaient creusées par des esclaves. Le complément du musée minéralogique, à cinq minutes à pied.",
+          q:"Archaeological Museum of Lavrion" },
+        { n:"Théâtre antique de Thorikos", km:"~15 min au sud",
+          d:"Le plus ancien théâtre de pierre connu de Grèce, et le seul dont les gradins forment une ellipse et non un demi-cercle — on y voit la forme se chercher avant de se fixer. En plein air : à garder pour la fin d'après-midi, quand le vent faiblit.",
+          q:"Thorikos Ancient Theatre Greece" }
+      ],
+      vent:"Meltémi de nord-nord-est toute la journée, 36 km/h établis et rafales à 71 en début d'après-midi : cherchez les criques ouvertes au sud, sous une pointe. Les rivages tournés vers le nord prendront le clapot, et tout ce qui n'est pas lesté s'envolera."
+    } },
+
+  { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", sun:SOUNION,
+    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
+    aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
+            {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true,
+            vig:"Entrée sur rochers, et des oursins dans les creux : chaussures d'eau, et on regarde avant de poser le pied."} ],
+    soir:[ {t:"depart", ttl:"Départ", when:"17 h 15", map:dir("37.672,23.988","37.6503,24.0247")},
+           {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true} ] },
+
+  { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
+    /* Reportée du 24 par le prestataire, pour cause de meltémi — et le report
+       tombe bien : le 24 la baie prenait 30 km/h de vent et 0,70 m de clapot
+       court, le 26 elle est annoncée à 0,10 m sans un souffle avant midi.
+       Repas et boissons sont fournis à bord, comme le 20 : rien à porter. */
+    prep:[{ t:"Le petit-déjeuner de 6 h 35, et les valises",
+            d:"Plus d'hôtel pour vous nourrir : sortez ce soir de quoi tenir un départ à 7 h 45. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h. Et c'est l'avant-dernier soir : tout ce qui ne resservira plus peut déjà descendre dans les valises." }],
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
-             corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
-            {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", when:"8 h 30 – 13 h",
-             corrige:"La sortie s'arrête à 13 h, et non en fin de journée : l'après-midi est libre.",
-             det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu — quatre heures et demie en mer",
-             vig:"Présentation à 8 h 30 au Resalto Terminal : le bateau part à l'heure. C'est ce qui commande le départ de 7 h 45 de Saronida.",
-             note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
-    /* La sortie ne dure pas la journée : elle rend à quai à 13 h. Tout ce qui
-       suivait — les mouillages de l'après-midi, un retour à 18 h — appartenait
-       à une journée qui n'existe pas. L'après-midi est libre, et l'on rentre
-       par Markopoulo, la seule vraie occasion de courses avant le 27. */
+             corrige:"45 min de route depuis Saronida pour une présentation à 8 h 30.",
+             alarme:"Départ pour Porto Rafti — présentation à 8 h 30, le bateau n'attend pas",
+             det:"55 km par Markopoulo — c'est le plus long trajet de la phase 2"},
+            {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", when:"9 h – 13 h",
+             corrige:"Reportée du lundi 24 par East Attica Cruises : trop de vent ce jour-là.",
+             det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu — quatre heures en mer",
+             vig:"Présentation à 8 h 30 au Resalto Terminal, appareillage à 9 h : c'est ce qui commande le départ de 7 h 45 de Saronida. Mer annoncée à 0,10 m et vent quasi nul avant midi — les meilleures conditions de tout le séjour.",
+             note:"Réservée — nouvelle date du 26 août, 9 h – 13 h", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
     aprem:[ {t:"swim", ttl:"Baignades depuis le bateau", parBateau:true, gear:true,
              det:"Erotospilia, Avlaki, le Lagon bleu — les mouillages de la matinée, avant le retour à quai"},
             {t:"depart", ttl:"Retour vers Saronida, par Markopoulo", when:"~13 h 30",
              map:dir("37.8868674,24.0143872","37.8813,23.9333"),
              det:"10 min à l'intérieur des terres, puis 35 min jusqu'à Saronida",
-             note:"Markopoulo est la vraie ville du coin : pharmacies, supermarchés, essence. C'est l'occasion annoncée depuis le 22 pour refaire les courses — il n'y en aura pas d'autre avant le retour."},
+             note:"Dernier passage en ville : pharmacie si besoin, et surtout le plein de carburant — la voiture se rend pleine demain, et il n'y a que 45 km d'ici à l'aéroport."},
             {t:"plain", ttl:"Après-midi libre à Saronida", when:"~15 h",
-             det:"Le penthouse, la plage en bas, la terrasse à l'ombre — la journée a commencé à 6 h 35",
-             note:"Si quelqu'un tient encore debout, le sanctuaire d'Artémis à Brauron est à 15 min au nord de Porto Rafti : à voir sur le chemin plutôt qu'en repartant de Saronida, et en fin d'après-midi, le site n'ayant pas d'ombre."} ],
-    soir:[ {t:"food", ttl:"Dîner Stou Stavrou", ll:"37.7440,23.9050"} ],
+             det:"La journée a commencé à 6 h 45 — la plage est en bas, la terrasse à l'ombre",
+             note:"Mer à 28 °C et pas un souffle de vent cet après-midi : c'est le dernier bain tranquille du séjour, le meltémi revient demain matin."} ],
+    soir:[ {t:"food", ttl:"Dernier dîner — Porto ou Galene", ll:"37.7290,23.9330",
+            det:"Grill de poisson à Anavyssos — le meilleur du coin, gardé pour la fin"},
+           {t:"plain", ttl:"Les valises, ce soir et pas demain", when:"après le dîner",
+            vig:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen. Vérifiez aussi les fils à linge de la terrasse, le frigo, et sous les lits.",
+            det:"Demain il ne reste qu'un bain, la route et le plein"} ],
     autour:{
       titre:"Autour de Porto Rafti",
-      intro:"Hors programme — la journée entière se passe ici. Si la mer est trop agitée pour en profiter, voilà le repli, tout à moins de 20 min du terminal.",
+      intro:"Hors programme — vous êtes à 55 km de Saronida, autant ne pas repartir tout de suite. Tout est à moins de 20 min du terminal, sur le chemin du retour.",
       lieux:[
         { n:"Sanctuaire d'Artémis à Brauron", km:"~15 min au nord",
           d:"Un des grands sanctuaires de l'Attique, et le plus parlant pour des enfants : les petites Athéniennes y jouaient « les ourses » d'Artémis. Portique des Arctes, source sacrée, et un musée qui expose leurs statues votives.",
@@ -1932,32 +1995,26 @@ const DAYS = [
           d:"Le rocher planté à l'entrée de la baie porte une statue de marbre colossale d'époque romaine — c'est elle qui a donné son nom au lieu, « le tailleur ». Vous passerez devant pendant la croisière : gardez l'appareil prêt.",
           q:"Raftis Island Porto Rafti" },
         { n:"Markopoulo", km:"~10 min à l'intérieur",
-          d:"La vraie ville du coin, sur la route du retour : pharmacies, supermarchés, essence. Le bon endroit pour refaire les courses avant Saronida.",
+          d:"La vraie ville du coin, sur la route du retour : pharmacies, supermarchés, stations-service. C'est là qu'on fait le plein avant de rendre la voiture.",
           q:"Markopoulo Mesogaias Greece" }
       ],
-      vent:"Vent de nord-est annoncé ce jour-là : cherchez les criques orientées au sud, abritées sous la pointe. Les plages exposées au nord — Chamolia et les rivages ouverts au large — prendront le clapot."
+      vent:"Journée sans vent : moins de 10 km/h jusqu'à midi, une brise d'est qui se lève ensuite sans dépasser 14 km/h. Toutes les criques de la baie sont praticables — c'est pour cette raison que la sortie a été déplacée ici."
     } },
 
-  { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", sun:SOUNION,
-    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013"} ],
-    aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
-            {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true,
-            vig:"Entrée sur rochers, et des oursins dans les creux : chaussures d'eau, et on regarde avant de poser le pied."} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"17 h 15", map:dir("37.672,23.988","37.6503,24.0247")},
-           {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"17 h 30 – 18 h 30", det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true} ] },
-
-  { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Palea Fokea", sun:SARO,
-    matin:[ {t:"depart", ttl:"Départ", when:"9 h 15", map:dir(SARONIDA,"37.718,23.945")},
-            {t:"site", ttl:"Palea Fokea", ll:"37.7180,23.9450", det:"Chapelle Agios Nikolaos"},
-            {t:"swim", ttl:"Rochers & faune", ll:"37.7180,23.9450", gear:true} ],
-    aprem:[ {t:"swim", ttl:"Plage d'Anavyssos", ll:"37.7290,23.9330", det:"Détente, sable — ou Lavrio, ou Glyfada"} ],
-    soir:[ {t:"food", ttl:"Dîner Porto ou Galene", ll:"37.7290,23.9330", det:"Grill de poisson — ou terrasse"} ] },
-
   { n:11, date:"2026-08-27", dow:"Jeu", dm:"27 août", phase:2, title:"Dernier bain, puis l'aéroport", sun:SARO,
-    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", det:"Jusqu'à 12 h"} ],
-    aprem:[ {t:"depart", ttl:"Départ", when:"13 h", map:dir(SARONIDA,"37.9364,23.9445")},
-            {t:"plain", ttl:"Restitution de la voiture", when:"13 h 30",
-             vig:"Rendre la voiture avec le plein — le carburant manquant est refacturé au prix fort. Quelques photos de la carrosserie avant de laisser les clés."},
+    matin:[ {t:"swim", ttl:"Plage de Saronida", ll:"37.7448,23.9013", when:"9 h 30 – 11 h",
+             det:"Le dernier — puis douche, et l'on charge",
+             vig:"Le meltémi est de retour : 28 km/h et des rafales à 50 dès 10 h. Le sable vole et rien ne doit rester posé — le bain sera court, prenez-le dès la sortie de table."},
+            {t:"plain", ttl:"Chargement et état des lieux", when:"11 h 15 – 12 h 15",
+             det:"Rien sous les lits, rien sur les fils de la terrasse, rien au frigo",
+             alarme:"On charge la voiture — départ dans une heure"} ],
+    aprem:[ {t:"depart", ttl:"Départ pour l'aéroport", when:"12 h 15", map:dir(SARONIDA,"37.9364,23.9445"),
+             corrige:"Avancé de 45 min : 45 km de route, et il faut le plein avant de rendre la voiture.",
+             alarme:"Départ pour l'aéroport — plein de carburant en route, à Markopoulo ou à Koropi",
+             det:"45 km par la Lavriou puis l'Attiki Odos — 45 min sans incident"},
+            {t:"plain", ttl:"Restitution de la voiture", when:"13 h 15",
+             vig:"Rendre la voiture avec le plein — le carburant manquant est refacturé au prix fort. La dernière station commode est à Koropi, à 10 min de l'aéroport, et il n'y en a plus après. Quelques photos de la carrosserie avant de laisser les clés.",
+             det:"Comptoir Sixt au parking des loueurs de l'aéroport"},
             {t:"travel", ttl:"Décollage", when:"16 h 20",
              vig:"Passeports en main, pas au fond des valises : le retour passe par Londres, donc hors Schengen."} ],
     soir:[] }
@@ -2140,17 +2197,18 @@ const DEJEUNERS = {
       det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
       note:"À préparer la veille au soir",
       bonplan:"Le panier se prépare la veille au soir : le 23 vous partez à 8 h, rien n'est ouvert avant." } },
-  8:{ rang:0, it:{ t:"repas", ttl:"Repas fourni à bord", when:"~12 h",
-      det:"Pendant la sortie, à l'un des mouillages. Le prestataire s'occupe de tout, comme le 20.",
-      note:"Rien à emporter — la sortie rend à quai à 13 h",
-      bonplan:"Une journée sans glacière ni panier : le sac du bateau suffit." } },
+  8:{ rang:2, it:{ t:"repas", ttl:"Déjeuner au penthouse", when:"12 h 30 – 13 h 30",
+      det:"Avec les courses du matin, au frais : dehors c'est 34° et des rafales à 70.",
+      note:"Rentrer plutôt que s'attabler dehors",
+      bonplan:"Les tavernes du port de Palea Fokea servent le meilleur poisson du coin, et moins cher qu'à Athènes — mais à midi le vent balaie le quai. Demandez le prix au kilo si vous tentez quand même." } },
   9:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
       det:"Avant de partir : le KAPE n'a rien, et vous enchaînez jusqu'au couchant à Sounion.",
       note:"Départ à 14 h",
       bonplan:"Rien à acheter en route vers le KAPE ni à Sounion : ce déjeuner est le dernier avant le dîner." } },
-  10:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"13 h – 14 h",
-      det:"Palea Fokea est un village de pêcheurs : les tavernes sont sur le port.",
-      bonplan:"Village de pêcheurs : le poisson y est meilleur qu'à Athènes et moins cher. Demandez le prix au kilo avant." } },
+  10:{ rang:0, it:{ t:"repas", ttl:"Repas fourni à bord", when:"~12 h",
+      det:"Pendant la sortie, à l'un des mouillages. Le prestataire s'occupe de tout, comme le 20.",
+      note:"Rien à emporter — la sortie rend à quai à 13 h",
+      bonplan:"Une journée sans glacière ni panier : le sac du bateau suffit." } },
   11:{ rang:2, it:{ t:"repas", ttl:"Déjeuner", when:"14 h 15 – 15 h 15",
       det:"À l'aéroport, une fois la voiture rendue et les bagages déposés.",
       note:"Décollage 16 h 20",
@@ -2286,7 +2344,7 @@ const CHRONO = [
     { an:-336, q:"grece", t:"Alexandre le Grand", d:"En treize ans, de la Macédoine à l'Indus. Il meurt à trente-deux ans." },
     { an:-330, q:"grece", t:"Le stade panathénaïque est creusé", d:"En terre battue ; le marbre viendra cinq siècles plus tard.", jour:4 },
     { an:-261, q:"monde", t:"Ashoka renonce à la guerre", d:"Sept ans après son avènement, l'empereur indien, écœuré par le carnage de sa conquête du Kalinga, fait graver dans le roc des édits de non-violence et de tolérance, d'un bout à l'autre du sous-continent. Le premier souverain à faire de son remords une politique." },
-    { an:-260, q:"grece", t:"Forteresse de Koroni, Porto Rafti", d:"Guerre de Chrémonidès : Athènes tente de secouer la tutelle macédonienne. Elle échoue.", jour:8 },
+    { an:-260, q:"grece", t:"Forteresse de Koroni, Porto Rafti", d:"Guerre de Chrémonidès : Athènes tente de secouer la tutelle macédonienne. Elle échoue.", jour:10 },
     { an:-221, q:"monde", t:"La Chine unifiée", d:"Qin Shi Huang et son armée de terre cuite. À l'autre bout du monde, un autre empire naît." },
     { an:-150, q:"grece", t:"Stoa d'Attale", d:"Cadeau d'un roi de Pergame à une Athènes devenue ville universitaire.", jour:2 },
     { an:-146, q:"monde", t:"Rome annexe la Grèce", d:"Corinthe rasée. La Grèce devient une province — et la Grèce conquise conquiert son vainqueur." },
@@ -3074,7 +3132,7 @@ const PLANS = {
   "egee-est":      { nom:"Mer d'Égée, côte est",  lat:37.88, lon:24.07 }   // Porto Rafti, Avlaki
 };
 const PLAN_DU_JOUR = { 2:"saronique-nord", 3:"saronique-nord", 4:"saronique-nord", 5:"saronique-nord",
-  6:"saronique-sud", 7:"saronique-nord", 8:"egee-est", 9:"saronique-sud", 10:"saronique-sud", 11:"saronique-sud" };
+  6:"saronique-sud", 7:"saronique-nord", 8:"saronique-sud", 9:"saronique-sud", 10:"egee-est", 11:"saronique-sud" };
 
 let MER = (() => { try { return JSON.parse(localStorage.getItem(MER_STORE)) || {}; } catch { return {}; } })();
 
@@ -3230,7 +3288,7 @@ const SAC_BATEAU = {
       bord:"Le caïque n'a pas de douche : une seule vanne d'eau douce sur le pont arrière, pour rincer les masques. Demandez à Michalis avant de vous en servir.",
       quai:"Douches de plage gratuites à la plage municipale d'Alimos, à 2 km de la marina — sur le chemin du retour.",
       repli:"Sinon : toilettes publiques de la marina, remplissez-y une bouteille de 1,5 L vide avant d'embarquer." },
-  8:{ ou:"Port de Porto Rafti",
+  10:{ ou:"Port de Porto Rafti",
       bord:"Petite sortie, pas de douche à bord. Rinçage des masques à l'eau de mer seulement.",
       quai:"Douches à la plage d'Avlaki, au fond de la baie, à 700 m du quai.",
       repli:"Sinon : les tavernes du port acceptent qu'on remplisse une bouteille — demandez avant de commander, pas après." }
@@ -3309,9 +3367,10 @@ const COURBES = new Map();          // identifiant du graphe → points, pour le
 const MER_SPOTS = {
   4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
   7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:8, a:18 }],
-  8:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:18 }],
+  8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
   9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
-  10:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:10, a:14 }]
+  10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:13 }],
+  11:[{ n:"Plage de Saronida", lat:37.7448, lon:23.9013, de:8, a:11 }]
 };
 const TOUS_SPOTS = (() => {
   const vus = new Map();
@@ -3459,13 +3518,21 @@ function merHoraireHTML(d){
    vient du large. On compare donc la direction d'où souffle le vent à celle
    vers laquelle la crique est ouverte. Les orientations sont approximatives :
    ce classement dit où chercher, pas où se garer.                            */
-const SPOTS = { 8:[
+const SPOTS = {
+ 8:[
+  { n:"Anse sud de la chapelle, Palea Fokea", ouvert:200, d:"Sous le rocher d'Agios Nikolaos, dos au vent — le bon choix du jour" },
+  { n:"Baie d'Anavyssos",       ouvert:225, d:"Grande baie ouverte au sud-ouest, entrée de sable en pente douce" },
+  { n:"Plage de Saronida",      ouvert:250, d:"Abritée par la pointe nord : ça souffle sur le sable, mais la mer reste basse" },
+  { n:"Criques du KAPE",        ouvert:200, d:"Rochers ; le ressac s'y installe quand le nord force" },
+  { n:"Côte nord de Saronida",  ouvert:20,  d:"Face au vent — c'est là que ça tape, et il n'y a rien à y voir sous l'eau" }
+ ],
+ 10:[
   { n:"Erotospilia",            ouvert:135, d:"Criques et grotte-abri — le repli du programme" },
   { n:"Avlaki",                 ouvert:150, d:"Plus de sable, entrée douce" },
   { n:"Fond de baie, Porto Rafti", ouvert:100, d:"Le plus abrité de tous, mais fréquenté en août" },
   { n:"Sous la pointe de Koroni",  ouvert:200, d:"Petites anses, accès à pied" },
   { n:"Chamolia",               ouvert:40,  d:"Ouverte au large — c'est un spot de planche, ce n'est pas un hasard" }
-] };
+ ] };
 const ecartAngle = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
 function abri(ouvert, ventDe){
   if (ventDe == null) return null;
@@ -4901,7 +4968,7 @@ const CHAMPS = [
   { k:"plaque",   l:"Plaque d'immatriculation", ph:"à noter le jour J" },
   { k:"billets", l:"Billets de sites — références", ph:"Agora, musée, Acropole… (C-…)" },
   { k:"croisiere1",l:"Croisière du 20 août — référence", ph:"n° de réservation" },
-  { k:"croisiere2",l:"Croisière de Porto Rafti, 24 août — référence", ph:"n° de réservation" },
+  { k:"croisiere2",l:"Croisière de Porto Rafti, 26 août — référence", ph:"n° de réservation" },
   { k:"vols",     l:"Vols — références", ph:"aller 17/08, retour 27/08 à 16 h 20" },
   { k:"assurance",l:"Assurance / carte européenne", ph:"numéros utiles" }
 ];
