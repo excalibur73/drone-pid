@@ -1896,17 +1896,28 @@ const DAYS = [
     /* Repas et boissons sont fournis à bord, comme le 20 : rien à porter.
        Reste le petit-déjeuner, pris au penthouse à 6 h 35. */
     prep:[{ t:"Le petit-déjeuner de 6 h 35",
-            d:"Plus de buffet ni de service à 7 h depuis le 23 : sortez ce soir de quoi tenir un départ à 7 h 45. Le repas de la journée, lui, est fourni à bord." }],
+            d:"Plus de buffet ni de service à 7 h depuis le 23 : sortez ce soir de quoi tenir un départ à 7 h 45. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h." }],
     matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"Avancé : 35 min de route depuis Saronida pour une présentation à 8 h 30."},
-            {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu",
+            {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", when:"8 h 30 – 13 h",
+             corrige:"La sortie s'arrête à 13 h, et non en fin de journée : l'après-midi est libre.",
+             det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu — quatre heures et demie en mer",
              vig:"Présentation à 8 h 30 au Resalto Terminal : le bateau part à l'heure. C'est ce qui commande le départ de 7 h 45 de Saronida.",
              note:"Réservée", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
-    aprem:[ {t:"swim", ttl:"Journée à la mer dans la baie", parBateau:true, gear:true,
-             det:"Erotospilia, Avlaki — criques et grotte-abri, sans précipitation. Repas et boissons fournis à bord. On ne repasse pas par Saronida."} ],
-    soir:[ {t:"depart", ttl:"Départ", when:"~18 h", map:dir("37.8868674,24.0143872",SARONIDA)},
-           {t:"plain", ttl:"Retour à Saronida en fin de journée"},
-           {t:"food", ttl:"Dîner Stou Stavrou", ll:"37.7440,23.9050"} ],
+    /* La sortie ne dure pas la journée : elle rend à quai à 13 h. Tout ce qui
+       suivait — les mouillages de l'après-midi, un retour à 18 h — appartenait
+       à une journée qui n'existe pas. L'après-midi est libre, et l'on rentre
+       par Markopoulo, la seule vraie occasion de courses avant le 27. */
+    aprem:[ {t:"swim", ttl:"Baignades depuis le bateau", parBateau:true, gear:true,
+             det:"Erotospilia, Avlaki, le Lagon bleu — les mouillages de la matinée, avant le retour à quai"},
+            {t:"depart", ttl:"Retour vers Saronida, par Markopoulo", when:"~13 h 30",
+             map:dir("37.8868674,24.0143872","37.8813,23.9333"),
+             det:"10 min à l'intérieur des terres, puis 35 min jusqu'à Saronida",
+             note:"Markopoulo est la vraie ville du coin : pharmacies, supermarchés, essence. C'est l'occasion annoncée depuis le 22 pour refaire les courses — il n'y en aura pas d'autre avant le retour."},
+            {t:"plain", ttl:"Après-midi libre à Saronida", when:"~15 h",
+             det:"Le penthouse, la plage en bas, la terrasse à l'ombre — la journée a commencé à 6 h 35",
+             note:"Si quelqu'un tient encore debout, le sanctuaire d'Artémis à Brauron est à 15 min au nord de Porto Rafti : à voir sur le chemin plutôt qu'en repartant de Saronida, et en fin d'après-midi, le site n'ayant pas d'ombre."} ],
+    soir:[ {t:"food", ttl:"Dîner Stou Stavrou", ll:"37.7440,23.9050"} ],
     autour:{
       titre:"Autour de Porto Rafti",
       intro:"Hors programme — la journée entière se passe ici. Si la mer est trop agitée pour en profiter, voilà le repli, tout à moins de 20 min du terminal.",
@@ -2129,9 +2140,9 @@ const DEJEUNERS = {
       det:"Limanakia n'a ni buvette ni ombre : tout se porte depuis le penthouse.",
       note:"À préparer la veille au soir",
       bonplan:"Le panier se prépare la veille au soir : le 23 vous partez à 8 h, rien n'est ouvert avant." } },
-  8:{ rang:0, it:{ t:"repas", ttl:"Déjeuner fourni à bord", when:"13 h 30 – 14 h 30",
-      det:"À Erotospilia ou Avlaki, à l'ombre de la grotte. Le prestataire s'occupe de tout, comme le 20.",
-      note:"Rien à emporter",
+  8:{ rang:0, it:{ t:"repas", ttl:"Repas fourni à bord", when:"~12 h",
+      det:"Pendant la sortie, à l'un des mouillages. Le prestataire s'occupe de tout, comme le 20.",
+      note:"Rien à emporter — la sortie rend à quai à 13 h",
       bonplan:"Une journée sans glacière ni panier : le sac du bateau suffit." } },
   9:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
       det:"Avant de partir : le KAPE n'a rien, et vous enchaînez jusqu'au couchant à Sounion.",
