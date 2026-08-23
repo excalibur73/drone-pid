@@ -125,6 +125,13 @@ h1 em{font-style:italic; color:var(--sea)}
 .chip[aria-selected="true"]{background:var(--ink); border-color:var(--ink); color:var(--ground)}
 .chip[aria-selected="true"] .d{color:color-mix(in oklab, var(--ground) 72%, transparent)}
 .chip[aria-selected="true"] .bar{background:color-mix(in oklab, var(--ground) 30%, transparent)}
+.chip.revolu{background:var(--surface-2)}
+.chip.revolu .n{text-decoration:line-through; text-decoration-thickness:1px; color:var(--ink-3)}
+.chip.revolu .d{color:var(--ink-3)}
+.chip.revolu .bar > i,
+.chip.revolu[data-phase="2"] .bar > i{background:var(--ink-3)}
+/* Le jour choisi reste pleinement lisible, même révolu : il est barré, pas effacé. */
+.chip.revolu[aria-selected="true"] .n{color:color-mix(in oklab, var(--ground) 72%, transparent)}
 .chip.faded{opacity:.34}
 .chip.today::after{
   content:""; position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%;
@@ -452,6 +459,13 @@ thead th{position:sticky; top:0; background:var(--surface-2); z-index:2; font-we
 thead th .d{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); display:block}
 tbody th{width:98px; background:var(--surface-2); white-space:nowrap; font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-2)}
 td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
+th.now{border-bottom:2px solid var(--ochre)}
+td.revolu, th.revolu{background:var(--surface-2); color:var(--ink-3)}
+th.revolu{text-decoration:line-through; text-decoration-thickness:1px}
+td.revolu .ci{opacity:.62}
+.ci.passe{opacity:.5}
+.ci.passe > span > span:not(.k):not(.cvig){text-decoration:line-through; text-decoration-thickness:1px}
+.ci.passe .k{color:var(--ink-3)}
 .cell{display:flex; flex-direction:column; gap:7px}
 .ci{display:flex; gap:7px; align-items:flex-start; line-height:1.4}
 .ci svg{width:12px; height:12px; margin-top:3px; flex:0 0 auto}
@@ -5337,7 +5351,11 @@ function renderRail(){
   rail.innerHTML = DAYS.map((d, i) => {
     const pct = avancementJour(d) * 100;
     const hits = allItems(d).some(x => matches(x.it));
-    return `<button class="chip${i === today ? " today" : ""}${hits ? "" : " faded"}" role="tab"
+    /* Une barre de progression de trois pixels ne suffisait pas à distinguer
+       un jour révolu d'un jour à venir : les deux pastilles étaient
+       identiques. Le jour passé se grise et se barre, comme ses étapes. */
+    const revolu = today >= 0 && i < today;
+    return `<button class="chip${i === today ? " today" : ""}${revolu ? " revolu" : ""}${hits ? "" : " faded"}" role="tab"
               data-i="${i}" data-phase="${d.phase}" aria-selected="${i === state.day}" title="${esc(d.title)}">
         <span class="d">Jour ${d.n}</span>
         <span class="n">${d.dow} ${d.dm.split(" ")[0]}</span>
@@ -5585,7 +5603,8 @@ function cellHTML(day, slot){
   const items = itemsOf(day, slot);
   if (!items.length) return "—";
   return `<div class="cell">${items.map(it => `
-    <span class="ci${matches(it) ? "" : " dim"}" data-t="${it.t}">
+    <span class="ci${matches(it) ? "" : " dim"}${
+      etatEtape(day, slot, it) === "passe" ? " passe" : ""}" data-t="${it.t}">
       <svg><use href="#${ICON[it.t]}"/></svg>
       <span>${it.when ? `<span class="k">${esc(it.when)}</span> ` : ""}${highlight(it.ttl)}${
         it.vig ? `<span class="cvig${vigVive(day, slot, it) ? " clignote" : ""}" title="${esc(it.vig)}">
@@ -5607,6 +5626,13 @@ function notesCelluleHTML(d){
     <span class="cmoy">${moy.toFixed(1).replace(".", ",")}</span>
   </div>`;
 }
+/* La colonne d'un jour révolu se grise, celle du jour même se souligne. Sans
+   cela, les onze colonnes se ressemblaient et l'on ne voyait pas où l'on en
+   était. */
+const etatCol = (d, today) => {
+  const i = DAYS.indexOf(d);
+  return i === today ? "now" : today >= 0 && i < today ? "revolu" : "";
+};
 function renderGrid(){
   const today = dayIndexToday();
   const block = phase => {
@@ -5615,14 +5641,14 @@ function renderGrid(){
       <h3><b>${esc(ph.name)}</b> · ${esc(ph.range)} · ${esc(ph.mode)}</h3>
       <div class="scroller"><table>
         <thead><tr><th></th>${days.map(d =>
-          `<th><span class="d">Jour ${d.n}</span>${d.dow} ${esc(d.dm.split(" ")[0])}</th>`).join("")}</tr></thead>
+          `<th class="${etatCol(d, today)}"><span class="d">Jour ${d.n}</span>${d.dow} ${esc(d.dm.split(" ")[0])}</th>`).join("")}</tr></thead>
         <tbody>${SLOTS.map(s => `<tr>
           <th>${s.label}</th>
-          ${days.map(d => `<td${DAYS.indexOf(d) === today ? ' class="now"' : ""}>${cellHTML(d, s.k)}</td>`).join("")}
+          ${days.map(d => `<td class="${etatCol(d, today)}">${cellHTML(d, s.k)}</td>`).join("")}
         </tr>`).join("")}
         <tr class="lnotes">
           <th>Notes</th>
-          ${days.map(d => `<td${DAYS.indexOf(d) === today ? ' class="now"' : ""}>${notesCelluleHTML(d)}</td>`).join("")}
+          ${days.map(d => `<td class="${etatCol(d, today)}">${notesCelluleHTML(d)}</td>`).join("")}
         </tr></tbody>
       </table></div>
     </div>`;
