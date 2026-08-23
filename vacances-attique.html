@@ -606,6 +606,12 @@ td.now{background:color-mix(in oklab, var(--ochre) 9%, transparent)}
 .autour.drone .dloi b{color:var(--ink)}
 .autour.drone .dnon{border-left-color:var(--ink-3)}
 .autour.drone .dnon svg{color:var(--ink-3)}
+.lent{
+  margin-top:9px; font-size:.83rem; color:var(--ochre); line-height:1.45;
+}
+.refus .conseil{
+  margin:9px 0 4px; font-size:.85rem; color:var(--ink-2); line-height:1.5;
+}
 .autour.drone .quand{
   font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
   color:var(--ochre);
@@ -3934,16 +3940,16 @@ function enFileDeDecodage(travail){
   return tour;
 }
 
-async function reduire(fichier){
+async function reduire(fichier, cote = COTE_MAX, qualite = 0.82){
   const bitmap = await createImageBitmap(fichier, { imageOrientation: "from-image" });
   const wSource = bitmap.width, hSource = bitmap.height;
-  const f = Math.min(1, COTE_MAX / Math.max(wSource, hSource));
+  const f = Math.min(1, cote / Math.max(wSource, hSource));
   const w = Math.round(wSource * f), h = Math.round(hSource * f);
   const toile = document.createElement("canvas");
   toile.width = w; toile.height = h;
   toile.getContext("2d").drawImage(bitmap, 0, 0, w, h);
   bitmap.close();
-  const blob = await new Promise(r => toile.toBlob(r, "image/jpeg", 0.82));
+  const blob = await new Promise(r => toile.toBlob(r, "image/jpeg", qualite));
   /* Ramener la toile à zéro rend sa mémoire tout de suite : sans cela, iOS
      la garde jusqu'au prochain ramasse-miettes, et la photo suivante se
      décompresse dans ce qu'il en reste. */
@@ -3971,6 +3977,40 @@ async function lirePhotos(){
   }
 }
 
+/* ── Quand le réseau cligne ──
+   fetch ne rejette pas avec un code : sur Safari c'est « Load failed », sur
+   les autres « Failed to fetch ». Dans les deux cas rien n'est parti, et la
+   photo était perdue pour de bon — il n'y avait aucun réessai. Trois photos
+   qui échouent d'un coup sur un téléphone en itinérance, ce n'est pas un
+   serveur qui refuse, c'est un lien qui a lâché.
+
+   On réessaie donc trois fois, en attendant plus longtemps et en allégeant
+   l'image à chaque tour : moins d'octets à pousser, plus de chances de
+   passer. Le réessai part de l'image déjà réduite et non du fichier
+   d'origine — c'est un décodage de 1600 px au lieu de 4000, la mémoire d'un
+   iPhone n'y suffirait pas autrement. Et dès le premier échec, on cesse
+   d'envoyer trois de front : sur un lien fragile, trois envois simultanés
+   se gênent au lieu de s'entraider. */
+const RESEAU_MORT = m => /load failed|failed to fetch|networkerror|network error|réseau|timeout|timed out|abort/i.test(m);
+const PALIERS = [
+  { cote: COTE_MAX, q: 0.82, attente: 0 },
+  { cote: 1280,     q: 0.74, attente: 1500 },
+  { cote: 1024,     q: 0.68, attente: 4000 }
+];
+const DELAI_ENVOI = 45000;
+const pause = ms => new Promise(r => setTimeout(r, ms));
+let MODE_LENT = false;
+/* Sans minuteur, un envoi bloqué reste en l'air jusqu'à ce que le système
+   s'en lasse — plusieurs minutes pendant lesquelles rien ne bouge. */
+async function poster(url, blob){
+  const ctl = new AbortController();
+  const minuteur = setTimeout(() => ctl.abort(), DELAI_ENVOI);
+  try {
+    return await fetch(url, { method:"POST", headers:{ "content-type":"image/jpeg" },
+                              body:blob, signal:ctl.signal });
+  } finally { clearTimeout(minuteur); }
+}
+
 let ENVOI = null;                       // { faits, total } pendant un envoi
 let REFUS = null;                       // photos d'un autre jour, signalées
 let ECHECS = null;                      // photos qui ne sont pas passées, et pourquoi
@@ -3993,7 +4033,7 @@ async function envoyerPhotos(jour, fichiers){
      Seule la taille reste éliminatoire : un rectangle de vingt pixels dans
      un album, c'est un défaut d'affichage, pas une photo. */
   ENVOI = { faits: 0, total: fichiers.length, verif: true };
-  REFUS = null; ECHECS = null;
+  REFUS = null; ECHECS = null; MODE_LENT = false;
   render();
   const bons = [], dautresJours = [];
   /* La date de prise de vue se lit sur les 256 premiers kilo-octets : aucune
@@ -4022,26 +4062,51 @@ async function envoyerPhotos(jour, fichiers){
   const rates = [];
   const FRONT = 3;
   let suivant = 0;
-  const uneVoie = async () => {
+  const uneVoie = async (voie = 0) => {
     while (suivant < bons.length){
+      /* Le réseau a lâché : les voies supplémentaires se retirent, et la
+         première finit seule, une photo après l'autre. */
+      if (MODE_LENT && voie > 0) return;
       const { f, prise } = bons[suivant++];
       const nom = f.name || "photo";
       try {
         /* La réduction passe par la file : une seule à la fois. L'envoi, lui,
            reste parallèle — c'est le réseau qui est lent, pas le calcul. */
-        const paquet = await enFileDeDecodage(() => reduire(f));
+        let paquet = await enFileDeDecodage(() => reduire(f));
         if (Math.max(paquet.wSource, paquet.hSource) < 200)
           throw new Error("image trop petite pour un album");
-        const { blob, w, h } = paquet;
-        const r = await fetch(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}${prise ? `&pris=${prise}` : ""}`, {
-          method:"POST", headers:{ "content-type":"image/jpeg" }, body:blob
-        });
-        if (!r.ok){
-          const t = await r.text();
-          throw new Error(t.includes("quota") ? `vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`
-            : t.includes("trop-petite") ? "image trop petite pour un album"
-            : t.slice(0, 60) || `refus du serveur (${r.status})`);
+        let coupure = null, poids = 0;
+        for (let essai = 0; essai < PALIERS.length; essai++){
+          const p = PALIERS[essai];
+          if (essai){
+            await pause(p.attente);
+            /* On repart de l'image déjà réduite, pas du fichier d'origine. */
+            paquet = await enFileDeDecodage(() => reduire(paquet.blob, p.cote, p.q));
+          }
+          const { blob, w, h } = paquet;
+          poids = blob.size;
+          try {
+            const r = await poster(`/api/photos?qui=${QUI}&jour=${jour}&w=${w}&h=${h}${prise ? `&pris=${prise}` : ""}`, blob);
+            if (!r.ok){
+              const t = await r.text();
+              throw new Error(t.includes("quota") ? `vos ${PHOTOS.quota} photos du ${jourDit.dm} sont déjà déposées`
+                : t.includes("trop-petite") ? "image trop petite pour un album"
+                : t.slice(0, 60) || `refus du serveur (${r.status})`);
+            }
+            coupure = null;
+            break;
+          } catch (e2){
+            /* Un refus du serveur est définitif : le réessayer ne ferait que
+               perdre du temps. Seule une coupure se retente. */
+            const m2 = String((e2 && e2.message) || e2);
+            if (!RESEAU_MORT(m2)) throw e2;
+            coupure = m2;
+            MODE_LENT = true;
+            if (ENVOI){ ENVOI.lent = true; majEnvoi(); }
+          }
         }
+        if (coupure) throw new Error(
+          `réseau coupé — ${PALIERS.length} tentatives, jusqu'à ${Math.round(poids / 1024)} Ko`);
         if (ENVOI) ENVOI.faits++;
       } catch (e){
         /* Une photo refusée ou un réseau qui cligne n'emporte pas les
@@ -4053,7 +4118,9 @@ async function envoyerPhotos(jour, fichiers){
       majEnvoi();
     }
   };
-  await Promise.all(Array.from({ length: Math.min(FRONT, bons.length) }, uneVoie));
+  await Promise.all(Array.from({ length: Math.min(FRONT, bons.length) }, (_, i) => uneVoie(i)));
+  /* Si des voies se sont retirées, il reste des photos : on les finit. */
+  if (suivant < bons.length) await uneVoie(0);
   ENVOI = null;
   /* Un message qui s'efface en trois secondes ne dit rien à qui regarde
      ailleurs pendant l'envoi : les échecs restent affichés, nommés. */
@@ -4129,6 +4196,9 @@ ${(() => {
         <p><b>${n} photo${n > 1 ? "s" : ""} n'${n > 1 ? "ont" : "a"} pas pu être envoyée${n > 1 ? "s" : ""}</b>${
           ok2 ? ` — ${ok2 > 1 ? `les ${ok2} autres sont bien arrivées` : "l'autre est bien arrivée"}.` : "."}</p>
         <ul>${ECHECS.liste.map(x => `<li>${esc(x.nom)} — ${esc(x.pourquoi)}</li>`).join("")}</ul>
+        ${ECHECS.liste.every(x => /réseau coupé/.test(x.pourquoi)) ? `<p class="conseil">Rien n'est
+          perdu : elles sont toujours sur le téléphone. Le lien a lâché en cours d'envoi — reprenez
+          en wifi si vous en avez un, ou une par une plutôt qu'en lot.</p>` : ""}
         <button type="button" class="oubliechecs">J'ai compris</button>
       </div>`;
     })()}
@@ -4169,7 +4239,9 @@ ${(() => {
              <p>${ENVOI.verif ? "Lecture des dates de prise de vue…"
                : `Envoi en cours — <b id="envoi-faits">${ENVOI.faits}</b> sur ${ENVOI.total}`}</p>
              ${ENVOI.verif ? "" : `<div class="jauge"><span id="envoi-jauge" style="width:${
-               Math.round(ENVOI.faits / ENVOI.total * 100)}%"></span></div>`}
+               Math.round(ENVOI.faits / ENVOI.total * 100)}%"></span></div>
+             <p id="envoi-lent" class="lent"${ENVOI.lent ? "" : ` hidden`}>Réseau faible —
+               on ralentit, on allège et l'on réessaie. Ne quittez pas la page.</p>`}
            </div>`
         : `<p class="quota${reste <= 0 ? " plein" : ""}">
              <b>${miennes} sur ${PHOTOS.quota}</b> pour cette journée — ${
@@ -6126,8 +6198,10 @@ function majEnvoi(){
   if (!ENVOI) return;
   const n = document.getElementById("envoi-faits");
   const j = document.getElementById("envoi-jauge");
+  const l = document.getElementById("envoi-lent");
   if (n) n.textContent = ENVOI.faits;
   if (j) j.style.width = Math.round(ENVOI.faits / ENVOI.total * 100) + "%";
+  if (l) l.hidden = !ENVOI.lent;
   if (!n && !j) render();
 }
 function majCompteur(champ){
