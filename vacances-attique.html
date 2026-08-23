@@ -1725,6 +1725,11 @@ const ALIMOS = "37.906,23.712", SARONIDA = "37.744,23.905";
    centre. Les trajets athéniens se font en taxi : itinéraire routier. */
 const MODE = { voiture:"", transports:"/data=!4m2!4m1!3e2", pied:"/data=!4m2!4m1!3e3" };
 const dir = (from, to, mode) => `https://www.google.com/maps/dir/${from}/${to}` + (MODE[mode] || "");
+/* Tout lien de carte s'annonçait « Itinéraire », y compris ceux qui ne font
+   qu'ouvrir une recherche : on promettait une durée et une destination, et
+   l'on n'ouvrait qu'un nom sur une carte. Le libellé dit désormais ce que le
+   lien fait vraiment. */
+const estItineraire = u => /\/maps\/dir\//.test(String(u));
 
 /* Coordonnées utilisées pour le soleil : là où se passe la fin de journée. */
 const ATHENES = [37.9838, 23.7275], SARO = [37.744, 23.905], SOUNION = [37.6503, 24.0247];
@@ -2013,11 +2018,12 @@ const DAYS = [
        ce qui précède doit lui céder le pas, y compris le bain du KAPE. */
     prep:[{ t:"Les billets de Sounion, et les pièces d'identité",
             d:"Le créneau d'entrée est horodaté et ne se déplace pas. Les billets sont des QR codes sur le téléphone : mettez-les en captures d'écran ce soir, pour ne pas dépendre du réseau ni d'une batterie vidée par une journée de plage. Et sortez les pièces d'identité de Hilal et Layal — le billet gratuit « 18-25 ans, UE » se contrôle au portail, sur justificatif d'âge et de nationalité." }],
-    matin:[ {t:"depart", ttl:"Départ", when:"9 h 30", map:"https://www.google.com/maps/search/?api=1&query=Mavro+Lithari+Anavyssos+Greece",
-             det:"10 min vers le sud, entre Saronida et Anavyssos",
+    matin:[ {t:"depart", ttl:"Départ", when:"9 h 30", map:dir(SARONIDA,"37.7363,23.9071"),
+             det:"1,5 km vers le sud — quatre minutes de voiture, ou vingt à pied par la côte si personne ne porte le parasol",
+             corrige:"Ce n'est pas à dix minutes comme annoncé : les criques commencent au bout de la baie.",
              alarme:"Départ pour Mavro Lithari — les criques noires, et le matin est le bon moment"},
             {t:"swim", ttl:"Criques noires de Mavro Lithari", when:"9 h 45 – 11 h 45", gear:true,
-             map:"https://www.google.com/maps/search/?api=1&query=Mavro+Lithari+Anavyssos+Greece",
+             ll:"37.7363,23.9071",
              det:"Une enfilade de petites criques de roche noire, eau profonde et claire dès le bord — la côte la moins fréquentée du secteur",
              vig:"Roche volcanique sombre : elle chauffe vite et elle coupe. Chaussons du départ au retour, et l'on regarde le fond avant de se mettre à l'eau — l'eau devient profonde tout de suite.",
              note:"On choisit sa crique sur place : il y en a une enfilade sur deux kilomètres, et aucune n'est balisée. Ni buvette ni ombre — eau et parasol depuis le penthouse. Le matin est le bon créneau, avant que la brise d'après-midi ne lève le clapot."} ],
@@ -3554,7 +3560,8 @@ const MER_SPOTS = {
   4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
   7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:16 }],
   8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
-  9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
+  9:[{ n:"Criques noires de Mavro Lithari", lat:37.7363, lon:23.9071, de:9, a:12 },
+     { n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
   10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:13 }]
 };
 const TOUS_SPOTS = (() => {
@@ -5399,7 +5406,8 @@ function itemHTML(day, slot, it, i, vedette){
       ${it.note ? `<span class="note"><svg><use href="#i-info"/></svg>${esc(it.note)}</span>` : ""}
       ${it.bonplan ? `<p class="bonplan"><b>Bon plan</b> ${esc(it.bonplan)}</p>` : ""}
       <div class="acts">
-        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>Itinéraire${
+        ${it.map && !repete ? `<a class="maplink" href="${it.map}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-map"/></svg>${
+          estItineraire(it.map) ? "Itinéraire" : "Situer"}${
           it.trajet && !it.depuis ? ` · ${esc(it.trajet)}` : ""}</a>` : ""}
         ${savoirDe(it) ? `<button class="savoir" type="button" data-savoir="${esc(it.ttl)}"><svg><use href="#i-info"/></svg>Comprendre</button>` : ""}
       </div>
