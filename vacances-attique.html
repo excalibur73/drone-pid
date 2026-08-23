@@ -1982,7 +1982,15 @@ const DAYS = [
             det:"La sortie de la journée — le vent est retombé à 22 km/h à cette heure-là",
             map:"https://www.google.com/maps/search/?api=1&query=Version44+coffee+Pizza+Saronida+Greece",
             note:"Version44, avenue de Saronida — la plus proche, à pied depuis l'appartement, et elle livre si personne ne veut sortir. L'amico à Anavyssos joue la carte italienne avec la vue, à dix minutes en voiture. Anchor Seaside à Saronida fait aussi pizzas et club sandwichs face à la mer — mais la terrasse prendra encore du vent. Aucun horaire d'août n'est confirmé en ligne : un appel avant de sortir.",
-            bonplan:"Pour le dessert, Amarantos est à 900 m à pied : pâtisserie, glacier et chocolatier, 4,5 sur 1 200 avis. C'est l'adresse la mieux notée du village, et la seule dont l'horaire soit vérifié — ouverte dès 8 h."} ],
+            bonplan:"Version44 est avenue de Saronida, au 44. Amarantos, où l'on va ensuite, est au 25 de la même avenue : toute la soirée se fait à pied, la voiture ne bouge pas de la journée."},
+           {t:"food", ttl:"Chez Amarantos — glace pour tout le monde", when:"~21 h 15",
+            /* Pas de coordonnées : je n'ai que l'adresse postale, et un point
+               approximatif ferait afficher une distance fausse. Les 900 m sont
+               ceux relevés sur place. */
+            det:"Pâtissier, glacier et chocolatier, au 25 de l'avenue — 900 m à pied, une dizaine de minutes",
+            map:"https://www.google.com/maps/search/?api=1&query=Amarantos+Saronida+Leoforos+Saronidas+25",
+            note:"Une glace pour chacun, et la gaufre au Nutella pour qui la voulait depuis dimanche. Παγωτό se dit pa-gho-TO, et une gaufre βάφλα, VA-fla — « μια βάφλα με Nutella » suffit à se faire comprendre.",
+            bonplan:"La glace est certaine, c'est une gelateria. La gaufre est très probable sans être confirmée en ligne : si elle manque, Siropi à Anavyssos est l'autre adresse sucrée du coin, à dix minutes en voiture. Il fera 30° à cette heure-là et le vent sera retombé — la terrasse sera bonne."} ],
     autour:{
       titre:"Se mettre à l'abri du meltémi",
       intro:"Hors programme — la journée est libre, mais si l'envie de bouger revient, voilà où le vent ne vous suivra pas. Tout est à moins de 25 min.",
@@ -5168,6 +5176,8 @@ const LEXIQUE = [
   { g:"Μοσχάρι",      p:"mo-SKHA-ri",       f:"Du bœuf" },
   { g:"Χοιρινό",      p:"khi-ri-NO",        f:"Du porc — le mot à repérer sur un menu" },
   { g:"Ψάρι",         p:"PSA-ri",           f:"Du poisson" },
+  { g:"Παγωτό",       p:"pa-gho-TO",        f:"Une glace" },
+  { g:"Μια βάφλα με Nutella", p:"mia VA-fla mé…", f:"Une gaufre au Nutella" },
   { g:"Πόσο το κιλό;", p:"PO-so to ki-LO",  f:"Combien le kilo ? (pour le poisson)" },
   { g:"Με κάρτα;",     p:"mé KAR-ta",        f:"Par carte ?" },
   { g:"Είναι μακριά;", p:"I-né ma-kri-A",    f:"C'est loin ?" },
