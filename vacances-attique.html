@@ -1951,14 +1951,13 @@ const DAYS = [
     soir:[ {t:"swim", ttl:"Les rochers de Saronida", ll:"37.7448,23.9013", when:"18 h 45 – 19 h 45", gear:true,
             det:"À pied depuis l'appartement — la côte rocheuse qui ferme la baie au sud, à 450 m",
             note:"Pas la plage : les petites criques enchaînées, accès libre. Trempette du soir plutôt qu'une vraie session — l'eau est encore transparente à 19 h et il n'y a plus personne. Coucher du soleil à 20 h 04."},
-           {t:"food", ttl:"Pizza, ou gaufres au Nutella", when:"~20 h 15",
-            det:"Deux envies, deux adresses — à moins de dix minutes",
-            note:"Côté sucré : Siropi à Anavyssos (le mieux noté du coin) ou la pâtisserie Amarantos à Saronida, réputée sur toute la Riviera. Côté pizza : Saronida Pizza, dans le village. Les horaires d'août ne sont confirmés nulle part en ligne — un coup de fil avant de sortir évite l'aller-retour.",
-            map:"https://www.google.com/maps/search/?api=1&query=Siropi+Anavyssos+Greece"},
-           {t:"plain", ttl:"Les autres adresses", 
-            det:"Si la première est fermée",
-            note:"Amarantos, Saronida — pâtisserie. Saronida Pizza, Saronida. Et la terrasse du penthouse reste le repli : il reste de quoi faire des grillades.",
-            map:"https://www.google.com/maps/search/?api=1&query=Amarantos+Saronida+Greece"} ] },
+           {t:"plain", ttl:"Coupure de courant à Saronida", when:"dans la soirée",
+            det:"La climatisation de toute l'Attique tirait sur le réseau, un jour à 37° — le village a lâché",
+            note:"Les numéros de ΔΕΔΔΗΕ et le réflexe du frigo fermé sont dans le Carnet, à la carte « Coupure de courant »."},
+           {t:"food", ttl:"Pâtes maison, et la glace pour finir", when:"~20 h 30",
+            corrige:"Pizzeria et gaufres abandonnées : la coupure a rebattu les cartes, et le repas s'est fait à la maison.",
+            det:"Des pâtes aux olives, oignons et tomates, avec du fromage grec — préparées sur place, et de l'avis général un délice",
+            note:"Puis une glace, pour terminer. La soirée qu'on n'avait pas prévue est celle dont on se souviendra."} ] },
 
   { n:8, date:"2026-08-24", dow:"Lun", dm:"24 août", phase:2, title:"Journée break", sun:SARO,
     /* Le meltémi souffle à 36 km/h avec des rafales à 70 : la mer est
@@ -1982,7 +1981,8 @@ const DAYS = [
     soir:[ {t:"food", ttl:"Pizzeria, tous ensemble", when:"~20 h",
             det:"La sortie de la journée — le vent est retombé à 22 km/h à cette heure-là",
             map:"https://www.google.com/maps/search/?api=1&query=Version44+coffee+Pizza+Saronida+Greece",
-            note:"Version44, avenue de Saronida — la plus proche, à pied depuis l'appartement, et elle livre si personne ne veut sortir. L'amico à Anavyssos joue la carte italienne avec la vue, à dix minutes en voiture. Anchor Seaside à Saronida fait aussi pizzas et club sandwichs face à la mer — mais la terrasse prendra encore du vent. Aucun horaire d'août n'est confirmé en ligne : un appel avant de sortir."} ],
+            note:"Version44, avenue de Saronida — la plus proche, à pied depuis l'appartement, et elle livre si personne ne veut sortir. L'amico à Anavyssos joue la carte italienne avec la vue, à dix minutes en voiture. Anchor Seaside à Saronida fait aussi pizzas et club sandwichs face à la mer — mais la terrasse prendra encore du vent. Aucun horaire d'août n'est confirmé en ligne : un appel avant de sortir.",
+            bonplan:"Pour le dessert, Amarantos est à 900 m à pied : pâtisserie, glacier et chocolatier, 4,5 sur 1 200 avis. C'est l'adresse la mieux notée du village, et la seule dont l'horaire soit vérifié — ouverte dès 8 h."} ],
     autour:{
       titre:"Se mettre à l'abri du meltémi",
       intro:"Hors programme — la journée est libre, mais si l'envie de bouger revient, voilà où le vent ne vous suivra pas. Tout est à moins de 25 min.",
@@ -5249,6 +5249,12 @@ const CRIQUES = [
   { n:"Criques de Legrena", o:"S", km:"25 min au sud", q:"Legrena beach Greece",
     d:"De part et d'autre de la grande plage, qui est elle-même sans bar ni transat." }
 ];
+/* Vérifié sur place le 23 : ouvert dès 8 h, à neuf cents mètres à pied, et
+   c'est autant une glacier qu'une pâtisserie. La bonne adresse du village
+   pour un dessert ou un petit-déjeuner qu'on n'a pas envie de préparer. */
+const AMARANTOS = { n:"Ζαχαροπλαστείο Αμάραντος", a:"Leof. Saronidas 25, Saronida 190 13",
+  d:"Pâtisserie, glacier et chocolatier — 4,5 sur 1 200 avis, ouvert dès 8 h, à 900 m de l'appartement",
+  q:"Amarantos Saronida Leoforos Saronidas 25" };
 const PAYANT = [
   { n:"Lac de Vouliagméni", d:"entrée payante, transats — calme absolu les jours de vent, c'est son seul argument" },
   { n:"Astir Beach, Vouliagméni", d:"la plus chère de la côte" },
@@ -5770,6 +5776,24 @@ function renderCarnet(){
               esc(c.o)} · ${esc(c.km)}</a></p>`).join("")}
           <p class="carnetintro" style="grid-column:auto"><b>Ce qu'on évite :</b>
             ${CRIQUES_EVITE}</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <header>
+          <h3>À deux pas, à Saronida</h3>
+          <p>Vérifié sur place, pas trouvé en ligne.</p>
+        </header>
+        <div class="inner">
+          <p class="fixe"><span>${esc(AMARANTOS.n)} — ${esc(AMARANTOS.d)}</span>
+            <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${
+              encodeURIComponent(AMARANTOS.q)}" target="_blank" rel="noopener noreferrer">${esc(AMARANTOS.a)}</a></p>
+          <p class="fixe"><span>Version44 — café et pizzeria, elle livre</span>
+            <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${
+              encodeURIComponent("Version44 coffee Pizza Saronida")}" target="_blank" rel="noopener noreferrer">Avenue de Saronida</a></p>
+          <p class="fixe"><span>Stou Stavrou — taverne du village</span>
+            <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${
+              encodeURIComponent("Stou Stavrou Saronida Greece")}" target="_blank" rel="noopener noreferrer">Saronida</a></p>
         </div>
       </article>
 
