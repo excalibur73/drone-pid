@@ -2049,11 +2049,11 @@ const DAYS = [
             {t:"swim", ttl:"Le dernier masque — rochers de Saronida", when:"~16 h", ll:"37.7448,23.9013", gear:true,
              det:"La côte rocheuse au sud de la baie, à 450 m à pied — la journée a commencé à 6 h 35, on ne reprend pas la voiture",
              note:"Mer à 28 °C, 4 cm de houle et pas un souffle de vent : la meilleure visibilité de la semaine. Le meltémi revient demain matin — c'est vraiment la dernière fois.",
-             vig:"En remontant, tout passe à l'eau douce et s'étend avant 18 h : c'est la seule nuit de séchage avant l'avion."} ],
+             vig:"L'absence de vent a son revers : 38 de ressenti entre 15 h et 16 h, le plus lourd des journées qui restent, et sans un souffle pour l'alléger. Le trajet à pied compte autant que le bain — chapeau, eau, et l'on ne traîne pas sur les rochers brûlants. En remontant, tout passe à l'eau douce et s'étend avant 18 h : c'est la seule nuit de séchage avant l'avion."} ],
     soir:[ {t:"food", ttl:"Dernier dîner — Porto ou Galene", ll:"37.7290,23.9330",
             det:"Grill de poisson à Anavyssos — le meilleur du coin, gardé pour la fin"},
            {t:"plain", ttl:"Rincer, étendre, puis les valises", when:"dès le retour de la plage",
-            vig:"C'est ce soir que tout se joue pour le séchage : palmes, masques, tubas, shortys et serviettes à l'eau douce, puis étendus sur la terrasse pour la nuit, les shortys retournés. Demain il n'y aura pas le temps, et il n'y aura pas de plage.",
+            vig:"C'est ce soir que tout se joue pour le séchage : palmes, masques, tubas, shortys et serviettes à l'eau douce, puis étendus sur la terrasse pour la nuit, les shortys retournés. La nuit est chaude (28 à 30°) mais presque sans vent : étalez large, ne pliez rien sur une rambarde. Demain il n'y aura pas le temps, et il n'y aura pas de plage.",
             note:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen.",
             det:"Demain il ne reste que la terrasse, le déjeuner, la route et le plein"} ],
     autour:{
@@ -2083,7 +2083,7 @@ const DAYS = [
        l'eau a été rincé et étendu le 26 au soir : c'est là, et nulle part
        ailleurs, que le séchage se joue. */
     prep:[{ t:"Rincer et étendre — ce soir ou jamais",
-            d:"Demain il n'y aura plus le temps. Palmes, masques, tubas, shortys et serviettes passent à l'eau douce et vont sur la terrasse pour la nuit, les shortys retournés. Le sel est ce qui garde tout humide : un néoprène mal rincé reste moite pendant des jours et sent le renfermé jusqu'à Cergy. Vingt-cinq degrés et du vent cette nuit — étendu à 18 h, tout sera sec au matin." }],
+            d:"Demain il n'y aura plus le temps. Palmes, masques, tubas, shortys et serviettes passent à l'eau douce et vont sur la terrasse pour la nuit, les shortys retournés. Le sel est ce qui garde tout humide : un néoprène mal rincé reste moite pendant des jours et sent le renfermé jusqu'à Cergy. La nuit sera chaude mais sans vent — 28 à 30° et 5 à 11 km/h seulement. Ça sèche quand même, à condition d'étaler : rien de plié sur une rambarde, le pli ne sèche jamais. Étendez large, côté terrasse au vent, dès le retour de la plage." }],
     matin:[ {t:"plain", ttl:"La terrasse, sans rien prévoir", when:"9 h 30 – 10 h 30",
              det:"Le dernier café face à la mer — c'est tout le programme de la matinée"},
             {t:"plain", ttl:"Valises et état des lieux", when:"10 h 30 – 11 h 30",
@@ -5684,6 +5684,20 @@ function renderCarnet(){
               ${BASES[ph].lien ? `<a class="maplink" href="${BASES[ph].lien.u}" target="_blank" rel="noopener noreferrer">${esc(BASES[ph].lien.t)}</a>` : ""}
             </div>
           </div>`).join("")}
+        </div>
+      </article>
+
+      <article class="card">
+        <header>
+          <h3>Coupure de courant</h3>
+          <p>En août, la climatisation de toute l'Attique tire sur le réseau : les coupures de village sont fréquentes, et rarement longues.</p>
+        </header>
+        <div class="inner">
+          <p class="fixe"><span>Panne à signaler — ΔΕΔΔΗΕ</span><a href="tel:11500"><b>11500</b></a></p>
+          <p class="fixe"><span>Le même, gratuit</span><a href="tel:8004004000"><b>800 400 4000</b></a></p>
+          <p class="fixe"><span>Depuis un mobile étranger</span><a href="tel:+302111900500"><b>+30 211 190 0500</b></a></p>
+          <p class="fixe"><span>Carte des coupures en cours</span><a href="https://www.outage.gr/en/" target="_blank" rel="noopener noreferrer"><b>outage.gr</b></a></p>
+          <p class="carnetintro" style="grid-column:auto">Le réflexe utile est de <b>ne pas ouvrir le frigo</b> : fermé, il tient environ quatre heures, et un congélateur plein presque deux jours. Ouvert deux fois « pour voir », il perd tout. Vérifiez aussi le disjoncteur avant d'appeler — si les voisins ont la lumière, la panne est dans l'appartement. Et si l'eau s'arrête en même temps, c'est la pompe de l'immeuble : elle repartira avec le courant.</p>
         </div>
       </article>
 
