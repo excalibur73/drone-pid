@@ -1684,7 +1684,7 @@ footer .off svg{width:12px; height:12px; color:var(--sea)}
       </div>
       <div class="lg swim">
         <div class="ic"><svg><use href="#i-swim"/></svg></div>
-        <div><h4>Baignade &amp; snorkeling</h4><p>Les criques rocheuses d'abord — Limanakia, Palea Fokea, Mavro Lithari, le KAPE, les rochers de Saronida : c'est là que la faune se voit. Le sable ne sert qu'à sécher.</p></div>
+        <div><h4>Baignade &amp; snorkeling</h4><p>Les criques rocheuses d'abord — Limanakia, Palea Fokea, Mavro Lithari, le KAPE, les rochers de Saronida : c'est là que la faune se voit. Accès libre, jamais de transat payant. Le sable ne sert qu'à sécher.</p></div>
       </div>
       <div class="lg depart">
         <div class="ic"><svg><use href="#i-depart"/></svg></div>
@@ -1977,9 +1977,15 @@ const DAYS = [
       titre:"Se mettre à l'abri du meltémi",
       intro:"Hors programme — pour l'après-midi, si rester au penthouse ne suffit pas. Quatre endroits où le vent ne vous suivra pas, tous à moins de 25 min.",
       lieux:[
-        { n:"Lac de Vouliagméni", km:"~25 min au nord",
-          d:"Un lac thermal à 24 °C toute l'année, encaissé au pied d'une falaise qui coupe entièrement le vent du nord — le seul plan d'eau parfaitement calme un jour de meltémi. Les petits poissons y grignotent les pieds, ce qui amuse beaucoup les enfants. Payant, transats et cafétéria sur place.",
-          q:"Lake Vouliagmeni Greece" },
+        { n:"Charakas", km:"~15 min au sud",
+          d:"Le coin le plus retiré de toute la côte d'Athènes : une petite grève de galets, presque personne, et l'eau la plus claire du secteur. C'est aussi le meilleur snorkeling des environs. Accès libre, aucun aménagement — donc aucune ombre et rien à boire : on emporte tout.",
+          q:"Charakas beach Anavyssos Greece" },
+        { n:"Thymari", km:"~10 min au sud",
+          d:"Entre Anavyssos et Sounion, le secret des gens du coin. Rochers et fonds clairs, accès libre, pas un transat. Orientée au sud : elle tourne le dos au meltémi, ce qui en fait le bon choix aujourd'hui.",
+          q:"Thymari beach Attica Greece" },
+        { n:"Legrena", km:"~25 min au sud",
+          d:"Une des dernières grandes plages de l'Attique sans bar ni rangée de transats — « truly unorganized », dit le guide. Ce qui vous intéresse est de part et d'autre : les petites criques rocheuses qui la bordent, à explorer masque en main.",
+          q:"Legrena beach Greece" },
         { n:"Musée minéralogique de Lavrio", km:"~20 min au sud",
           d:"Les mines d'argent du Laurion ont financé la flotte qui a gagné Salamine. Le musée expose les minéraux qui en sortent — plus de six cents espèces, dont certaines n'existent nulle part ailleurs. Petit, climatisé, et spectaculaire pour des enfants.",
           q:"Mineralogical Museum Lavrio Greece" },
@@ -1988,7 +1994,10 @@ const DAYS = [
           q:"Archaeological Museum of Lavrion" },
         { n:"Théâtre antique de Thorikos", km:"~15 min au sud",
           d:"Le plus ancien théâtre de pierre connu de Grèce, et le seul dont les gradins forment une ellipse et non un demi-cercle — on y voit la forme se chercher avant de se fixer. En plein air : à garder pour la fin d'après-midi, quand le vent faiblit.",
-          q:"Thorikos Ancient Theatre Greece" }
+          q:"Thorikos Ancient Theatre Greece" },
+        { n:"Lac de Vouliagméni — payant", km:"~25 min au nord",
+          d:"Cité pour être complet, pas recommandé : c'est le seul plan d'eau parfaitement calme un jour de meltémi, encaissé sous une falaise qui coupe le vent du nord, mais l'entrée est payante et l'on y loue un transat. Tout l'inverse d'une crique. À garder pour le cas où le vent rendrait vraiment toute la côte impraticable.",
+          q:"Lake Vouliagmeni Greece" }
       ],
       vent:"Meltémi de nord-nord-est toute la journée, 36 km/h établis et rafales à 71 en début d'après-midi : cherchez les criques ouvertes au sud, sous une pointe. Les rivages tournés vers le nord prendront le clapot, et tout ce qui n'est pas lesté s'envolera."
     } },
@@ -3200,7 +3209,7 @@ function meteoAlerte(d){
   /* Ne renvoyer vers Saronida que les jours où l'on y est. */
   const replis = !eau ? ""
     : SPOTS[d.n] ? " Le classement des criques, plus bas, dit lesquelles seront à l'abri."
-    : " Les plages de sable abritées — Saronida, Anavyssos — restent agréables ; le snorkeling, beaucoup moins.";
+    : " Cherchez une crique ouverte au sud, sous une pointe : la carte « Les criques du secteur », dans le Carnet, les classe par orientation.";
   return `<p class="feu ${n}${vive}"><span class="pastille"></span><b>${titre}</b> —
     ${esc(motifs.join(" · "))}.${replis}</p>`;
 }
@@ -3689,6 +3698,8 @@ const SPOTS = {
   { n:"Anse sud de la chapelle, Palea Fokea", ouvert:200, d:"Roche, sous le rocher d'Agios Nikolaos, dos au vent — les meilleurs fonds du séjour et le bon choix du jour" },
   { n:"Criques noires de Mavro Lithari", ouvert:215, d:"Roche volcanique, eau profonde dès le bord — le repli si Palea Fokea est pris" },
   { n:"Rochers sud de Saronida", ouvert:250, d:"Roche, à 450 m à pied du penthouse — petites criques enchaînées, accès libre" },
+  { n:"Thymari",                ouvert:195, d:"Roche, libre et sans un transat — le secret des gens du coin" },
+  { n:"Charakas",                ouvert:190, d:"Galets et roche, le coin le plus retiré de la côte — aucun aménagement" },
   { n:"Criques du KAPE",        ouvert:200, d:"Roche ; le ressac s'y installe quand le nord force" },
   { n:"Plage de Saronida",      ouvert:250, d:"Du sable : bon pour sécher, rien à voir sous l'eau" },
   { n:"Côte nord de Saronida",  ouvert:20,  d:"Face au vent — c'est là que ça tape, et le fond y est brassé" }
@@ -5198,6 +5209,36 @@ const CHIFFRES = [["1","ένα","É-na"],["2","δύο","DHI-o"],["3","τρία",
   ["5","πέντε","PÈN-dé"],["6","έξι","È-ksi"],["7","εφτά","ef-TA"],["8","οχτώ","okh-TO"],
   ["9","εννιά","é-NIA"],["10","δέκα","DHÉ-ka"]];
 
+/* ════════════════════════════  LES CRIQUES  ════════════════════════════
+   Ce qu'on cherche : de la roche, un accès libre, aucun transat. Une crique
+   est à l'abri quand elle tourne le dos au vent : l'orientation donnée est
+   celle vers laquelle elle s'ouvre, à comparer à la direction d'où souffle
+   le vent — la même logique que le classement du jour.                    */
+const CRIQUES = [
+  { n:"Criques de Limanakia", o:"SO", km:"30 min au nord", q:"Limanakia Vouliagmeni Greece",
+    d:"Falaise pâle et eau profonde. Le plus spectaculaire, et le plus fréquenté : venez tôt." },
+  { n:"Anse d'Agios Nikolaos, Palea Fokea", o:"SSO", km:"15 min au sud", q:"Agios Nikolaos Palaia Fokaia Greece",
+    d:"Les meilleurs fonds du séjour. Chaussons obligatoires, l'entrée est sur roche." },
+  { n:"Criques noires de Mavro Lithari", o:"SO", km:"10 min au sud", q:"Mavro Lithari Anavyssos Greece",
+    d:"Roche volcanique, eau profonde dès le bord. Une enfilade de criques sur deux kilomètres, aucune balisée." },
+  { n:"Rochers sud de Saronida", o:"O-SO", km:"450 m à pied", q:"Saronida beach Greece",
+    d:"Sous l'appartement. Petites criques enchaînées — la trempette du soir sans reprendre la voiture." },
+  { n:"Thymari", o:"S", km:"10 min au sud", q:"Thymari beach Attica Greece",
+    d:"Entre Anavyssos et Sounion, le secret des gens du coin. Tourne le dos au meltémi." },
+  { n:"Charakas", o:"S", km:"15 min au sud", q:"Charakas beach Anavyssos Greece",
+    d:"Le coin le plus retiré de la côte d'Athènes, et le meilleur snorkeling. Aucun aménagement : ni ombre ni buvette." },
+  { n:"Criques du KAPE", o:"SSO", km:"25 min au sud", q:"Kape beach Sounio Greece",
+    d:"Fonds rocheux et oursins dans les creux. Le ressac s'y installe quand le nord force." },
+  { n:"Criques de Legrena", o:"S", km:"25 min au sud", q:"Legrena beach Greece",
+    d:"De part et d'autre de la grande plage, qui est elle-même sans bar ni transat." }
+];
+const PAYANT = [
+  { n:"Lac de Vouliagméni", d:"entrée payante, transats — calme absolu les jours de vent, c'est son seul argument" },
+  { n:"Astir Beach, Vouliagméni", d:"la plus chère de la côte" },
+  { n:"Anavyssos, portions organisées", d:"la plage fait 4 km : le libre et le payant à 5-15 € s'y touchent, regardez avant de poser la serviette" }
+];
+
+const CRIQUES_EVITE = PAYANT.map(p => `${p.n} (${p.d})`).join(" · ") + ".";
 const CHAMPS = [
   { k:"navette",  l:"Navette de l'aéroport — société et téléphone", ph:"+30 … · le 17 au soir" },
   { k:"hoteltel", l:"Téléphone de l'hôtel d'Alimos", ph:"+30 …" },
@@ -5684,6 +5725,21 @@ function renderCarnet(){
               ${BASES[ph].lien ? `<a class="maplink" href="${BASES[ph].lien.u}" target="_blank" rel="noopener noreferrer">${esc(BASES[ph].lien.t)}</a>` : ""}
             </div>
           </div>`).join("")}
+        </div>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <header>
+          <h3>Les criques du secteur</h3>
+          <p>De la roche, un accès libre, aucun transat. L'orientation est celle vers laquelle la crique s'ouvre : elle est à l'abri quand elle tourne le dos au vent du jour.</p>
+        </header>
+        <div class="inner">
+          ${CRIQUES.map(c => `<p class="fixe"><span>${esc(c.n)} — ${esc(c.d)}</span>
+            <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${
+              encodeURIComponent(c.q)}" target="_blank" rel="noopener noreferrer">${
+              esc(c.o)} · ${esc(c.km)}</a></p>`).join("")}
+          <p class="carnetintro" style="grid-column:auto"><b>Ce qu'on évite :</b>
+            ${CRIQUES_EVITE}</p>
         </div>
       </article>
 
