@@ -580,6 +580,23 @@ td.revolu .ci{opacity:.62}
   margin-left:auto; font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
   color:var(--ink-3); border:1px solid var(--line); border-radius:99px; padding:2px 8px;
 }
+.eauentete{
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+  margin-top:12px; padding:10px 13px; border-radius:var(--r-sm);
+  background:color-mix(in oklab,var(--sea) 10%,transparent);
+  border-left:3px solid var(--sea);
+  font-size:.85rem; line-height:1.5; color:var(--ink-2);
+}
+.eauentete > svg{width:15px; height:15px; color:var(--sea); flex:0 0 auto}
+.eauentete > span{flex:1 1 190px; min-width:0}
+.eauentete > a{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--sea); border:1px solid color-mix(in oklab,var(--sea) 45%,transparent);
+  border-radius:99px; padding:4px 10px; text-decoration:none; white-space:nowrap;
+}
+.eauentete > a:hover{background:color-mix(in oklab,var(--sea) 16%,transparent)}
+.mer > header{flex-wrap:wrap}
 .autour .intro{padding:13px 16px 0; font-size:.87rem; color:var(--ink-2)}
 .autour .lieux{display:grid; gap:14px; padding:14px 16px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
 .autour .lieu{display:flex; flex-direction:column; gap:5px; align-items:flex-start}
@@ -3576,6 +3593,27 @@ function sacBateauHTML(d){
   </article>`;
 }
 
+/* La météo marine du prestataire, en tête de tout ce qui touche l'eau. Les
+   courbes de cette page viennent d'un modèle global maillé large ; celle
+   d'East Attica Cruises est celle sur laquelle ils décident de sortir ou non,
+   et c'est elle qui a fait déplacer la croisière du 24 au 26. Quand les deux
+   se contredisent, c'est la leur qui tranche. */
+const METEO_MARINE = "https://www.eastatticacruises.com/en/weather/";
+/* Le bandeau ne dépend d'aucun relevé : les cartes de houle ne s'affichent
+   que si le modèle a répondu, or c'est précisément quand le réseau est mauvais
+   qu'on veut le lien du prestataire. Il se rend donc dès qu'il y a de l'eau au
+   programme, et une seule fois par journée. */
+function enteteEauHTML(d){
+  if (!baignadeDuJour(d)) return "";
+  const bateau = allItems(d).map(x => x.it).some(i => /croisi/i.test(i.ttl));
+  return `<p class="eauentete">
+    <svg><use href="#i-swim"/></svg>
+    <span>${bateau ? "Sortie en mer aujourd'hui" : "Activité d'eau aujourd'hui"} —
+      la météo marine du prestataire fait foi : c'est elle qui décide si l'on sort.</span>
+    <a href="${METEO_MARINE}" target="_blank" rel="noopener noreferrer">Météo marine</a>
+  </p>`;
+}
+
 function merHTML(d){
   if (!baignadeDuJour(d)) return "";
   const m = merDe(d);
@@ -5637,6 +5675,7 @@ function dayHTML(d, { live }){
     ${meteoAlerte(d)}
     ${vigJourHTML(d)}
     ${alarm}
+    ${enteteEauHTML(d)}
     ${merHTML(d)}
     ${sacBateauHTML(d)}
     ${prevuHTML()}
