@@ -1030,6 +1030,29 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
   overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
 }
 .ajouter{position:relative}
+.relance{
+  margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
+  background:color-mix(in oklab,var(--ochre) 11%,transparent);
+  border-left:3px solid var(--ochre);
+  font-size:.85rem; line-height:1.55; color:var(--ink-2);
+}
+.relance > p:first-child{display:flex; gap:7px; align-items:baseline}
+.relance svg{width:14px; height:14px; color:var(--ochre); flex:0 0 auto; transform:translateY(2px)}
+.relance b{color:var(--ochre)}
+.relance .perso{
+  margin-top:8px; padding:7px 10px; border-radius:var(--r-sm);
+  background:var(--surface); color:var(--ink); font-weight:600;
+}
+.relance ul{list-style:none; margin-top:8px; display:flex; flex-direction:column; gap:5px}
+.relance li{padding-left:14px; position:relative}
+.relance li::before{content:"·"; position:absolute; left:4px; color:var(--ochre); font-weight:700}
+.relance.vive{animation:vigil 1.9s ease-in-out infinite}
+.relance.complet{
+  display:flex; gap:7px; align-items:baseline; border-left-color:var(--sea);
+  background:color-mix(in oklab,var(--sea) 9%,transparent);
+}
+.relance.complet svg{color:var(--sea)}
+@media (prefers-reduced-motion:reduce){ .relance.vive{animation:none} }
 .refus{
   margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
   background:color-mix(in oklab,var(--ochre) 13%,transparent);
@@ -4205,6 +4228,62 @@ function vignetteSecours(img){
 const photosDuJour = d => PHOTOS.liste.filter(p => +p.jour === d.n);
 const photosDe = (qui, n) => PHOTOS.liste.filter(p => p.qui === qui && +p.jour === n);
 
+/* ═══════════════════════  CE QUI MANQUE À LA JOURNÉE  ═══════════════════════
+   Relancer ceux qui n'ont ni photo ni note, chaque jour. Deux précautions.
+
+   La première tient à l'anonymat des commentaires. Les photos portent le nom
+   de qui les a déposées et les notes sont annoncées : les nommer ne révèle
+   rien. Les mots du soir, eux, s'affichent sans nom, et c'est tout le jeu.
+   Dire « il manque le mot de X » les trahit par élimination — à trois
+   silencieux sur quatre, l'unique commentaire est signé. On ne donne donc
+   qu'un compte, jamais les noms, tant que le jeu n'est pas fini. Une fois
+   « Révéler qui a écrit quoi » activé, il n'y a plus rien à protéger et les
+   noms s'affichent comme les autres.
+
+   La seconde est une question de moment : on ne relance pas sur une journée
+   qui n'a pas eu lieu, et l'on ne clignote que sur les deux dernières. Au-delà,
+   le rappel reste, mais il se tait.                                          */
+function relanceHTML(d){
+  const auj = dayIndexToday();
+  if (auj < 0 || d.n > DAYS[auj].n) return "";
+  const duJour = AVIS[d.n] || {};
+  const aEcrit = f => !!(duJour[f.id] && (duJour[f.id].txt || "").trim());
+  const sansPhoto = FAMILLE.filter(f => !photosDe(f.id, d.n).length);
+  const sansNote  = FAMILLE.filter(f => !(duJour[f.id] && duJour[f.id].note));
+  const sansMot   = FAMILLE.filter(f => !aEcrit(f));
+  if (!sansPhoto.length && !sansNote.length && !sansMot.length)
+    return `<p class="relance complet"><svg><use href="#i-info"/></svg>
+      Journée complète : tout le monde a déposé une photo, mis une note et laissé un mot.</p>`;
+
+  const noms = l => l.map(f => esc(f.nom)).join(", ").replace(/, ([^,]*)$/, " et $1");
+  const lignes = [];
+  if (sansPhoto.length) lignes.push(`<li><b>Aucune photo</b> — ${noms(sansPhoto)}</li>`);
+  if (sansNote.length)  lignes.push(`<li><b>Pas de note</b> — ${noms(sansNote)}</li>`);
+  if (sansMot.length)   lignes.push(REVELER
+    ? `<li><b>Pas de mot du soir</b> — ${noms(sansMot)}</li>`
+    : `<li><b>Pas de mot du soir</b> — ${sansMot.length} personne${sansMot.length > 1 ? "s" : ""} sur ${
+        FAMILLE.length}, sans dire lesquelles : les commentaires sont anonymes, les nommer reviendrait à les désigner par élimination</li>`);
+
+  /* Ce qui manque à celui qui lit, dit avant le reste : c'est le seul point
+     sur lequel il peut agir tout de suite. */
+  let perso = "";
+  if (QUI){
+    const moi = FAMILLE.find(f => f.id === QUI);
+    const rien = [];
+    if (sansPhoto.some(f => f.id === QUI)) rien.push("une photo");
+    if (sansNote.some(f => f.id === QUI))  rien.push("une note");
+    if (sansMot.some(f => f.id === QUI))   rien.push("un mot du soir");
+    if (rien.length) perso = `<p class="perso">${esc(moi ? moi.nom : "Vous")}, il vous manque ${
+      rien.join(", ").replace(/, ([^,]*)$/, " et $1")} pour cette journée.</p>`;
+  }
+  const ecart = DAYS[auj].n - d.n;
+  return `<div class="relance${ecart <= 1 ? " vive" : ""}">
+    <p><svg><use href="#i-info"/></svg><b>Il manque quelque chose au ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}</b></p>
+    ${perso}
+    <ul>${lignes.join("")}</ul>
+  </div>`;
+}
+
 function photosHTML(d){
   const mes = photosDuJour(d);
   const auj = dayIndexToday();
@@ -5571,6 +5650,7 @@ function dayHTML(d, { live }){
       <ul>${pack.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
     </div>` : ""}
     ${veilleHTML(d)}
+    ${relanceHTML(d)}
     ${photosHTML(d)}
     ${avisHTML(d)}
   </div>`;
