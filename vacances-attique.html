@@ -1043,6 +1043,8 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
   margin-top:8px; padding:7px 10px; border-radius:var(--r-sm);
   background:var(--surface); color:var(--ink); font-weight:600;
 }
+.relance .perso.fait{background:color-mix(in oklab,var(--sea) 12%,transparent); font-weight:500}
+.relance .pied{margin-top:8px; font-size:.79rem; color:var(--ink-3); font-style:italic}
 .relance ul{list-style:none; margin-top:8px; display:flex; flex-direction:column; gap:5px}
 .relance li{padding-left:14px; position:relative}
 .relance li::before{content:"·"; position:absolute; left:4px; color:var(--ochre); font-weight:700}
@@ -4237,14 +4239,14 @@ const photosDe = (qui, n) => PHOTOS.liste.filter(p => p.qui === qui && +p.jour =
 /* ═══════════════════════  CE QUI MANQUE À LA JOURNÉE  ═══════════════════════
    Relancer ceux qui n'ont ni photo ni note, chaque jour. Deux précautions.
 
-   La première tient à l'anonymat des commentaires. Les photos portent le nom
-   de qui les a déposées et les notes sont annoncées : les nommer ne révèle
-   rien. Les mots du soir, eux, s'affichent sans nom, et c'est tout le jeu.
-   Dire « il manque le mot de X » les trahit par élimination — à trois
-   silencieux sur quatre, l'unique commentaire est signé. On ne donne donc
-   qu'un compte, jamais les noms, tant que le jeu n'est pas fini. Une fois
-   « Révéler qui a écrit quoi » activé, il n'y a plus rien à protéger et les
-   noms s'affichent comme les autres.
+   La première : on ne nomme personne. Cela a commencé comme une contrainte
+   technique — les mots du soir s'affichent sans nom, et dire « il manque
+   celui de X » les trahissait par élimination. Mais nommer les manquants
+   n'est pas plus souhaitable pour les photos ou les notes, qui sont pourtant
+   publiques : un tableau d'absents, affiché chaque jour sur le téléphone de
+   tout le monde, ne fait pas déposer une photo de plus, il désigne. Le compte
+   suffit à dire qu'il manque quelque chose, et chacun sait très bien s'il en
+   fait partie. Seul celui qui lit est nommé, pour lui seul.
 
    La seconde est une question de moment : on ne relance pas sur une journée
    qui n'a pas eu lieu, et l'on ne clignote que sur les deux dernières. Au-delà,
@@ -4261,14 +4263,14 @@ function relanceHTML(d){
     return `<p class="relance complet"><svg><use href="#i-info"/></svg>
       Journée complète : tout le monde a déposé une photo, mis une note et laissé un mot.</p>`;
 
-  const noms = l => l.map(f => esc(f.nom)).join(", ").replace(/, ([^,]*)$/, " et $1");
-  const lignes = [];
-  if (sansPhoto.length) lignes.push(`<li><b>Aucune photo</b> — ${noms(sansPhoto)}</li>`);
-  if (sansNote.length)  lignes.push(`<li><b>Pas de note</b> — ${noms(sansNote)}</li>`);
-  if (sansMot.length)   lignes.push(REVELER
-    ? `<li><b>Pas de mot du soir</b> — ${noms(sansMot)}</li>`
-    : `<li><b>Pas de mot du soir</b> — ${sansMot.length} personne${sansMot.length > 1 ? "s" : ""} sur ${
-        FAMILLE.length}, sans dire lesquelles : les commentaires sont anonymes, les nommer reviendrait à les désigner par élimination</li>`);
+  const total = FAMILLE.length;
+  const ligne = (l, quoi, verbe) => !l.length ? "" :
+    `<li><b>${quoi}</b> — ${l.length} sur ${total} ${l.length > 1 ? "n'ont" : "n'a"} pas encore ${verbe}</li>`;
+  const lignes = [
+    ligne(sansPhoto, "Photos",       "déposé de photo"),
+    ligne(sansNote,  "Notes",        "noté la journée"),
+    ligne(sansMot,   "Mots du soir", "écrit un mot")
+  ].filter(Boolean).join("");
 
   /* Ce qui manque à celui qui lit, dit avant le reste : c'est le seul point
      sur lequel il peut agir tout de suite. */
@@ -4279,14 +4281,17 @@ function relanceHTML(d){
     if (sansPhoto.some(f => f.id === QUI)) rien.push("une photo");
     if (sansNote.some(f => f.id === QUI))  rien.push("une note");
     if (sansMot.some(f => f.id === QUI))   rien.push("un mot du soir");
-    if (rien.length) perso = `<p class="perso">${esc(moi ? moi.nom : "Vous")}, il vous manque ${
-      rien.join(", ").replace(/, ([^,]*)$/, " et $1")} pour cette journée.</p>`;
+    perso = rien.length
+      ? `<p class="perso">${esc(moi ? moi.nom : "Vous")}, il vous manque ${
+          rien.join(", ").replace(/, ([^,]*)$/, " et $1")} pour cette journée.</p>`
+      : `<p class="perso fait">${esc(moi ? moi.nom : "Vous")}, vous avez fait votre part pour cette journée.</p>`;
   }
   const ecart = DAYS[auj].n - d.n;
   return `<div class="relance${ecart <= 1 ? " vive" : ""}">
     <p><svg><use href="#i-info"/></svg><b>Il manque quelque chose au ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}</b></p>
     ${perso}
-    <ul>${lignes.join("")}</ul>
+    <ul>${lignes}</ul>
+    <p class="pied">Personne n'est nommé : chacun voit ce qui lui manque, et le reste ne regarde que lui.</p>
   </div>`;
 }
 
