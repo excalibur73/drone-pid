@@ -2011,8 +2011,11 @@ const DAYS = [
        il passe au 26 en fin d'après-midi, où il n'y aura pas un souffle et où
        l'eau sera plus claire qu'elle ne l'aurait été aujourd'hui. */
     matin:[ {t:"plain", ttl:"Quartier libre", when:"à partir de 9 h 30",
-             det:"Personne ne réveille personne, rien n'est prévu — terrasse à l'ombre, lecture, tri des photos du séjour",
-             note:"La plage de Saronida est en bas si l'envie d'un bain vient, mais le sable vole : c'est une trempette, pas une installation. Le masque ne servira à rien aujourd'hui, la surface est hachée."} ],
+             det:"Personne ne réveille personne, rien n'est prévu — terrasse à l'ombre, lecture, tri des photos du séjour"},
+            {t:"swim", ttl:"Palea Fokea, finalement", ll:"37.7180,23.9450",
+             corrige:"Fait malgré le vent : la journée break s'est offert les rochers de la chapelle, que le meltémi devait interdire.",
+             det:"L'anse sous Agios Nikolaos — les meilleurs fonds du séjour, pris entre deux rafales",
+             note:"Ce qui libère la matinée de demain : le créneau du 25 n'a plus lieu d'être."} ],
     aprem:[ {t:"courses", ttl:"Une pastèque, quand ça arrange", when:"libre",
              det:"Cinq minutes au supermarché de Saronida ou aux étals d'Anavyssos — la seule course de la journée",
              note:"Une pastèque mûre est lourde pour sa taille et porte une tache jaune crème là où elle a reposé au sol ; blanche, elle a été cueillie trop tôt. Καρπούζι se dit kar-POU-zi.",
@@ -2069,15 +2072,10 @@ const DAYS = [
        ce qui précède doit lui céder le pas, y compris le bain du KAPE. */
     prep:[{ t:"Les billets de Sounion, et les pièces d'identité",
             d:"Le créneau d'entrée est horodaté et ne se déplace pas. Les billets sont des QR codes sur le téléphone : mettez-les en captures d'écran ce soir, pour ne pas dépendre du réseau ni d'une batterie vidée par une journée de plage. Et sortez les pièces d'identité de Hilal et Layal — le billet gratuit « 18-25 ans, UE » se contrôle au portail, sur justificatif d'âge et de nationalité." }],
-    matin:[ {t:"depart", ttl:"Départ", when:"9 h 30", map:dir(SARONIDA,"37.718,23.945"),
-             corrige:"Palea Fokea reprend ce créneau : le mercredi se passe désormais entièrement autour de Porto Rafti.",
-             det:"10 km par la côte vers le sud — un quart d'heure",
-             alarme:"Départ pour Palea Fokea — les meilleurs fonds du séjour, et il ne reste que ce matin"},
-            {t:"swim", ttl:"Palea Fokea — l'anse de la chapelle", when:"9 h 45 – 11 h 45", gear:true,
-             ll:"37.7180,23.9450",
-             det:"Sous le rocher d'Agios Nikolaos : les meilleurs fonds du séjour — oursins, girelles, parfois un poulpe dans une anfractuosité",
-             vig:"Entrée sur roche : chaussons obligatoires, et l'on regarde avant de poser le pied. Vent faible ce matin-là — 13 km/h à 9 h, 20 à 11 h — la surface reste lisible jusqu'à midi.",
-             note:"Deux fois reportée : le lundi par le meltémi, le mercredi par la journée à Porto Rafti. C'est le dernier créneau du séjour, et le meilleur des trois — profitez-en. Les criques noires de Mavro Lithari restent à vingt minutes à pied du penthouse pour une trempette de fin de journée, quand vous voulez."} ],
+    matin:[ {t:"plain", ttl:"Matinée libre", when:"à partir de 9 h 30",
+             corrige:"Palea Fokea ayant été fait le 24, la matinée se libère : on ne bouge qu'à 14 h.",
+             det:"Rien n'est prévu jusqu'au déjeuner — terrasse, lecture, ou la plage en bas",
+             note:"Si l'envie d'un masque revient, les criques noires de Mavro Lithari sont à vingt minutes à pied du penthouse, ou quatre en voiture. Vent faible ce matin-là — 13 km/h à 9 h, 20 à 11 h — la surface reste lisible jusqu'à midi. C'est aussi la fenêtre du drone."} ],
     aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
             {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true, when:"14 h 20 – 16 h 45",
             note:"Le bain s'arrête à 16 h 45, sans discussion : le créneau de Sounion ne se rattrape pas.",
@@ -3514,12 +3512,9 @@ const DRONE = {
   8:{ intro:"Journée sans vol. Ce n'est pas une précaution, c'est une limite matérielle : la plupart des appareils grand public décrochent au-delà de 40 km/h de vent, et l'on est au-dessus de l'eau.",
       spots:[],
       vent:"Meltémi de 20 km/h à 9 h, 36 km/h établis à 14 h, rafales à 71. Le drone reste dans le sac — et si vous le sortez malgré tout, ce sera pour le regarder partir vers Égine." },
-  9:{ intro:"Une fenêtre le matin, sur la côte la plus graphique du secteur. L'après-midi est perdu pour le drone : le KAPE est à deux kilomètres et demi du temple de Poséidon, et l'on ne s'approche pas d'un site archéologique avec un appareil en main.",
+  9:{ intro:"La matinée libre est la dernière vraie fenêtre du séjour : mercredi, toute la baie de Porto Rafti tombe dans la zone de contrôle de l'aéroport, et jeudi le meltémi revient. L'après-midi d'aujourd'hui est perdu de toute façon — le KAPE est à deux kilomètres et demi du temple de Poséidon, et l'on ne s'approche pas d'un site archéologique avec un appareil en main.",
       spots:[
-        { n:"Chapelle Agios Nikolaos, Palea Fokea", quand:"9 h 45 – 11 h 30", km:"sur place",
-          d:"Une chapelle blanche posée sur son rocher, cernée d'eau claire : le plan circulaire au-dessus est le cliché du genre parce qu'il fonctionne. Vous y êtes déjà, l'appareil sort entre deux bains. C'est désormais la seule occasion du séjour — le mercredi passe à Porto Rafti, où la zone de contrôle de l'aéroport interdit tout vol.",
-          q:"Agios Nikolaos Palaia Fokaia Greece" },
-        { n:"Criques noires de Mavro Lithari", quand:"en fin de journée, si l'envie vient", km:"20 min à pied",
+        { n:"Criques noires de Mavro Lithari", quand:"9 h 30 – 11 h 30", km:"20 min à pied",
           d:"De la roche volcanique noire contre une eau turquoise : vu à la verticale, le contraste le plus net qu'on trouvera. Attention au décollage — cette roche sombre est riche en magnétite et fausse la boussole : décollez à la main ou depuis une serviette posée sur du sable, jamais du rocher, et refaites l'étalonnage si l'appareil le réclame.",
           q:"Mavro Lithari Anavyssos Greece" }
       ],
@@ -3662,8 +3657,7 @@ const MER_SPOTS = {
   4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
   7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:16 }],
   8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
-  9:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:12 },
-     { n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
+  9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
   10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:18 }]
 };
 const TOUS_SPOTS = (() => {
