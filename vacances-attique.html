@@ -1951,9 +1951,10 @@ const DAYS = [
     soir:[ {t:"swim", ttl:"Les rochers de Saronida", ll:"37.7448,23.9013", when:"18 h 45 – 19 h 45", gear:true,
             det:"À pied depuis l'appartement — la côte rocheuse qui ferme la baie au sud, à 450 m",
             note:"Pas la plage : les petites criques enchaînées, accès libre. Trempette du soir plutôt qu'une vraie session — l'eau est encore transparente à 19 h et il n'y a plus personne. Coucher du soleil à 20 h 04."},
-           {t:"plain", ttl:"Coupure de courant à Saronida", when:"dans la soirée",
-            det:"La climatisation de toute l'Attique tirait sur le réseau, un jour à 37° — le village a lâché",
-            note:"Les numéros de ΔΕΔΔΗΕ et le réflexe du frigo fermé sont dans le Carnet, à la carte « Coupure de courant »."},
+           {t:"plain", ttl:"Coupure de courant à Saronida", when:"17 h 15 – 21 h",
+            det:"Près de quatre heures sans électricité. La climatisation de toute l'Attique tirait sur le réseau un jour à 37° — le village a lâché",
+            note:"Trois heures quarante-cinq, c'est exactement ce qu'un réfrigérateur fermé peut encaisser : s'il n'a pas été ouvert, rien n'est perdu. Un congélateur plein, lui, ne s'en aperçoit pas.",
+            vig:"À vérifier ce matin quand même : les plaques et le four peuvent demander une remise à l'heure, et le chauffe-eau électrique a mis la nuit à remonter en température. Si un disjoncteur a sauté au retour du courant, c'est en général celui du chauffe-eau ou de la clim."},
            {t:"food", ttl:"Pâtes maison, et la glace pour finir", when:"~20 h 30",
             corrige:"Pizzeria et gaufres abandonnées : la coupure a rebattu les cartes, et le repas s'est fait à la maison.",
             det:"Des pâtes aux olives, oignons et tomates, avec du fromage grec — préparées sur place, et de l'avis général un délice",
@@ -5817,7 +5818,8 @@ function renderCarnet(){
           <p class="fixe"><span>Le même, gratuit</span><a href="tel:8004004000"><b>800 400 4000</b></a></p>
           <p class="fixe"><span>Depuis un mobile étranger</span><a href="tel:+302111900500"><b>+30 211 190 0500</b></a></p>
           <p class="fixe"><span>Carte des coupures en cours</span><a href="https://www.outage.gr/en/" target="_blank" rel="noopener noreferrer"><b>outage.gr</b></a></p>
-          <p class="carnetintro" style="grid-column:auto">Le réflexe utile est de <b>ne pas ouvrir le frigo</b> : fermé, il tient environ quatre heures, et un congélateur plein presque deux jours. Ouvert deux fois « pour voir », il perd tout. Vérifiez aussi le disjoncteur avant d'appeler — si les voisins ont la lumière, la panne est dans l'appartement. Et si l'eau s'arrête en même temps, c'est la pompe de l'immeuble : elle repartira avec le courant.</p>
+          <p class="carnetintro" style="grid-column:auto">Le réflexe utile est de <b>ne pas ouvrir le frigo</b> : fermé, il tient environ quatre heures, et un congélateur plein presque deux jours. Ouvert deux fois « pour voir », il perd tout. Vérifiez aussi le disjoncteur avant d'appeler — si les voisins ont la lumière, la panne est dans l'appartement. Et si l'eau s'arrête en même temps, c'est la pompe de l'immeuble : elle repartira avec le courant.
+            <br><br><b>Mesuré sur place :</b> la coupure du 23 août a duré de 17 h 15 à 21 h, soit trois heures quarante-cinq. C'est l'ordre de grandeur à prévoir si cela recommence — pas dix minutes, mais pas la nuit non plus.</p>
         </div>
       </article>
 
