@@ -2089,11 +2089,13 @@ const DAYS = [
              det:"55 km par Markopoulo — c'est le plus long trajet de la phase 2"},
             {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", when:"9 h – 13 h",
              corrige:"Reportée du lundi 24 par East Attica Cruises : trop de vent ce jour-là.",
-             det:"Le fjord, l'îlot à l'église, la grotte marine et le Lagon bleu — quatre heures en mer, trois mouillages sur roche",
-             vig:"Présentation à 8 h 30 au Resalto Terminal, appareillage à 9 h : c'est ce qui commande le départ de 7 h 45 de Saronida. Mer annoncée à 0,10 m et vent quasi nul avant midi — les meilleures conditions de tout le séjour.",
-             note:"Réservée — nouvelle date du 26 août, 9 h – 13 h", rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation à 8 h 30"} ],
+             det:"Quatre heures sur un caïque grec traditionnel, quatre mouillages de baignade — le fjord aux eaux turquoises, l'îlot à l'église cycladique, la grotte peu profonde sous laquelle on nage, et le Lagon bleu",
+             vig:"L'HORAIRE EST À CONFIRMER. Le courriel de report donne 9 h – 13 h ; la fiche de l'activité annonce 16 h – 20 h avec enregistrement à 15 h 30. Sept heures d'écart sur le dernier jour plein : appelez East Attica Cruises avant de vous coucher la veille. Le reste du programme du 26 est bâti sur le créneau du matin.",
+             note:"Réservée — 26 août. Compris à bord : café d'accueil et biscuits, snacks grecs (spanakopita, tiropita), fruits frais, deux boissons par personne et de l'eau ; le mini-bar est payant au-delà. Une variante végétarienne ou végétalienne se demande à l'avance. Non compris : serviettes et crème solaire.",
+             rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation 30 min avant le départ"} ],
     aprem:[ {t:"swim", ttl:"Baignades depuis le bateau", parBateau:true, gear:true,
-             det:"Erotospilia, Avlaki, le Lagon bleu — les mouillages de la matinée, avant le retour à quai"},
+             det:"Quatre arrêts : le fjord, l'îlot, la grotte et le Lagon bleu — on saute du pont ou l'on descend par l'échelle",
+             note:"Un maître-nageur est à bord, et des flotteurs sont disponibles. Le bateau prête aussi masques et tubas : les vôtres restent meilleurs, mais si l'un casse il y a de quoi dépanner. Une zone ombragée et un salon permettent de sortir du soleil entre deux bains."},
             {t:"depart", ttl:"Retour vers Saronida, par Markopoulo", when:"~13 h 30",
              map:dir("37.8868674,24.0143872","37.8813,23.9333"),
              det:"10 min à l'intérieur des terres, puis 35 min jusqu'à Saronida",
@@ -2776,11 +2778,13 @@ const SAVOIRS = {
   "Croisière de Porto Rafti":{
     quoi:"Une baie profonde, presque fermée, gardée par deux îlots. Le grand porte une statue de marbre colossale d'époque romaine, assise, dont on ignore encore qui elle représente.",
     regarder:[
-      "L'îlot Raftis et sa statue : de loin la silhouette évoque un tailleur penché sur son ouvrage — raftis en grec. C'est elle qui a donné son nom au port.",
-      "La presqu'île de Koroni, au sud, porte les restes d'une forteresse hellénistique du IIIe siècle av. J.-C., élevée pendant la guerre de Chrémonidès.",
-      "La grotte marine et le lagon : les fonds sont clairs, c'est le moment de mettre le masque."
+      "Le Colosse de Porto Rafti — l'îlot Raftis et sa statue. De loin la silhouette évoque un tailleur penché sur son ouvrage : raftis en grec. C'est elle qui a donné son nom au port, et personne ne sait qui elle représente.",
+      "L'îlot à l'église : une chapelle cycladique blanche que l'on peut aborder et explorer. C'est l'un des quatre arrêts.",
+      "La grotte de la mer engloutie : peu profonde, et l'on nage dessous. C'est le moment où le masque sert le plus.",
+      "Le fjord naturel aux eaux turquoises, puis le Lagon bleu — une côte entière tenue à l'écart des plages surpeuplées, faute de route pour y accéder.",
+      "La presqu'île de Koroni, au sud, porte les restes d'une forteresse hellénistique du IIIe siècle av. J.-C., élevée pendant la guerre de Chrémonidès."
     ],
-    mot:"Une statue anonyme veille sur la baie depuis dix-huit siècles."
+    mot:"Quatre arrêts, quatre baignades, et une statue anonyme qui veille sur la baie depuis dix-huit siècles."
   },
   "Palea Fokea":{
     quoi:"Un village côtier fondé par des réfugiés grecs de Phocée, en Asie mineure, chassés lors de l'échange de populations de 1922-1923. Le nom veut dire « la vieille Phocée » : ils ont rebaptisé leur nouvelle terre du nom de l'ancienne.",
@@ -3430,6 +3434,7 @@ const SAC_BATEAU = {
       quai:"Douches de plage gratuites à la plage municipale d'Alimos, à 2 km de la marina — sur le chemin du retour.",
       repli:"Sinon : toilettes publiques de la marina, remplissez-y une bouteille de 1,5 L vide avant d'embarquer." },
   10:{ ou:"Port de Porto Rafti",
+      fourni:"Le bord fournit masques et tubas, des flotteurs, une zone ombragée, un salon, et un maître-nageur. Sont expressément non fournis : les serviettes et la crème solaire.",
       bord:"Petite sortie, pas de douche à bord. Rinçage des masques à l'eau de mer seulement.",
       quai:"Douches à la plage d'Avlaki, au fond de la baie, à 700 m du quai.",
       repli:"Sinon : les tavernes du port acceptent qu'on remplisse une bouteille — demandez avant de commander, pas après." }
@@ -3523,6 +3528,7 @@ function sacBateauHTML(d){
   return `<article class="sacbateau">
     <header><svg><use href="#i-swim"/></svg><h3>Le sac du bateau — ${esc(s.ou)}</h3></header>
     <ul class="sacliste">
+      ${s.fourni ? `<li><b>Ce que le bord fournit</b> : ${esc(s.fourni)}</li>` : ""}
       <li><b>Sur vous</b> : maillot déjà mis sous les vêtements, on ne se change pas à bord sans gêne.</li>
       <li><b>Vos palmes, masques et tubas</b>, les shortys, et des chaussons pour les rochers — on emporte le sien, rien à emprunter à bord.</li>
       <li><b>Crème solaire résistante à l'eau</b>, à remettre après chaque bain : en mer, le soleil frappe deux fois, du ciel et de l'eau.</li>
