@@ -2079,13 +2079,19 @@ const DAYS = [
             note:"Si l'on vous fait sortir avant, le couchant se regarde très bien depuis la route en contrebas et depuis la terrasse du café, à 200 m — le temple se découpe alors sur le ciel, ce qui est le meilleur angle de toute façon."} ] },
 
   { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
+    dej:{ de:"7 h", a:"7 h 30",
+          det:"Court et suffisant : une demi-heure, puis un quart d'heure pour boucler le sac.",
+          note:"Tout se sort la veille au soir — le sac du bateau, les serviettes, la crème. À 7 h on mange, on ne cherche pas." },
     /* Reportée du 24 par le prestataire, pour cause de meltémi — et le report
        tombe bien : le 24 la baie prenait 30 km/h de vent et 0,70 m de clapot
        court, le 26 elle est annoncée à 0,10 m sans un souffle avant midi.
        Repas et boissons sont fournis à bord, comme le 20 : rien à porter. */
-    prep:[{ t:"Le petit-déjeuner de 6 h 35, et les valises",
-            d:"Plus d'hôtel pour vous nourrir : sortez ce soir de quoi tenir un départ à 7 h 45. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h. Et c'est l'avant-dernier soir : tout ce qui ne resservira plus peut déjà descendre dans les valises." }],
-    matin:[ {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
+    prep:[{ t:"Le petit-déjeuner de 7 h, et les valises",
+            d:"Le créneau est court — 7 h à 7 h 30, puis un quart d'heure de préparatifs. Sortez donc ce soir de quoi manger sans rien chercher, et faites le sac du bateau maintenant. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h. Et c'est l'avant-dernier soir : tout ce qui ne resservira plus peut déjà descendre dans les valises." }],
+    matin:[ {t:"plain", ttl:"Préparatifs", when:"7 h 30 – 7 h 45",
+             det:"Un quart d'heure, pas davantage : le sac est fait de la veille, il ne reste qu'à le charger",
+             alarme:"Quinze minutes avant le départ — maillots sous les vêtements, et le sac dans la voiture"},
+            {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
              corrige:"45 min de route depuis Saronida pour une présentation à 8 h 30.",
              alarme:"Départ pour Porto Rafti — présentation à 8 h 30, le bateau n'attend pas",
              det:"55 km par Markopoulo — c'est le plus long trajet de la phase 2"},
@@ -2222,6 +2228,16 @@ const fmtH = m => `${Math.floor(m / 60)} h${m % 60 ? " " + String(m % 60).padSta
 
 function petitDejeuner(d){
   if (d.n === 1) return null;                       // arrivée à 18 h 30, pas de matin
+  /* Le calcul remonte d'une heure depuis le départ, ce qui convient partout
+     sauf quand on ne veut pas d'une heure. Une journée peut donc imposer son
+     créneau : le 26, une demi-heure suffit, et un quart d'heure de
+     préparatifs derrière. */
+  if (d.dej){
+    const de = toMinutes(d.dej.de), a = toMinutes(d.dej.a);
+    return { t:"repas", sacre:true, ttl:"Petit-déjeuner", when:`${fmtH(de)} – ${fmtH(a)}`,
+             det:d.dej.det || "Sur la terrasse, avec les provisions du 22.",
+             note:d.dej.note || null };
+  }
   /* Où l'on a dormi, pas où l'on va : le 22 au matin on est encore à l'hôtel,
      on n'en part qu'à 9 h 15 pour récupérer la voiture. */
   const hotel = d.n <= 6;
@@ -2701,7 +2717,7 @@ const SAVOIRS = {
     mot:"Le sel et un couteau : c'est ce qu'on oublie, et ce qui manque le plus devant une pastèque."
   },
   "Courses pour la semaine":{
-    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 26, repas et boissons sont fournis à bord pendant la croisière. Le rythme de la phase 2 est celui de la récupération : on dort jusqu'à 7 h 30 ou 8 h, les départs ne sont jamais avant 9 h, et les petits-déjeuners se prennent entre 7 h 50 et 9 h 30 sur la terrasse. Une seule exception, le 26 : la croisière impose 6 h 35 et un départ à 7 h 45. C'est le seul matin du séjour où il faut un réveil. C'est la seule vraie course du séjour : elle doit tenir jusqu'au 27 au matin, et l'eau avec. Après, on ne s'arrête plus que pour une pastèque.",
+    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 26, repas et boissons sont fournis à bord pendant la croisière. Le rythme de la phase 2 est celui de la récupération : on dort jusqu'à 7 h 30 ou 8 h, les départs ne sont jamais avant 9 h, et les petits-déjeuners se prennent entre 7 h 50 et 9 h 30 sur la terrasse. Une seule exception, le 26 : petit-déjeuner de 7 h à 7 h 30, quinze minutes de préparatifs, départ à 7 h 45. C'est le seul matin du séjour où il faut un réveil. C'est la seule vraie course du séjour : elle doit tenir jusqu'au 27 au matin, et l'eau avec. Après, on ne s'arrête plus que pour une pastèque.",
     regarder:[
       "Le petit-déjeuner : café ou thé, lait, pain ou biscottes, yaourt grec et miel — le vrai, celui de thym —, fruits de saison, œufs, jus. Comptez large : les pêches et les figues d'août ne survivent pas à cinq jours.",
       "Le pique-nique du 23 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace — la voiture restera au soleil, et les criques n'ont pas d'ombre.",
