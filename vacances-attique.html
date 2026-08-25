@@ -2117,26 +2117,28 @@ const DAYS = [
             note:"Retenez l'adresse pour demain soir : ouverte jusqu'à minuit, elle fait aussi l'emporter et la livraison. Avec un retour de Porto Rafti à 19 h 15 et le matériel à rincer, c'est le repli qui ne demande rien à personne. Tél. 2291 060072."} ] },
 
   { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
-    dej:{ de:"7 h", a:"7 h 30",
-          det:"Court et suffisant : une demi-heure, puis un quart d'heure pour boucler le sac.",
-          note:"Tout se sort la veille au soir — le sac du bateau, les serviettes, la crème. À 7 h on mange, on ne cherche pas." },
+    dej:{ de:"7 h", a:"7 h 25",
+          det:"Vingt-cinq minutes, puis dix pour charger — le départ recule à 7 h 35 pour arriver avec de la marge.",
+          note:"Tout se sort la veille au soir — le sac du bateau, les serviettes, la crème. À 7 h on mange, on ne cherche pas : c'est la condition pour que ce créneau tienne." },
     /* Reportée du 24 par le prestataire, pour cause de meltémi — et le report
        tombe bien : le 24 la baie prenait 30 km/h de vent et 0,70 m de clapot
        court, le 26 elle est annoncée à 0,10 m sans un souffle avant midi.
        Repas et boissons sont fournis à bord, comme le 20 : rien à porter. */
     prep:[{ t:"Le petit-déjeuner de 7 h, et les valises",
-            d:"Le créneau est court — 7 h à 7 h 30, puis un quart d'heure de préparatifs. Sortez donc ce soir de quoi manger sans rien chercher, et faites le sac du bateau maintenant. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h. Et c'est l'avant-dernier soir : tout ce qui ne resservira plus peut déjà descendre dans les valises." }],
-    matin:[ {t:"plain", ttl:"Préparatifs", when:"7 h 30 – 7 h 45",
-             det:"Un quart d'heure, pas davantage : le sac est fait de la veille, il ne reste qu'à le charger",
-             alarme:"Quinze minutes avant le départ — maillots sous les vêtements, et le sac dans la voiture"},
-            {t:"depart", ttl:"Départ", when:"7 h 45", map:dir(SARONIDA,"37.886925,24.014343"),
-             corrige:"45 min de route depuis Saronida pour une présentation à 8 h 30.",
+            d:"Le créneau est court — 7 h à 7 h 25, puis dix minutes pour charger, et l'on part à 7 h 35. Sortez donc ce soir de quoi manger sans rien chercher, et faites le sac du bateau maintenant : demain matin, dix minutes ne pardonnent pas un oubli. Le repas du bord, lui, est fourni — la sortie rend à quai à 13 h. Et c'est l'avant-dernier soir : tout ce qui ne resservira plus peut déjà descendre dans les valises." }],
+    matin:[ {t:"plain", ttl:"Préparatifs", when:"7 h 25 – 7 h 35",
+             corrige:"Ramenés à dix minutes : le départ avance de dix pour arriver au terminal avec de la marge.",
+             det:"Dix minutes, et elles suffisent — le sac est fait de la veille, il ne reste qu'à le charger",
+             alarme:"Dix minutes avant le départ — maillots sous les vêtements, et le sac dans la voiture"},
+            {t:"depart", ttl:"Départ", when:"7 h 35", map:dir(SARONIDA,"37.886925,24.014343"),
+             corrige:"Avancé de dix minutes : à 7 h 45 on arrivait à 8 h 30 pile, sans une seconde de marge.",
              alarme:"Départ pour Porto Rafti — présentation à 8 h 30, le bateau n'attend pas",
-             det:"55 km par Markopoulo — c'est le plus long trajet de la phase 2"},
+             det:"55 km par Markopoulo — 45 min, le plus long trajet de la phase 2",
+             vig:"Arrivée prévue à 8 h 20, soit dix minutes avant la présentation. C'est une marge, pas un coussin : quarante-cinq minutes de route sur un trajet qu'on ne connaît pas, un mercredi matin, et il n'y a pas de second bateau. Si vous êtes prêts à 7 h 30, partez à 7 h 30."},
             {t:"site", ttl:"Croisière de Porto Rafti", ll:"37.8869,24.0143", sac:"bateau", when:"9 h – 13 h",
              corrige:"Reportée du lundi 24 par East Attica Cruises : trop de vent ce jour-là.",
              det:"Quatre heures sur un caïque grec traditionnel, quatre mouillages de baignade — le fjord aux eaux turquoises, l'îlot à l'église cycladique, la grotte peu profonde sous laquelle on nage, et le Lagon bleu",
-             vig:"Présentation à 8 h 30 au Resalto Terminal, appareillage à 9 h : c'est ce qui commande le départ de 7 h 45. Le 16 h – 20 h qu'affiche la fiche est l'autre départ du prestataire, celui que vous n'avez pas réservé — il n'y a pas d'ambiguïté. Mer à 0,10 m et vent quasi nul : les meilleures conditions du séjour.",
+             vig:"Présentation à 8 h 30 au Resalto Terminal, appareillage à 9 h : c'est ce qui commande le départ de 7 h 35, pour être au terminal à 8 h 20. Le 16 h – 20 h qu'affiche la fiche est l'autre départ du prestataire, celui que vous n'avez pas réservé — il n'y a pas d'ambiguïté. Mer à 0,10 m et vent quasi nul : les meilleures conditions du séjour.",
              note:"Réservée — 26 août. Compris à bord : café d'accueil et biscuits, snacks grecs (spanakopita, tiropita), fruits frais, deux boissons par personne et de l'eau ; le mini-bar est payant au-delà. Une variante végétarienne ou végétalienne se demande à l'avance. Non compris : serviettes et crème solaire.",
              rdv:"East Attica Cruises — Resalto Terminal, Porto Rafti — présentation 30 min avant le départ"} ],
     aprem:[ {t:"swim", ttl:"Baignades depuis le bateau", parBateau:true, gear:true,
@@ -2762,7 +2764,7 @@ const SAVOIRS = {
     mot:"Le sel et un couteau : c'est ce qu'on oublie, et ce qui manque le plus devant une pastèque."
   },
   "Courses pour la semaine":{
-    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 26, repas et boissons sont fournis à bord pendant la croisière. Le rythme de la phase 2 est celui de la récupération : on dort jusqu'à 7 h 30 ou 8 h, les départs ne sont jamais avant 9 h, et les petits-déjeuners se prennent entre 7 h 50 et 9 h 30 sur la terrasse. Une seule exception, le 26 : petit-déjeuner de 7 h à 7 h 30, quinze minutes de préparatifs, départ à 7 h 45. C'est le seul matin du séjour où il faut un réveil. C'est la seule vraie course du séjour : elle doit tenir jusqu'au 27 au matin, et l'eau avec. Après, on ne s'arrête plus que pour une pastèque.",
+    quoi:"À partir du 23, les petits-déjeuners se prennent au penthouse : plus de buffet, plus de service à 7 h. Il faut cinq matins pour quatre adultes, plus le pique-nique des criques de Limanakia le 23 — le 26, repas et boissons sont fournis à bord pendant la croisière. Le rythme de la phase 2 est celui de la récupération : on dort jusqu'à 7 h 30 ou 8 h, les départs ne sont jamais avant 9 h, et les petits-déjeuners se prennent entre 7 h 50 et 9 h 30 sur la terrasse. Une seule exception, le 26 : petit-déjeuner de 7 h à 7 h 25, dix minutes pour charger, départ à 7 h 35 et présentation au bateau à 8 h 30. C'est le seul matin du séjour où il faut un réveil. C'est la seule vraie course du séjour : elle doit tenir jusqu'au 27 au matin, et l'eau avec. Après, on ne s'arrête plus que pour une pastèque.",
     regarder:[
       "Le petit-déjeuner : café ou thé, lait, pain ou biscottes, yaourt grec et miel — le vrai, celui de thym —, fruits de saison, œufs, jus. Comptez large : les pêches et les figues d'août ne survivent pas à cinq jours.",
       "Le pique-nique du 23 : pain, feta, tomates, olives, une pastèque. Et de la glace ou des pains de glace — la voiture restera au soleil, et les criques n'ont pas d'ombre.",
