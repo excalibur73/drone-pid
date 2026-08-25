@@ -2142,11 +2142,15 @@ const DAYS = [
     aprem:[ {t:"swim", ttl:"Baignades depuis le bateau", parBateau:true, gear:true,
              det:"Quatre arrêts : le fjord, l'îlot, la grotte et le Lagon bleu — on saute du pont ou l'on descend par l'échelle",
              note:"Un maître-nageur est à bord, et des flotteurs sont disponibles. Le bateau prête aussi masques et tubas : les vôtres restent meilleurs, mais si l'un casse il y a de quoi dépanner. Une zone ombragée et un salon permettent de sortir du soleil entre deux bains."},
-            {t:"depart", ttl:"Vers Brauron", when:"13 h 15", map:dir("37.8868674,24.0143872","37.9262,24.0378"),
+            {t:"plain", ttl:"Se rincer le sel, avant tout le reste", when:"13 h – 13 h 20",
+             det:"Quatre heures de mer et une journée devant soi : le sel sèche, tire et démange, et il attaque le néoprène",
+             vig:"Trois solutions, dans l'ordre de ce qui coûte le moins de temps. Un — les bouteilles, sur le parking du terminal : un litre et demi par personne suffit pour la peau et les cheveux, et l'on repart dans le quart d'heure. Deux — les douches de la plage d'Avlaki, à 3 km et dix minutes, mais c'est une demi-heure de perdue sur Brauron qui ferme à 15 h 30. Trois — demander à bord : aucune douche n'est annoncée, ni sur la fiche ni sur le site du prestataire, mais une vanne d'eau douce sur le pont ne se met pas dans une brochure.",
+             note:"Rincez les cheveux et le visage d'abord, c'est là que le sel gêne le plus. Puis les shortys, retournés : le sel qui y reste les gardera humides toute la nuit, et cette nuit-là est la seule dont vous disposiez avant l'avion."},
+            {t:"depart", ttl:"Vers Brauron", when:"13 h 20", map:dir("37.8868674,24.0143872","37.9262,24.0378"),
              corrige:"On ne rentre plus à 13 h 30 : la journée se passe autour de Porto Rafti, et l'on ne revient qu'en fin d'après-midi.",
              det:"15 min au nord — on y va d'abord parce que le site ferme tôt",
              alarme:"Brauron ferme à 15 h 30 — c'est la seule chose de la journée qui n'attend pas"},
-            {t:"site", ttl:"Sanctuaire d'Artémis à Brauron", ll:"37.9262,24.0378", when:"13 h 30 – 15 h 15",
+            {t:"site", ttl:"Sanctuaire d'Artémis à Brauron", ll:"37.9262,24.0378", when:"13 h 35 – 15 h 15",
              det:"Un des grands sanctuaires de l'Attique, et le plus parlant pour des enfants : les petites Athéniennes y jouaient « les ourses » d'Artémis",
              vig:"Fermeture à 15 h 30, dernière entrée à 15 h 10 — et le site est fermé le mardi, ce qui tombe bien puisque vous y êtes un mercredi. Vérifiez quand même au portail : les horaires des sites secondaires changent sans prévenir.",
              note:"Le musée expose les statues votives des petites filles, et il est couvert — bienvenu à 34° et sans un souffle de vent. Le portique des Arctes et la source sacrée sont en plein air : gardez-les pour la fin de la visite, quand vous aurez repris de l'ombre."} ],
@@ -2158,7 +2162,7 @@ const DAYS = [
            {t:"swim", ttl:"Les criques de la baie", when:"17 h – 18 h 15", gear:true,
             det:"Erotospilia et ses grottes-abris, Avlaki au fond de la baie, ou les petites anses sous la pointe de Koroni",
             map:"https://www.google.com/maps/search/?api=1&query=Avlaki+beach+Porto+Rafti+Greece",
-            note:"Avlaki a des douches, ce qui règle le sel avant la route. La pointe de Koroni porte les restes d'une forteresse hellénistique : montée courte, vue sur toute la baie et sur l'îlot Raftis — la lumière de 18 h y est la bonne.",
+            note:"Avlaki est le choix sûr pour finir : douches, cabines, toilettes et maître-nageur, pavillon bleu — c'est là qu'on règle le sel pour de bon avant la route. La pointe de Koroni porte les restes d'une forteresse hellénistique : montée courte, vue sur toute la baie et sur l'îlot Raftis, et la lumière de 18 h y est la bonne.",
             vig:"C'est le dernier bain du séjour. Tout ce qui a touché l'eau devra sécher cette nuit : ne laissez rien au fond d'un sac mouillé pendant la route."},
            {t:"depart", ttl:"Retour vers Saronida", when:"18 h 30", map:dir("37.8868674,24.0143872",SARONIDA),
             det:"55 km par Markopoulo — trois quarts d'heure",
@@ -3511,9 +3515,9 @@ const SAC_BATEAU = {
       repli:"Sinon : toilettes publiques de la marina, remplissez-y une bouteille de 1,5 L vide avant d'embarquer." },
   10:{ ou:"Port de Porto Rafti",
       fourni:"Le bord fournit masques et tubas, des flotteurs, une zone ombragée, un salon, et un maître-nageur. Sont expressément non fournis : les serviettes et la crème solaire.",
-      bord:"Petite sortie, pas de douche à bord. Rinçage des masques à l'eau de mer seulement.",
-      quai:"Douches à la plage d'Avlaki, au fond de la baie, à 700 m du quai.",
-      repli:"Sinon : les tavernes du port acceptent qu'on remplisse une bouteille — demandez avant de commander, pas après." }
+      bord:"Aucune douche n'est annoncée à bord — ni sur la fiche de l'activité, qui détaille pourtant les équipements, ni sur le site du prestataire. Posez quand même la question à l'embarquement : une vanne d'eau douce sur le pont arrière, ça ne se met pas dans une brochure.",
+      quai:"Plage d'Avlaki, au sud-est de la baie : douches, cabines, toilettes, maître-nageur et cantine. Pavillon bleu. Environ 3 km du terminal, dix minutes en voiture — et non 700 m comme annoncé jusqu'ici.",
+      repli:"À défaut, les bouteilles suffisent : un litre et demi par personne rince le sel de la peau et des cheveux. Achetez-les au port et laissez-les au soleil sur le tableau de bord — tièdes, elles sont bien plus agréables que glacées." }
 };
 /* ════════════════════════════  LE DRONE  ════════════════════════════
    La Grèce est un des pays d'Europe les plus stricts sur le sujet, et les
