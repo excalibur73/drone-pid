@@ -2066,24 +2066,26 @@ const DAYS = [
       vent:"Meltémi de nord-nord-est toute la journée, 36 km/h établis et rafales à 71 en début d'après-midi : cherchez les criques ouvertes au sud, sous une pointe. Les rivages tournés vers le nord prendront le clapot, et tout ce qui n'est pas lesté s'envolera."
     } },
 
-  { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"KAPE & temple de Poséidon", sun:SOUNION,
-    /* Le billet de Sounion est un créneau d'entrée horodaté, 17 h 30 – 18 h 30,
-       et il ne se déplace pas. C'est le seul point fixe de la journée : tout
-       ce qui précède doit lui céder le pas, y compris le bain du KAPE. */
+  { n:9, date:"2026-08-25", dow:"Mar", dm:"25 août", phase:2, title:"Repos, puis le temple de Poséidon", sun:SOUNION,
+    /* Deuxième journée de rien : Palea Fokea a été fait le 24, le KAPE tombe.
+       Il ne reste qu'un point fixe, et il est horodaté — l'entrée de Sounion à
+       17 h 30. Tout le reste de la journée lui cède le pas, et le départ se
+       fait directement du penthouse : vingt-deux kilomètres par la côte, une
+       demi-heure. */
     prep:[{ t:"Les billets de Sounion, et les pièces d'identité",
             d:"Le créneau d'entrée est horodaté et ne se déplace pas. Les billets sont des QR codes sur le téléphone : mettez-les en captures d'écran ce soir, pour ne pas dépendre du réseau ni d'une batterie vidée par une journée de plage. Et sortez les pièces d'identité de Hilal et Layal — le billet gratuit « 18-25 ans, UE » se contrôle au portail, sur justificatif d'âge et de nationalité." }],
     matin:[ {t:"plain", ttl:"Matinée libre", when:"à partir de 9 h 30",
-             corrige:"Palea Fokea ayant été fait le 24, la matinée se libère : on ne bouge qu'à 14 h.",
-             det:"Rien n'est prévu jusqu'au déjeuner — terrasse, lecture, ou la plage en bas",
-             note:"Si l'envie d'un masque revient, les criques noires de Mavro Lithari sont à vingt minutes à pied du penthouse, ou quatre en voiture. Vent faible ce matin-là — 13 km/h à 9 h, 20 à 11 h — la surface reste lisible jusqu'à midi. C'est aussi la fenêtre du drone."} ],
-    aprem:[ {t:"depart", ttl:"Départ", when:"14 h", map:dir(SARONIDA,"37.672,23.988")},
-            {t:"swim", ttl:"Criques du KAPE", ll:"37.6720,23.9880", det:"Fonds rocheux — masque et tuba", gear:true, when:"14 h 20 – 16 h 45",
-            note:"Le bain s'arrête à 16 h 45, sans discussion : le créneau de Sounion ne se rattrape pas.",
-            vig:"Entrée sur rochers, et des oursins dans les creux : chaussures d'eau, et on regarde avant de poser le pied."} ],
-    soir:[ {t:"depart", ttl:"Départ pour le cap", when:"17 h", map:dir("37.672,23.988","37.6503,24.0247"),
-            corrige:"Avancé de 15 min : le billet est un créneau horodaté, et 15 min de marge n'en étaient pas.",
+             corrige:"Seconde journée de repos : le KAPE tombe, on ne bouge que pour Sounion.",
+             det:"Rien n'est prévu — terrasse, lecture, ou une balade dans Saronida",
+             note:"Si l'envie d'un masque revient, les criques noires de Mavro Lithari sont à vingt minutes à pied du penthouse, ou quatre en voiture. Vent faible jusqu'à midi — 13 km/h à 9 h, 20 à 11 h. C'est aussi la dernière fenêtre du séjour pour le drone."} ],
+    aprem:[ {t:"plain", ttl:"Terrasse et pastèque", when:"14 h – 16 h 15",
+             det:"À l'ombre, au frais — la pastèque du 24 sort du frigo, c'est ce qu'on a de mieux contre 35°",
+             vig:"35° et 33 de ressenti l'après-midi, mais 25 km/h de brise : on ne sent pas la chaleur et l'on oublie de boire. Buvez avant d'avoir soif, surtout avant de partir — le cap n'a pas un mètre d'ombre.",
+             note:"C'est le dernier après-midi sans horaire du séjour : demain il faut être debout à 7 h, et jeudi on part."} ],
+    soir:[ {t:"depart", ttl:"Départ pour le cap", when:"16 h 30", map:dir(SARONIDA,"37.6503,24.0247"),
+            corrige:"On part maintenant du penthouse et non plus du KAPE : 22 km par la côte au lieu de 7.",
             alarme:"Départ pour Sounion — entrée à 17 h 30, ce créneau ne se déplace pas",
-            det:"7 km par la côte — une quinzaine de minutes, plus le parking et la montée au portail"},
+            det:"22 km par la route côtière — une demi-heure, plus le parking et la montée au portail"},
            {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"17 h 30 – 18 h 30",
             det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true,
             vig:"Créneau d'entrée horodaté, 17 h 30 – 18 h 30 : il ne se déplace pas et ne se rattrape pas. Quatre QR codes à présenter au portail, et les pièces d'identité pour le tarif « 18-25 ans, UE » de Hilal et Layal — sans justificatif d'âge et de nationalité, la gratuité tombe et le billet se repaie plein tarif.",
@@ -2091,7 +2093,10 @@ const DAYS = [
            {t:"plain", ttl:"Le couchant sur le cap", when:"19 h 15 – 20 h 04",
             det:"L'heure où la lumière prend le marbre — c'est ce que Byron est venu voir",
             vig:"Votre billet donne l'entrée entre 17 h 30 et 18 h 30 ; il ne dit pas jusqu'à quand vous pouvez rester. Le site ferme au couchant selon la plupart des sources, mais posez la question au portail en entrant : c'est la seule réponse qui compte.",
-            note:"Si l'on vous fait sortir avant, le couchant se regarde très bien depuis la route en contrebas et depuis la terrasse du café, à 200 m — le temple se découpe alors sur le ciel, ce qui est le meilleur angle de toute façon."} ] },
+            note:"Si l'on vous fait sortir avant, le couchant se regarde très bien depuis la route en contrebas et depuis la terrasse du café, à 200 m — le temple se découpe alors sur le ciel, ce qui est le meilleur angle de toute façon."},
+           {t:"food", ttl:"Dîner au retour", when:"~21 h", ll:"37.7440,23.9050",
+            det:"Une demi-heure de route depuis le cap — Stou Stavrou à Saronida, ou la terrasse du penthouse",
+            note:"Personne n'aura envie de chercher après le couchant : décidez avant de partir, pas au retour."} ] },
 
   { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
     dej:{ de:"7 h", a:"7 h 30",
@@ -2387,10 +2392,10 @@ const DEJEUNERS = {
       det:"Avec ce qu'il y a — c'est une journée sans horaire, le repas n'en a pas non plus.",
       note:"Le soir est la sortie de la journée : gardez de l'appétit pour la pizza.",
       bonplan:"Si l'envie d'une vraie table se fait sentir malgré tout, les tavernes du port de Palea Fokea sont à quinze minutes : Ta Pefka sous ses pins, qui coupent le vent, ou CHE.MA. pour les grillades. Mais rien n'y oblige aujourd'hui." } },
-  9:{ rang:0, it:{ t:"repas", ttl:"Déjeuner", when:"12 h 15 – 13 h 30",
-      det:"Avant de partir : le KAPE n'a rien, et vous enchaînez jusqu'au couchant à Sounion.",
-      note:"Départ à 14 h",
-      bonplan:"Rien à acheter en route vers le KAPE ni à Sounion : ce déjeuner est le dernier avant le dîner." } },
+  9:{ rang:0, it:{ t:"repas", ttl:"Pique-nique sur la terrasse", when:"12 h 30 – 13 h 45",
+      det:"Simple et sur place, avec ce qu'il reste — on ne sort pas la voiture pour déjeuner.",
+      note:"Puis la pastèque, au frais",
+      bonplan:"C'est le dernier vrai repas avant le couchant : ni le cap ni la route n'ont de quoi acheter, et le dîner n'aura pas lieu avant 21 h. Prenez de quoi tenir, et une bouteille d'eau par personne dans la voiture." } },
   10:{ rang:0, it:{ t:"repas", ttl:"Repas fourni à bord", when:"~12 h",
       det:"Pendant la sortie, à l'un des mouillages. Le prestataire s'occupe de tout, comme le 20.",
       note:"Rien à emporter — la sortie rend à quai à 13 h",
@@ -3657,7 +3662,7 @@ const MER_SPOTS = {
   4:[{ n:"Croisière — Hydrousa & Varkiza", lat:37.8050, lon:23.7950, de:17, a:21 }],
   7:[{ n:"Criques de Limanakia", lat:37.8065, lon:23.7785, de:9, a:16 }],
   8:[{ n:"Palea Fokea — rochers", lat:37.7180, lon:23.9450, de:9, a:11 }],
-  9:[{ n:"Criques du KAPE", lat:37.6720, lon:23.9880, de:14, a:17 }],
+  /* Plus de baignade le 25 : la journée est au repos, puis à Sounion. */
   10:[{ n:"Baie de Porto Rafti", lat:37.886925, lon:24.014343, de:9, a:18 }]
 };
 const TOUS_SPOTS = (() => {
