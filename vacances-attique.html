@@ -2110,9 +2110,11 @@ const DAYS = [
             det:"L'heure où la lumière prend le marbre — c'est ce que Byron est venu voir",
             vig:"Deux choses. Votre billet donne l'entrée entre 17 h 30 et 18 h 30 ; il ne dit pas jusqu'à quand vous pouvez rester — posez la question au portail en entrant, c'est la seule réponse qui compte. Et le retour à la voiture se fera vers 20 h 15, en pleine lumière tombante : la nuit civile ne dure qu'une demi-heure après le couchant, et le gravier se lit mal à ce moment-là. Allumez la lampe du téléphone pour la descente plutôt qu'après avoir glissé.",
             note:"Si l'on vous fait sortir avant, le couchant se regarde très bien depuis la route en contrebas et depuis la terrasse du café, à 200 m — le temple se découpe alors sur le ciel, ce qui est le meilleur angle de toute façon."},
-           {t:"food", ttl:"Dîner au retour", when:"~21 h", ll:"37.7440,23.9050",
-            det:"Une demi-heure de route depuis le cap — Stou Stavrou à Saronida, ou la terrasse du penthouse",
-            note:"Personne n'aura envie de chercher après le couchant : décidez avant de partir, pas au retour."} ] },
+           {t:"food", ttl:"Dîner chez Stou Stavrou", when:"~21 h", ll:"37.7440,23.9050",
+            corrige:"C'est là que ça s'est joué : pizzas au retour du cap, Kefallinias 5.",
+            det:"Στου Σταύρου, à Saronida — pizzeria autant que taverne, 4,5 sur 490 avis, ouverte jusqu'à minuit",
+            map:"https://www.google.com/maps/search/?api=1&query=Stou+Stavrou+Kefallinias+5+Saronida",
+            note:"Retenez l'adresse pour demain soir : ouverte jusqu'à minuit, elle fait aussi l'emporter et la livraison. Avec un retour de Porto Rafti à 19 h 15 et le matériel à rincer, c'est le repli qui ne demande rien à personne. Tél. 2291 060072."} ] },
 
   { n:10, date:"2026-08-26", dow:"Mer", dm:"26 août", phase:2, title:"Croisière à Porto Rafti", sun:SARO,
     dej:{ de:"7 h", a:"7 h 30",
@@ -2167,7 +2169,8 @@ const DAYS = [
             note:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen.",
             det:"Demain il ne reste que la terrasse, le déjeuner, la route et le plein"},
            {t:"food", ttl:"Dernier dîner — Porto ou Galene", when:"~20 h 45", ll:"37.7290,23.9330",
-            det:"Grill de poisson à Anavyssos — le meilleur du coin, gardé pour la fin"} ],
+            det:"Grill de poisson à Anavyssos — le meilleur du coin, gardé pour la fin",
+            note:"Repli si la journée a été trop longue : Stou Stavrou, à Saronida, est ouverte jusqu'à minuit et livre — vous rentrez à 19 h 15 avec le matériel à rincer et les valises à finir. Une pizza à l'appartement n'est pas un renoncement ce soir-là. Tél. 2291 060072."} ],
     autour:{
       titre:"Autour de Porto Rafti",
       intro:"Hors programme — vous êtes à 55 km de Saronida, autant ne pas repartir tout de suite. Tout est à moins de 20 min du terminal, sur le chemin du retour.",
@@ -6008,9 +6011,9 @@ function renderCarnet(){
           <p class="fixe"><span>Version44 — café et pizzeria, elle livre</span>
             <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${
               encodeURIComponent("Version44 coffee Pizza Saronida")}" target="_blank" rel="noopener noreferrer">Avenue de Saronida</a></p>
-          <p class="fixe"><span>Stou Stavrou — taverne du village</span>
+          <p class="fixe"><span>Στου Σταύρου — pizzeria et taverne, 4,5 sur 490 avis, ouverte jusqu'à minuit, emporter et livraison. Tél. <a href="tel:+302291060072">2291 060072</a></span>
             <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${
-              encodeURIComponent("Stou Stavrou Saronida Greece")}" target="_blank" rel="noopener noreferrer">Saronida</a></p>
+              encodeURIComponent("Stou Stavrou Kefallinias 5 Saronida")}" target="_blank" rel="noopener noreferrer">Kefallinias 5</a></p>
         </div>
       </article>
 
