@@ -2482,10 +2482,12 @@ function packFor(day){
     out.push(rentrable ? "Maillot — serviette à l'hôtel" : "Maillot & serviette");
   }
   if (items.some(i => i.t === "site")) out.push("Billets", "Eau, chapeau, crème");
-  if (items.some(i => /colline|acropole|stade|philopappos|lycabette/i.test(i.ttl))) out.push("Chaussures qui tiennent");
+  if (items.some(i => /colline|acropole|stade|philopappos|lycabette|poséidon|brauron|koroni/i.test(i.ttl)))
+    out.push("Chaussures qui tiennent");
   if (items.some(i => i.sunset)) out.push("De quoi couvrir les épaules au couchant");
   if (items.some(i => /croisi/i.test(i.ttl))) out.push("Coupe-vent pour le retour");
-  if (items.some(i => i.t === "travel")) out.push("Passeports & réservations");
+  /* Les pieds gonflent en vol, et le contrôle se passe en chaussettes. */
+  if (items.some(i => i.t === "travel")) out.push("Passeports & réservations", "Chaussures fermées pour le vol");
   /* Les marchés grecs ne donnent pas de sac, et l'on repart rarement les
      mains vides d'une halle aux épices. */
   if (items.some(i => i.t === "courses")) out.push("Un sac pliable, et des espèces");
@@ -5943,6 +5945,30 @@ function renderCarnet(){
               esc(c.o)} · ${esc(c.km)}</a></p>`).join("")}
           <p class="carnetintro" style="grid-column:auto"><b>Ce qu'on évite :</b>
             ${CRIQUES_EVITE}</p>
+        </div>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <header>
+          <h3>Aux pieds</h3>
+          <p>La question n'est pas la température mais le sol. Trois paires couvrent tout le séjour.</p>
+        </header>
+        <div class="inner">
+          <p class="fixe"><span><b>Chaussons de roche</b> (néoprène, semelle épaisse) — criques, entrées dans l'eau, pont du bateau</span><b>indispensable</b></p>
+          <p class="fixe"><span><b>Sandales à bride arrière</b> — le port, les tavernes, les soirées. Pas des tongs dès qu'il y a une pente ou du gravier</span><b>le quotidien</b></p>
+          <p class="fixe"><span><b>Baskets légères et aérées</b> — Sounion, Brauron, la pointe de Koroni, et l'avion du 27</span><b>les sites</b></p>
+          <p class="carnetintro" style="grid-column:auto"><b>Pieds nus sur la roche au soleil : jamais.</b>
+            Par 35° d'air, une roche sombre monte à 55-65° en surface et la brûlure vient en quelques secondes —
+            c'est l'accident classique du mois d'août, et Mavro Lithari est précisément de la roche noire.
+            Les chaussons se gardent du départ au retour, pas seulement dans l'eau.
+            <br><br><b>Fermé ne veut pas dire mieux.</b> Une basket sans chaussette par 35°, c'est une ampoule
+            garantie sur trois kilomètres : si vous fermez, mettez une chaussette fine. Et gardez le pied nu
+            pour les sandales, jamais pour les baskets.
+            <br><br><b>Les tongs ont deux endroits où elles sont dangereuses</b> : la montée en gravier de Sounion,
+            où elles glissent, et toute entrée dans l'eau sur rochers, où elles se dérobent au mauvais moment.
+            Ailleurs, elles font parfaitement l'affaire.
+            <br><br><b>Le 27, prenez des chaussures fermées pour l'avion.</b> Les pieds gonflent en vol, et
+            les couloirs de l'aéroport se font en chaussettes au contrôle.</p>
         </div>
       </article>
 
