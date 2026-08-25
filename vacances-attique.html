@@ -266,6 +266,10 @@ main{padding-bottom:64px}
 .mot .ph{font-family:var(--mono); font-size:.8rem; color:var(--sea)}
 .mot.piege .ph{color:var(--ochre)}
 .mot .fr{font-size:.83rem; color:var(--ink-2)}
+/* Le repli quand le grec ne passe pas : dans une taverne, l'anglais marche
+   partout, et c'est sur ces phrases-là qu'on ne veut pas de malentendu. */
+.mot .an{display:block; margin-top:3px; font-size:.78rem; color:var(--ink-3); font-style:italic}
+.mot .an::before{content:"EN · "; font-family:var(--mono); font-style:normal; font-size:9px; letter-spacing:.1em}
 .chiffres-gr{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px}
 .chiffres-gr b{font-family:var(--mono); color:var(--ink)}
 .chiffres-gr i{font-style:normal; font-family:var(--mono); font-size:.76rem; color:var(--sea)}
@@ -5338,13 +5342,13 @@ const LEXIQUE = [
   { g:"Ναι",          p:"né",              f:"OUI — le piège : ça sonne comme « non »", piege:true },
   { g:"Όχι",          p:"O-khi",           f:"Non" },
   { g:"Συγγνώμη",     p:"si-GHNO-mi",      f:"Pardon, excusez-moi" },
-  { g:"Πόσο κάνει;",  p:"PO-so KA-ni",     f:"Combien ça coûte ?" },
-  { g:"Το λογαριασμό","p":"to loghariaz-MO", f:"L'addition, s'il vous plaît" },
+  { g:"Πόσο κάνει;",  p:"PO-so KA-ni",     f:"Combien ça coûte ?", en:"How much is it?" },
+  { g:"Το λογαριασμό","p":"to loghariaz-MO", f:"L'addition, s'il vous plaît", en:"The bill, please" },
   { g:"Πού είναι…;",  p:"POU I-né",        f:"Où est… ?" },
   { g:"Η παραλία",    p:"i para-LI-a",     f:"La plage" },
   { g:"Νερό",         p:"né-RO",           f:"De l'eau" },
   { g:"Φρέντο εσπρέσο", p:"FRÉ-do es-PRÈ-so", f:"Le café glacé du pays" },
-  { g:"Ένα τραπέζι για τέσσερις", p:"É-na tra-PÉ-zi ya TÉ-sé-riss", f:"Une table pour quatre" },
+  { g:"Ένα τραπέζι για τέσσερις", p:"É-na tra-PÉ-zi ya TÉ-sé-riss", f:"Une table pour quatre", en:"A table for four, please" },
   { g:"Τι προτείνετε;", p:"ti pro-TI-né-té", f:"Que recommandez-vous ?" },
   { g:"Κοτόπουλο",    p:"ko-TO-pou-lo",     f:"Du poulet" },
   { g:"Αρνί",         p:"ar-NI",            f:"De l'agneau" },
@@ -5352,10 +5356,10 @@ const LEXIQUE = [
   { g:"Χοιρινό",      p:"khi-ri-NO",        f:"Du porc — le mot à repérer sur un menu" },
   { g:"Ψάρι",         p:"PSA-ri",           f:"Du poisson" },
   { g:"Παγωτό",       p:"pa-gho-TO",        f:"Une glace" },
-  { g:"Μπορώ να έχω ένα παγωτό;", p:"bo-RO na É-kho É-na pa-gho-TO", f:"Puis-je avoir une glace ?" },
-  { g:"Μια βάφλα με Nutella", p:"mia VA-fla mé…", f:"Une gaufre au Nutella" },
-  { g:"Πόσο το κιλό;", p:"PO-so to ki-LO",  f:"Combien le kilo ? (pour le poisson)" },
-  { g:"Με κάρτα;",     p:"mé KAR-ta",        f:"Par carte ?" },
+  { g:"Μπορώ να έχω ένα παγωτό;", p:"bo-RO na É-kho É-na pa-gho-TO", f:"Puis-je avoir une glace ?", en:"Could I have an ice cream?" },
+  { g:"Μια βάφλα με Nutella", p:"mia VA-fla mé…", f:"Une gaufre au Nutella", en:"A waffle with Nutella" },
+  { g:"Πόσο το κιλό;", p:"PO-so to ki-LO",  f:"Combien le kilo ? (pour le poisson)", en:"How much per kilo?" },
+  { g:"Με κάρτα;",     p:"mé KAR-ta",        f:"Par carte ?", en:"Can I pay by card?" },
   { g:"Είναι μακριά;", p:"I-né ma-kri-A",    f:"C'est loin ?" },
   { g:"Πού είναι η τουαλέτα;", p:"POU I-né i toua-LÉ-ta", f:"Où sont les toilettes ?" },
   { g:"Γεια μας",     p:"YA mass",         f:"Santé ! (on trinque)" },
@@ -5919,6 +5923,7 @@ function renderCarnet(){
               </div>
               <span class="ph">${esc(l.p)}</span>
               <span class="fr">${esc(l.f)}</span>
+              ${l.en ? `<span class="an">${esc(l.en)}</span>` : ""}
             </div>`).join("")}
           </div>
           ${(!("speechSynthesis" in window) || (voixCherchees && !VOIX_EL)) ? `<p class="areserver">
