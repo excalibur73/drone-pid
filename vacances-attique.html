@@ -2082,12 +2082,20 @@ const DAYS = [
              det:"À l'ombre, au frais — la pastèque du 24 sort du frigo, c'est ce qu'on a de mieux contre 35°",
              vig:"35° et 33 de ressenti l'après-midi, mais 25 km/h de brise : on ne sent pas la chaleur et l'on oublie de boire. Buvez avant d'avoir soif, surtout avant de partir — le cap n'a pas un mètre d'ombre.",
              note:"C'est le dernier après-midi sans horaire du séjour : demain il faut être debout à 7 h, et jeudi on part."} ],
-    soir:[ {t:"depart", ttl:"Départ pour le cap", when:"17 h 15", map:dir(SARONIDA,"37.6503,24.0247"),
-            corrige:"Repoussé de 45 min : le créneau est une fenêtre d'entrée, pas de visite — autant y entrer tard et perdre une heure de soleil.",
-            alarme:"Départ pour Sounion — entrée avant 18 h 30, et ce créneau ne se déplace pas",
-            det:"22 km par la route côtière — une demi-heure, plus le parking et la montée au portail",
-            note:"Arrivée au cap vers 17 h 45, au portail vers 17 h 55 : trente-cinq minutes de marge avant que la fenêtre ne se ferme. Si le portail est désert, rien n'empêche de s'asseoir au café d'à côté et de n'entrer qu'à 18 h 10 — mais ne descendez pas sous vingt minutes de marge, le billet ne se rattrape pas."},
-           {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"17 h 30 – 18 h 30",
+    soir:[ {t:"depart", ttl:"Départ pour le cap", when:"17 h", map:dir(SARONIDA,"37.6503,24.0247"),
+            corrige:"Avancé de 15 min pour caser le sanctuaire d'Athéna avant d'entrer chez Poséidon.",
+            alarme:"Départ pour Sounion — entrée chez Poséidon avant 18 h 30, ce créneau ne se déplace pas",
+            det:"22 km par la route côtière — une demi-heure, plus le parking",
+            note:"Arrivée au cap vers 17 h 30. L'attente avant d'entrer cesse d'en être une : le sanctuaire d'Athéna se visite d'abord, gratuitement, puis l'on passe au portail vers 18 h 05 — vingt-cinq minutes de marge avant la fermeture de la fenêtre."},
+           {t:"site", ttl:"Sanctuaire d'Athéna Sounias", when:"17 h 35 – 17 h 55", ll:"37.6520,24.0272",
+            det:"Sur la colline à l'est de l'entrée, à 400 m — gratuit et hors de l'enceinte, personne n'y va",
+            map:"https://www.google.com/maps/search/?api=1&query=Temple+of+Athena+Sounion",
+            note:"Aucun billet : il est en dehors du site clôturé de Poséidon. C'est ce qui permet de le voir avant d'entrer, et donc d'entrer plus tard chez Poséidon — le contraire aurait obligé à ressortir.",
+            vig:"Vingt minutes suffisent : ce sont des fondations, pas des colonnes debout. Ne débordez pas — c'est le billet de Poséidon qui commande, et il ne se rattrape pas."},
+           /* L'heure affichée est celle de la visite, pas celle du billet : le
+              créneau d'entrée figure en tête de la vigilance, et une étape qui
+              commençait à 17 h 30 passait pour être avant Athéna. */
+           {t:"site", ttl:"Temple de Poséidon", ll:"37.6503,24.0245", when:"18 h 05 – 19 h 15",
             det:"Cap Sounion — cherchez la colonne signée par Byron !", sunset:true,
             bonplan:"Entrez au plus tard dans la fenêtre plutôt qu'au plus tôt : c'est l'UV qui coûte, pas la température. Au cap, il tombe de 6,2 à 16 h à 4,7 à 17 h, 3,0 à 18 h et 1,4 à 19 h. Une heure gagnée, c'est un tiers d'UV en moins sur un site sans un mètre d'ombre. L'air, lui, ne bouge presque pas : 33,4° à 17 h, 32,4 à 18 h, 31,2 à 19 h, avec 20 km/h de brise.",
             vig:"Créneau d'entrée horodaté, 17 h 30 – 18 h 30 : il ne se déplace pas et ne se rattrape pas. Quatre QR codes à présenter au portail, et les pièces d'identité pour le tarif « 18-25 ans, UE » de Hilal et Layal — sans justificatif d'âge et de nationalité, la gratuité tombe et le billet se repaie plein tarif.",
@@ -2824,6 +2832,15 @@ const SAVOIRS = {
       "En contrebas, la mer d'où Égée se serait jeté en voyant revenir les voiles noires de Thésée. La mer Égée porte son nom."
     ],
     mot:"Le couchant y est à 20 h 04 : arrivez avant, la lumière change vite."
+  },
+  "Sanctuaire d'Athéna Sounias":{
+    quoi:"Le second sanctuaire du cap, sur la colline basse à l'est. Athéna Sounias y était honorée à côté de Poséidon — le promontoire portait donc deux cultes, et non un seul. Il ne reste que des fondations, et c'est pour cela que personne ne s'y arrête.",
+    regarder:[
+      "Le plan du temple, qui est son intérêt : la colonnade ne courait que sur deux côtés, l'est et le sud, au lieu d'entourer le bâtiment. Vitruve l'a relevé comme une anomalie, et l'on en discute encore.",
+      "Les fondations d'un second temple, plus petit et plus ancien, à quelques mètres — deux états superposés du même culte.",
+      "La vue sur le temple de Poséidon depuis ici : c'est le seul endroit d'où l'on voit les deux sanctuaires dans le même regard, et il est gratuit."
+    ],
+    mot:"Le cap portait deux dieux ; on ne se souvient que d'un."
   },
   "Croisière de Porto Rafti":{
     quoi:"Une baie profonde, presque fermée, gardée par deux îlots. Le grand porte une statue de marbre colossale d'époque romaine, assise, dont on ignore encore qui elle représente.",
