@@ -2145,7 +2145,7 @@ const DAYS = [
              det:"Quatre arrêts : le fjord, l'îlot, la grotte et le Lagon bleu — on saute du pont ou l'on descend par l'échelle",
              note:"Un maître-nageur est à bord, et des flotteurs sont disponibles. Le bateau prête aussi masques et tubas : les vôtres restent meilleurs, mais si l'un casse il y a de quoi dépanner. Une zone ombragée et un salon permettent de sortir du soleil entre deux bains."},
             {t:"depart", ttl:"Retour direct vers Saronida", when:"13 h 15", map:dir("37.8868674,24.0143872",SARONIDA),
-             corrige:"On rentre déjeuner à l'appartement : douche au savon et à l'eau douce plutôt qu'un rinçage de fortune.",
+             corrige:"Fait : rentrés à l'appartement vers 14 h, comme prévu.",
              det:"55 km par Markopoulo — trois quarts d'heure, plein de carburant au passage",
              alarme:"On rentre — le plein se fait à Markopoulo, la voiture se rend pleine demain",
              note:"Dernier passage en ville : pharmacie si besoin, et surtout l'essence. Il n'y a plus d'occasion après."},
@@ -2155,7 +2155,7 @@ const DAYS = [
              note:"C'est le vrai bénéfice du retour : plus de sel qui tire jusqu'au soir, et le matériel sec avant la nuit."} ],
     soir:[ {t:"plain", ttl:"Après-midi et soirée libres", when:"15 h 30 – 20 h 30",
             det:"Terrasse à l'ombre, sieste, tri des photos — la journée a commencé à 7 h et il reste les valises",
-            note:"Si l'envie d'un dernier bain vient, les rochers de Saronida sont à 450 m et la mer est à 28° sans un souffle de vent. Mais rincez de nouveau en remontant : ce qui sèche depuis 15 h 30 ne doit pas repartir salé à 19 h. Et gardez 19 h 15 pour le drone : le pavé plus bas donne la pointe, les réglages et le coucher à 20 h 02."},
+            note:"Si l'envie d'un dernier bain vient, les rochers de Saronida sont à 450 m et la mer est à 28° sans un souffle de vent. Mais rincez de nouveau en remontant : ce qui sèche depuis 15 h 30 ne doit pas repartir salé à 19 h. Et gardez 19 h 30 pour le drone : le pavé plus bas donne la pointe, les réglages et le coucher à 20 h 02."},
            {t:"plain", ttl:"Les valises, et les passeports", when:"vers 19 h",
             vig:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen. Vérifiez les fils à linge de la terrasse, le frigo, et sous les lits.",
             det:"Demain il ne reste que la terrasse, le déjeuner, la route et le plein"},
@@ -3547,11 +3547,12 @@ const DRONE = {
       vent:"10 à 15 km/h le matin, puis 20 avec des rafales à 39 l'après-midi. La fenêtre propre se ferme vers 11 h 30." },
   10:{ intro:"Rien à Porto Rafti le matin : l'aéroport est à douze kilomètres et la zone de contrôle mord sur toute la baie — le drone reste dans le coffre. Mais vous rentrez à 14 h 15, et la soirée de Saronida est la meilleure fenêtre du séjour.",
       spots:[
-        { n:"La pointe sud de la baie de Saronida", quand:"19 h 15 – 20 h 20", km:"~600 m à pied",
+        { n:"La pointe sud de la baie de Saronida", quand:"19 h 30 – 20 h 20", km:"~600 m à pied",
           d:"La pointe rocheuse qui ferme la baie au sud, celle avec la maison isolée. Le soleil se couche plein ouest dans le golfe Saronique, avec Égine en silhouette — et la roche donne le premier plan découpé qui manque à un couchant filmé au large. Décollez depuis le rivage public au nord de la pointe, pas depuis le terrain de la maison, et ne survolez pas celle-ci : c'est une habitation, pas un décor.",
           q:"Saronida beach Greece" }
       ],
       vent:"Les meilleures conditions possibles : 9 km/h à 19 h, 6,5 à 20 h, rafales sous 24, et un vent d'est — donc venu de la terre. Aucune turbulence sur l'eau, et si l'appareil dérive vers le large il rentre vent debout. Coucher du soleil à 20 h 02.",
+      minutage:"Décollage à 19 h 30 : trente minutes de lumière rasante avant que le soleil ne touche l'horizon, puis l'après-coucher, qui donne souvent les meilleures couleurs entre 20 h 02 et 20 h 15. Cela fait cinquante minutes de créneau pour une autonomie qui n'en couvre pas tant : prévoyez deux batteries, ou gardez la principale pour les dix minutes avant et les dix après. Le reste est du repérage, et il se fait à pied.",
       technique:"Quatre choses qui décident du résultat. Un — verrouillez l'exposition à la main et sous-exposez d'un cran : en filmant plein ouest, l'automatique brûle le soleil et cherche sa mise au point à chaque mouvement. Deux — restez bas, vingt à quarante mètres au-dessus de l'eau : à cent mètres un couchant n'est plus qu'un trait. Trois — il fera 31° à 19 h, et un appareil qui a passé la journée dans la voiture bridera ; sortez-le à l'ombre en rentrant. Quatre — réglez le retour automatique au-dessus des arbres et de la ligne électrique qui longe la route, et posez avant qu'il fasse vraiment nuit : les capteurs d'obstacles ne voient rien en lumière basse.",
       bagage:"C'est le dernier vol du séjour : demain les batteries voyagent en cabine, bornes protégées et charge autour de 30 %. Videz les cartes sur l'ordinateur ce soir plutôt qu'à l'aéroport." },
   11:{ intro:"Journée de départ, et le meltémi revient. Le drone est rangé dans un bagage — pensez aux batteries.",
@@ -3581,6 +3582,7 @@ function droneHTML(d){
       </div>`).join("")}
     </div>` : ""}
     <p class="ventnote"><svg><use href="#i-wind"/></svg>${esc(b.vent)}</p>
+    ${b.minutage ? `<p class="dloi"><svg><use href="#i-info"/></svg><span><b>Le minutage :</b> ${esc(b.minutage)}</span></p>` : ""}
     ${b.technique ? `<p class="dloi"><svg><use href="#i-info"/></svg><span><b>Pour que ce soit réussi :</b> ${esc(b.technique)}</span></p>` : ""}
     ${b.bagage ? `<p class="dloi"><svg><use href="#i-info"/></svg><span><b>Dans les bagages :</b> ${esc(b.bagage)}</span></p>` : ""}
     ${loi}
