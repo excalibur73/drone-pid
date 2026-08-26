@@ -2155,7 +2155,7 @@ const DAYS = [
              note:"C'est le vrai bénéfice du retour : plus de sel qui tire jusqu'au soir, et le matériel sec avant la nuit."} ],
     soir:[ {t:"plain", ttl:"Après-midi et soirée libres", when:"15 h 30 – 20 h 30",
             det:"Terrasse à l'ombre, sieste, tri des photos — la journée a commencé à 7 h et il reste les valises",
-            note:"Si l'envie d'un dernier bain vient, les rochers de Saronida sont à 450 m et la mer est à 28° sans un souffle de vent. Mais rincez de nouveau en remontant : ce qui sèche depuis 15 h 30 ne doit pas repartir salé à 19 h."},
+            note:"Si l'envie d'un dernier bain vient, les rochers de Saronida sont à 450 m et la mer est à 28° sans un souffle de vent. Mais rincez de nouveau en remontant : ce qui sèche depuis 15 h 30 ne doit pas repartir salé à 19 h. Et gardez 19 h 15 pour le drone : le pavé plus bas donne la pointe, les réglages et le coucher à 20 h 02."},
            {t:"plain", ttl:"Les valises, et les passeports", when:"vers 19 h",
             vig:"Passeports sortis et posés à part dès ce soir : le retour passe par Londres, donc hors Schengen. Vérifiez les fils à linge de la terrasse, le frigo, et sous les lits.",
             det:"Demain il ne reste que la terrasse, le déjeuner, la route et le plein"},
@@ -3545,13 +3545,15 @@ const DRONE = {
           q:"Mavro Lithari Anavyssos Greece" }
       ],
       vent:"10 à 15 km/h le matin, puis 20 avec des rafales à 39 l'après-midi. La fenêtre propre se ferme vers 11 h 30." },
-  10:{ intro:"Journée sans vol, et ce n'est pas le vent qui l'interdit. Vous passez la journée entière à Porto Rafti, et l'aéroport est à douze kilomètres : la zone de contrôle mord sur toute la baie. Le drone reste dans le coffre — ce serait l'endroit et le jour où l'amende tombe.",
+  10:{ intro:"Rien à Porto Rafti le matin : l'aéroport est à douze kilomètres et la zone de contrôle mord sur toute la baie — le drone reste dans le coffre. Mais vous rentrez à 14 h 15, et la soirée de Saronida est la meilleure fenêtre du séjour.",
       spots:[
-        { n:"Rochers de Saronida, au retour", quand:"19 h 30 – 20 h 03", km:"450 m à pied",
-          d:"La seule fenêtre de la journée, et elle est étroite : rentrés vers 19 h 15, il vous reste trois quarts d'heure avant le couchant, et le matériel à rincer. Si l'énergie est là, l'eau à quatre centimètres de houle se lit d'aplomb depuis 60 m — c'est le jour des plans de transparence. Sinon, c'est sans regret : mardi matin à Palea Fokea vaut mieux.",
+        { n:"La pointe sud de la baie de Saronida", quand:"19 h 15 – 20 h 20", km:"~600 m à pied",
+          d:"La pointe rocheuse qui ferme la baie au sud, celle avec la maison isolée. Le soleil se couche plein ouest dans le golfe Saronique, avec Égine en silhouette — et la roche donne le premier plan découpé qui manque à un couchant filmé au large. Décollez depuis le rivage public au nord de la pointe, pas depuis le terrain de la maison, et ne survolez pas celle-ci : c'est une habitation, pas un décor.",
           q:"Saronida beach Greece" }
       ],
-      vent:"Le meilleur jour de la semaine : 0,7 km/h à 10 h, moins de 12 km/h toute la journée, rafales sous 25. Si vous ne devez voler qu'une fois, c'est aujourd'hui." },
+      vent:"Les meilleures conditions possibles : 9 km/h à 19 h, 6,5 à 20 h, rafales sous 24, et un vent d'est — donc venu de la terre. Aucune turbulence sur l'eau, et si l'appareil dérive vers le large il rentre vent debout. Coucher du soleil à 20 h 02.",
+      technique:"Quatre choses qui décident du résultat. Un — verrouillez l'exposition à la main et sous-exposez d'un cran : en filmant plein ouest, l'automatique brûle le soleil et cherche sa mise au point à chaque mouvement. Deux — restez bas, vingt à quarante mètres au-dessus de l'eau : à cent mètres un couchant n'est plus qu'un trait. Trois — il fera 31° à 19 h, et un appareil qui a passé la journée dans la voiture bridera ; sortez-le à l'ombre en rentrant. Quatre — réglez le retour automatique au-dessus des arbres et de la ligne électrique qui longe la route, et posez avant qu'il fasse vraiment nuit : les capteurs d'obstacles ne voient rien en lumière basse.",
+      bagage:"C'est le dernier vol du séjour : demain les batteries voyagent en cabine, bornes protégées et charge autour de 30 %. Videz les cartes sur l'ordinateur ce soir plutôt qu'à l'aéroport." },
   11:{ intro:"Journée de départ, et le meltémi revient. Le drone est rangé dans un bagage — pensez aux batteries.",
       spots:[],
       vent:"15 km/h à 9 h, puis 30 et des rafales à 55 dès 10 h. Rien à tenter.",
@@ -3579,6 +3581,7 @@ function droneHTML(d){
       </div>`).join("")}
     </div>` : ""}
     <p class="ventnote"><svg><use href="#i-wind"/></svg>${esc(b.vent)}</p>
+    ${b.technique ? `<p class="dloi"><svg><use href="#i-info"/></svg><span><b>Pour que ce soit réussi :</b> ${esc(b.technique)}</span></p>` : ""}
     ${b.bagage ? `<p class="dloi"><svg><use href="#i-info"/></svg><span><b>Dans les bagages :</b> ${esc(b.bagage)}</span></p>` : ""}
     ${loi}
     <p class="dloi"><svg><use href="#i-map"/></svg><span>La carte officielle, à ouvrir avant chaque vol :
