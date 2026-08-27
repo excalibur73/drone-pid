@@ -1051,31 +1051,31 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
   overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
 }
 .ajouter{position:relative}
-.relance{
-  margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
+.manque{
+  display:block; margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
   background:color-mix(in oklab,var(--ochre) 11%,transparent);
   border-left:3px solid var(--ochre);
   font-size:.85rem; line-height:1.55; color:var(--ink-2);
 }
-.relance > p:first-child{display:flex; gap:7px; align-items:baseline}
-.relance svg{width:14px; height:14px; color:var(--ochre); flex:0 0 auto; transform:translateY(2px)}
-.relance b{color:var(--ochre)}
-.relance .perso{
+.manque > p:first-child{display:flex; gap:7px; align-items:baseline}
+.manque svg{width:14px; height:14px; color:var(--ochre); flex:0 0 auto; transform:translateY(2px)}
+.manque b{color:var(--ochre)}
+.manque .perso{
   margin-top:8px; padding:7px 10px; border-radius:var(--r-sm);
   background:var(--surface); color:var(--ink); font-weight:600;
 }
-.relance .perso.fait{background:color-mix(in oklab,var(--sea) 12%,transparent); font-weight:500}
-.relance .pied{margin-top:8px; font-size:.79rem; color:var(--ink-3); font-style:italic}
-.relance ul{list-style:none; margin-top:8px; display:flex; flex-direction:column; gap:5px}
-.relance li{padding-left:14px; position:relative}
-.relance li::before{content:"·"; position:absolute; left:4px; color:var(--ochre); font-weight:700}
-.relance.vive{animation:vigil 1.9s ease-in-out infinite}
-.relance.complet{
+.manque .perso.fait{background:color-mix(in oklab,var(--sea) 12%,transparent); font-weight:500}
+.manque .pied{margin-top:8px; font-size:.79rem; color:var(--ink-3); font-style:italic}
+.manque ul{list-style:none; margin-top:8px; display:flex; flex-direction:column; gap:5px}
+.manque li{padding-left:14px; position:relative}
+.manque li::before{content:"·"; position:absolute; left:4px; color:var(--ochre); font-weight:700}
+.manque.vive{animation:vigil 1.9s ease-in-out infinite}
+.manque.complet{
   display:flex; gap:7px; align-items:baseline; border-left-color:var(--sea);
   background:color-mix(in oklab,var(--sea) 9%,transparent);
 }
-.relance.complet svg{color:var(--sea)}
-@media (prefers-reduced-motion:reduce){ .relance.vive{animation:none} }
+.manque.complet svg{color:var(--sea)}
+@media (prefers-reduced-motion:reduce){ .manque.vive{animation:none} }
 .refus{
   margin-top:12px; padding:11px 13px; border-radius:var(--r-sm);
   background:color-mix(in oklab,var(--ochre) 13%,transparent);
@@ -4347,7 +4347,7 @@ function relanceHTML(d){
   const sansNote  = FAMILLE.filter(f => !(duJour[f.id] && duJour[f.id].note));
   const sansMot   = FAMILLE.filter(f => !aEcrit(f));
   if (!sansPhoto.length && !sansNote.length && !sansMot.length)
-    return `<p class="relance complet"><svg><use href="#i-info"/></svg>
+    return `<p class="manque complet"><svg><use href="#i-info"/></svg>
       Journée complète : tout le monde a déposé une photo, mis une note et laissé un mot.</p>`;
 
   const total = FAMILLE.length;
@@ -4374,7 +4374,7 @@ function relanceHTML(d){
       : `<p class="perso fait">${esc(moi ? moi.nom : "Vous")}, vous avez fait votre part pour cette journée.</p>`;
   }
   const ecart = DAYS[auj].n - d.n;
-  return `<div class="relance${ecart <= 1 ? " vive" : ""}">
+  return `<div class="manque${ecart <= 1 ? " vive" : ""}">
     <p><svg><use href="#i-info"/></svg><b>Il manque quelque chose au ${esc(DOW_FULL[d.dow])} ${esc(d.dm)}</b></p>
     ${perso}
     <ul>${lignes}</ul>
@@ -4802,6 +4802,68 @@ function majEtatBilan(t){
   if (el) el.textContent = t;
 }
 
+/* ═══════════════  CE QUI MANQUE AU BILAN, TOUT LE SÉJOUR  ═══════════════
+   Le pavé de relance dit ce qui manque à une journée ; encore faut-il ouvrir
+   les onze. Ici, le compte d'ensemble — et la même règle qu'ailleurs : on ne
+   nomme que celui qui lit.
+
+   L'ordre n'est pas celui des quantités mais celui de l'effet. Les podiums
+   d'abord : le classement du séjour s'additionne à partir d'eux, et s'ils
+   viennent d'une seule personne, le « best-of » n'est que son goût. Les notes
+   ensuite, qui font la moyenne. Les mots, qui font le souvenir. Les photos,
+   qui sont déjà là ou ne le seront jamais.                                  */
+function manqueBilanHTML(){
+  const total = FAMILLE.length, nj = DAYS.length;
+  let notes = 0, mots = 0, photos = 0, podiums = 0, joursSansPodium = 0;
+  DAYS.forEach(d => {
+    const j = AVIS[d.n] || {}, pj = PHOTOS.podiums[String(d.n)] || {};
+    FAMILLE.forEach(f => {
+      const e = j[f.id] || {};
+      if (!e.note) notes++;
+      if (!(e.txt || "").trim()) mots++;
+      if (!photosDe(f.id, d.n).length) photos++;
+      if (!(pj[f.id] || []).length) podiums++;
+    });
+    if (!Object.keys(pj).length) joursSansPodium++;
+  });
+  const motsFinaux = FAMILLE.filter(f => !((BILANS[f.id] || {}).txt || "").trim()).length;
+  const cases = total * nj;
+  if (!notes && !mots && !photos && !podiums && !motsFinaux)
+    return `<p class="manque complet"><svg><use href="#i-info"/></svg>
+      Rétrospective complète : notes, mots, photos, podiums et mot final, il ne manque rien.</p>`;
+
+  const l = [];
+  if (podiums) l.push(`<li><b>Podiums du jour</b> — ${podiums} sur ${cases} n'ont pas été faits${
+    joursSansPodium ? `, et ${joursSansPodium} journée${joursSansPodium > 1 ? "s n'en ont" : " n'en a"} aucun` : ""}. C'est ce qui pèse le plus : le classement du séjour s'additionne à partir d'eux.</li>`);
+  if (motsFinaux) l.push(`<li><b>Mot final</b> — ${motsFinaux} sur ${total} reste${motsFinaux > 1 ? "nt" : ""} à écrire</li>`);
+  if (notes) l.push(`<li><b>Notes</b> — ${notes} sur ${cases} manquent à l'appel</li>`);
+  if (mots) l.push(`<li><b>Mots du soir</b> — ${mots} sur ${cases}</li>`);
+  if (photos) l.push(`<li><b>Photos</b> — ${photos} sur ${cases} journées-personnes sans aucune photo</li>`);
+
+  let perso = "";
+  if (QUI){
+    const moi = FAMILLE.find(f => f.id === QUI), r = [];
+    const cpt = k => DAYS.filter(k).length;
+    const n = cpt(d => !((AVIS[d.n] || {})[QUI] || {}).note);
+    const m = cpt(d => !(((AVIS[d.n] || {})[QUI] || {}).txt || "").trim());
+    const p = cpt(d => !((PHOTOS.podiums[String(d.n)] || {})[QUI] || []).length);
+    if (n) r.push(`${n} note${n > 1 ? "s" : ""}`);
+    if (m) r.push(`${m} mot${m > 1 ? "s" : ""} du soir`);
+    if (p) r.push(`${p} podium${p > 1 ? "s" : ""}`);
+    if (!((BILANS[QUI] || {}).txt || "").trim()) r.push("le mot final");
+    perso = r.length
+      ? `<p class="perso">${esc(moi ? moi.nom : "Vous")}, il vous manque ${
+          r.join(", ").replace(/, ([^,]*)$/, " et $1")}.</p>`
+      : `<p class="perso fait">${esc(moi ? moi.nom : "Vous")}, vous avez tout rempli.</p>`;
+  }
+  return `<div class="manque">
+    <p><svg><use href="#i-info"/></svg><b>Ce qui manque encore à la rétrospective</b></p>
+    ${perso}
+    <ul>${l.join("")}</ul>
+    <p class="pied">Tout reste modifiable : une journée passée s'ouvre et se remplit comme les autres.
+      Personne n'est nommé — chacun voit ce qui lui manque.</p>
+  </div>`;
+}
 function renderBilan(){
   const gens = bilanParPersonne(), jours = bilanParJour(), tout = toutesLesNotes();
   const auj = dayIndexToday();
@@ -4819,6 +4881,8 @@ function renderBilan(){
           photos ? ` · ${photos} photo${photos > 1 ? "s" : ""}` : ""}</span>
         ${reste > 0 ? `<span class="encours">Le séjour n'est pas fini — il reste ${reste} journée${reste > 1 ? "s" : ""}. Le calcul se refait tout seul.</span>` : ""}
       </div>
+
+      ${manqueBilanHTML()}
 
       ${jours.length ? `<article class="bbloc">
         <header><h3>Journée par journée</h3>
