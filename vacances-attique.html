@@ -1281,15 +1281,65 @@ button.pouce.bas:hover{border-color:var(--ochre); color:var(--ochre)}
   color:var(--ink-3); flex:0 0 66px; padding-top:2px;
 }
 .vigjour li b{color:var(--ink); font-weight:600}
-.filtrevu{
+.traversee{
+  margin-top:12px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--surface); box-shadow:var(--shadow); overflow:hidden;
+}
+.traversee > header{
+  display:flex; align-items:center; gap:9px; padding:12px 16px;
+  border-bottom:1px solid var(--line-soft); background:var(--surface-2);
+}
+.traversee > header svg{width:16px; height:16px; color:var(--sea); flex:0 0 auto}
+.traversee > header h3{
+  font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink-2); min-width:0;
+}
+.traversee > header .cnt{
+  margin-left:auto; font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.8rem;
+  color:var(--ground); background:var(--sea); border-radius:99px; padding:1px 9px; flex:0 0 auto;
+}
+.traversee .intro{padding:12px 16px 0; font-size:.85rem; color:var(--ink-2)}
+.tjours{list-style:none; margin:0; padding:10px 16px 4px; display:flex; flex-direction:column; gap:12px}
+.tjours > li{display:flex; flex-direction:column; gap:5px}
+.tjours > li.revolu{opacity:.6}
+button.tjour{
+  display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; width:100%; text-align:left;
+  background:none; border:none; padding:0; cursor:pointer; color:inherit;
+}
+button.tjour .jj{
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--sea); flex:0 0 auto;
+}
+button.tjour .jt{font-size:.9rem; font-weight:600; color:var(--ink); min-width:0}
+.tjours > li.revolu button.tjour .jt{text-decoration:line-through; color:var(--ink-3)}
+button.tjour:hover .jt{text-decoration:underline; text-underline-offset:3px}
+.pastilleauj{
+  font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ochre); border:1px solid var(--ochre); border-radius:99px; padding:1px 7px; flex:0 0 auto;
+}
+.tetapes{list-style:none; margin:0; padding:0 0 0 13px; display:flex; flex-direction:column; gap:3px;
+  border-left:2px solid var(--line-soft)}
+.tetapes li{font-size:.84rem; color:var(--ink-2); line-height:1.45}
+.tetapes li.passe{opacity:.55}
+.tetapes li.passe .t{text-decoration:line-through}
+.tetapes .k{
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:.76rem; color:var(--ink-3);
+  margin-right:5px;
+}
+.tetapes .t{font-weight:600; color:var(--ink)}
+.tetapes em{color:var(--ink-3); font-style:normal}
+.tetapes em::before{content:" — "}
+.traversee .ventnote{
+  display:flex; gap:8px; align-items:baseline; flex-wrap:wrap;
+  margin:8px 0 0; padding:11px 16px; border-top:1px solid var(--line-soft);
+  background:var(--surface-2); font-size:.81rem; color:var(--ink-3);
+}
+.traversee .ventnote svg{width:13px; height:13px; color:var(--ink-3); flex:0 0 auto}
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   margin-top:12px; padding:10px 14px; border-radius:var(--r-sm);
   border:1px solid color-mix(in oklab,var(--sea) 38%,transparent); background:var(--sea-soft);
   font-size:.85rem; color:var(--ink-2);
 }
-.filtrevu svg{width:15px; height:15px; color:var(--sea); flex:0 0 auto}
-.filtrevu span{flex:1 1 180px}
-.filtrevu b{color:var(--sea)}
 .videfiltre{
   min-height:34px; padding:0 13px; border-radius:99px; border:1px solid var(--sea);
   background:var(--surface); color:var(--sea); font-size:.82rem; font-family:var(--mono);
@@ -2981,14 +3031,50 @@ function jours(d){
    ils atténuent tout le reste — au point qu'on croit les étapes déjà passées.
    Le rappel dit ce qui est masqué et le défait d'un geste. */
 const NOM_FILTRE = { site:"Sites", swim:"Baignades", depart:"Départs" };
+/* Un filtre ne devrait pas se contenter d'estomper la journée qu'on regarde :
+   ce qu'on veut voir en cliquant « Baignades », c'est toutes les baignades du
+   séjour, d'un coup. La traversée les rassemble, jour par jour, avec de quoi
+   sauter à celui qu'on veut. Les journées révolues restent barrées, comme
+   partout ailleurs. */
+const ICONE_FILTRE = { site:"i-site", swim:"i-swim", depart:"i-depart" };
 function filtreHTML(){
   if (!state.filters.size) return "";
   const noms = [...state.filters].map(k => NOM_FILTRE[k] || k);
-  return `<p class="filtrevu">
-    <svg><use href="#i-search"/></svg>
-    <span>Filtre en cours : <b>${esc(noms.join(", "))}</b> — les autres étapes sont estompées, pas passées.</span>
-    <button type="button" class="videfiltre">Tout afficher</button>
-  </p>`;
+  const auj = dayIndexToday();
+  const parJour = DAYS.map((d, i) => ({ d, i, hits: allItems(d).filter(x => matches(x.it)) }))
+                      .filter(x => x.hits.length);
+  const total = parJour.reduce((n, x) => n + x.hits.length, 0);
+  const icone = ICONE_FILTRE[[...state.filters][0]] || "i-search";
+  return `<article class="traversee">
+    <header>
+      <svg><use href="#${icone}"/></svg>
+      <h3>${esc(noms.join(" + "))} — tout le séjour</h3>
+      <span class="cnt">${total}</span>
+    </header>
+    ${total ? `<p class="intro">${total} étape${total > 1 ? "s" : ""} sur ${parJour.length} journée${
+      parJour.length > 1 ? "s" : ""}${state.query.trim() ? `, contenant « ${esc(state.query.trim())} »` : ""}.
+      Touchez une journée pour y aller.</p>
+    <ol class="tjours">
+      ${parJour.map(({ d, i, hits }) => `<li class="${auj >= 0 && i < auj ? "revolu" : i === auj ? "auj" : ""}">
+        <button type="button" class="allerauj tjour" data-i="${i}">
+          <span class="jj">${esc(d.dow)} ${esc(d.dm.split(" ")[0])}</span>
+          <span class="jt">${esc(d.title)}</span>
+          ${i === auj ? `<span class="pastilleauj">aujourd'hui</span>` : ""}
+        </button>
+        <ul class="tetapes">
+          ${hits.map(({ it, slot }) => `<li class="${etatEtape(d, slot, it) === "passe" ? "passe" : ""}">
+            ${it.when ? `<span class="k">${esc(it.when)}</span>` : ""}
+            <span class="t">${highlight(it.ttl)}</span>
+            ${it.det ? `<em>${highlight(it.det)}</em>` : ""}
+          </li>`).join("")}
+        </ul>
+      </li>`).join("")}
+    </ol>` : `<p class="intro">Aucune étape ne correspond${
+      state.query.trim() ? ` à « ${esc(state.query.trim())} »` : ""} sur les onze journées.</p>`}
+    <p class="ventnote"><svg><use href="#i-info"/></svg>Dans la journée ouverte plus bas, les étapes
+      d'un autre type sont estompées — pas passées.
+      <button type="button" class="videfiltre">Tout afficher</button></p>
+  </article>`;
 }
 
 /* ── Ce qui se prépare la veille ──
