@@ -2445,11 +2445,8 @@ function rendreReglages(){
     <div class="split"><span class="sl">Séances</span><span class="sv">${S.seances.filter(s => s.termine).length}</span></div>
     <div class="split"><span class="sl">Mesures</span><span class="sv">${S.mesures.length}</span></div>
     <div class="split"><span class="sl">Points du matin</span><span class="sv">${S.checkins.length}</span></div>
-    <div class="btn-row" style="margin-top:14px">
-      <button class="btn sm" id="rg-export">Exporter</button>
-      <button class="btn sm ghost" id="rg-import">Importer</button>
-    </div>
-    <p class="tiny muted" style="margin-top:10px">Tout est enregistré sur cet appareil uniquement. Vider les données du site dans le navigateur effacerait l'historique — exportez de temps en temps.</p>
+    <button class="btn lg" id="rg-donnees" style="margin-top:14px">Sauvegarder ou restaurer</button>
+    <p class="tiny muted" style="margin-top:10px">Tout est enregistré sur cet appareil uniquement. Vider les données du site dans le navigateur effacerait l'historique — faites une sauvegarde de temps en temps.</p>
     <button class="btn ghost danger lg" id="rg-effacer" style="margin-top:12px">Tout effacer</button>
   </div>
   <p class="tiny muted" style="text-align:center;padding:16px 0 4px">Coach — application personnelle, sans compte ni serveur.<br>
@@ -2472,22 +2469,74 @@ function rendreReglages(){
   });
   $('#rg-biblio').addEventListener('click', modalBibliotheque);
   $('#rg-methode').addEventListener('click', modalMethode);
-  $('#rg-export').addEventListener('click', exporter);
-  $('#rg-import').addEventListener('click', importer);
+  $('#rg-donnees').addEventListener('click', modalDonnees);
   $('#rg-effacer').addEventListener('click', () => {
     if (!confirm('Effacer définitivement le profil, les séances, les mesures et les records ?')) return;
     if (!confirm('Dernière confirmation : cette action est irréversible.')) return;
     localStorage.removeItem(CLE); S = structuredClone(DEFAUTS); ouvrirOnboarding();
   });
 }
-function exporter(){
-  const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
+/* Sauvegarde et restauration. Selon l'endroit où la page est ouverte, le
+   téléchargement direct n'est pas toujours permis : on propose donc aussi
+   le texte brut, qui marche partout et n'a besoin de rien.            */
+function modalDonnees(){
+  ouvrirModal(`
+    <div class="modal-h"><h3>Sauvegarder ou restaurer</h3><button class="icon-btn" data-fermer>✕</button></div>
+    <p class="tiny muted" style="margin-bottom:16px">Vos données ne vivent que dans ce navigateur. Une sauvegarde de temps en temps évite de tout perdre en vidant l'historique ou en changeant de téléphone.</p>
+    <div class="sec-title" style="margin-top:0">Sauvegarder</div>
+    <div class="btn-row"><button class="btn" id="do-fichier">Enregistrer un fichier</button>
+      <button class="btn ghost" id="do-copier">Copier le texte</button></div>
+    <div class="sec-title">Restaurer</div>
+    <div class="btn-row"><button class="btn" id="do-importer">Ouvrir un fichier</button>
+      <button class="btn ghost" id="do-coller">Coller un export</button></div>
+    <div id="do-zone"></div>`);
+  $('#do-fichier').addEventListener('click', exporter);
+  $('#do-copier').addEventListener('click', copierExport);
+  $('#do-importer').addEventListener('click', importer);
+  $('#do-coller').addEventListener('click', () => {
+    $('#do-zone').innerHTML = `<div class="field" style="margin-top:14px"><label>Collez ici le contenu d’un export</label>
+      <textarea class="inp" id="do-texte" style="min-height:140px;font-family:var(--mono);font-size:12px" placeholder="{ &quot;version&quot;: 1, … }"></textarea></div>
+      <button class="btn pri lg" id="do-lire">Restaurer ces données</button>`;
+    $('#do-lire').addEventListener('click', () => appliquerImport($('#do-texte').value));
+  });
+}
+const texteExport = () => JSON.stringify(S, null, 2);
+const nomExport = () => `coach-${aujourdhui()}.json`;
+
+async function exporter(){
+  const donnees = texteExport();
+  /* Dans le visualiseur d'Artifact, seul l'hôte peut remettre un fichier. */
+  const dl = window.claude && window.claude.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (dl){
+    try{ await dl.save({filename:nomExport(), data:donnees}); toast('Sauvegarde enregistrée.'); }
+    catch(e){ if (e && e.code === 'declined') return;
+      toast('Enregistrement refusé ici — copiez le texte à la place.'); }
+    return;
+  }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `coach-${aujourdhui()}.json`;
+  a.href = URL.createObjectURL(new Blob([donnees], {type:'application/json'}));
+  a.download = nomExport();
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   toast('Fichier exporté.');
+}
+async function copierExport(){
+  const t = texteExport();
+  try{ await navigator.clipboard.writeText(t); toast('Sauvegarde copiée dans le presse-papiers.'); }
+  catch(e){
+    $('#do-zone').innerHTML = `<div class="field" style="margin-top:14px"><label>Copiez ce texte et gardez-le</label>
+      <textarea class="inp" readonly style="min-height:140px;font-family:var(--mono);font-size:12px">${esc(t)}</textarea></div>`;
+    $('#do-zone textarea').select();
+  }
+}
+function appliquerImport(texte){
+  try{
+    const d = JSON.parse(texte);
+    if (!d || !d.profil) throw new Error('format');
+    if (!confirm('Remplacer les données actuelles par celles de cette sauvegarde ?')) return;
+    S = fusion(structuredClone(DEFAUTS), d);
+    sauver(); fermerModal(); demarrerApp(); aller('jour'); toast('Données restaurées.');
+  }catch(e){ toast('Contenu illisible : ce n’est pas un export de cette application.'); }
 }
 function importer(){
   const inp = document.createElement('input');
@@ -2495,15 +2544,8 @@ function importer(){
   inp.addEventListener('change', () => {
     const f = inp.files[0]; if (!f) return;
     const r = new FileReader();
-    r.onload = () => {
-      try{
-        const d = JSON.parse(r.result);
-        if (!d.profil) throw new Error('format');
-        if (!confirm('Remplacer les données actuelles par celles du fichier ?')) return;
-        S = fusion(structuredClone(DEFAUTS), d);
-        sauver(); demarrerApp(); aller('jour'); toast('Données importées.');
-      }catch(e){ toast('Fichier illisible ou d’un autre format.'); }
-    };
+    r.onload = () => appliquerImport(r.result);
+    r.onerror = () => toast('Lecture du fichier impossible.');
     r.readAsText(f);
   });
   inp.click();
