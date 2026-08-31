@@ -2687,6 +2687,14 @@ function init(){
   $('#timer-stop').addEventListener('click', arreterTimer);
   $('#timer-plus').addEventListener('click', () => { timerFin += 30000; timerTotal += 30; tickTimer(); });
 
+  /* Fonctionnement hors connexion. Le service worker n'existe que sur
+     l'hébergement dédié ; ailleurs (Artifact, ouverture d'un fichier
+     local) la tentative échoue sans conséquence. Enregistré avant toute
+     sortie de fonction : la première visite est justement celle où l'on
+     est certain d'avoir du réseau pour le télécharger.                */
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http'))
+    addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+
   if (!S.profil.debut){ $('#tabbar').classList.add('hide'); ouvrirOnboarding(); return; }
   demarrerApp();
   const cible = (location.hash || '').replace('#', '');
@@ -2697,9 +2705,6 @@ function init(){
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && VUES[vueCourante]) { demarrerApp(); VUES[vueCourante](); }
   });
-  /* Fonctionnement hors connexion, quand la page est servie depuis /coach/. */
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http') && location.pathname.startsWith('/coach'))
-    addEventListener('load', () => navigator.serviceWorker.register('/coach/sw.js', {scope:'/coach/'}).catch(() => {}));
 }
 init();
 </script>

@@ -1,0 +1,48 @@
+# Site autonome : l'application Coach, à sa propre adresse.
+#
+# Dans Netlify, ce site pointe sur ce dépôt avec « Base directory » réglé
+# sur « coach » — c'est ce réglage qui fait lire ce fichier-ci plutôt que
+# celui de la racine, lequel appartient au site du séjour en Attique.
+#
+#   /   → coach.html   (enveloppé par build.sh)
+
+[build]
+  base = "coach"
+  command = "bash build.sh"
+  # Les chemins d'un netlify.toml sont relatifs au « base directory »,
+  # pas à la racine du dépôt : « site » désigne donc coach/site.
+  publish = "site"
+
+# Une seule page HTML, pas de nom de fichier versionné : on revalide à chaque
+# visite pour que les corrections arrivent tout de suite.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Le fichier de version décide si l'application se met à jour. Servi depuis le
+# cache de bordure, il annoncerait pendant un quart d'heure une version déjà
+# remplacée — et l'application, se croyant à jour, ne proposerait rien. On le
+# sort donc de tous les caches, celui du navigateur comme celui de Netlify.
+[[headers]]
+  for = "/version.txt"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"
+    Netlify-CDN-Cache-Control = "no-store, max-age=0"
+    Content-Type = "text/plain; charset=utf-8"
+
+# Le service worker ne doit jamais être servi depuis un cache figé, sinon la
+# mise à jour de l'application n'arrive pas.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"
+    Netlify-CDN-Cache-Control = "no-store, max-age=0"
+
+# Application d'une seule page : toute adresse inconnue retombe dessus.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
