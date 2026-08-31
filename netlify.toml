@@ -4,7 +4,6 @@
 #
 #   /            → vacances-attique.html  (Onze jours en Attique)
 #   /pid-drone   → index.html             (cours de régulation PID)
-#   /coach/      → coach.html             (application de remise en forme)
 
 [functions]
   directory = "netlify/functions"
@@ -22,11 +21,6 @@
 [[redirects]]
   from = "/pid-drone.html"
   to = "/pid-drone"
-  status = 301
-
-[[redirects]]
-  from = "/coach"
-  to = "/coach/"
   status = 301
 
 # Une seule page HTML, pas de nom de fichier versionné : on revalide à chaque
