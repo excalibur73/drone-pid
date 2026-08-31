@@ -49,7 +49,7 @@ cp index.html site/pid-drone.html
 # Son propre dossier, et donc son propre service worker : sans quoi celui
 # du programme de vacances, enregistré à la racine, prendrait la main sur
 # les deux applications à la fois.
-TITRE_COACH="Coach — remise en forme"
+TITRE_COACH="Coach de poche"
 DESC_COACH="Programme de force et de cardio sur douze semaines, calculé sur votre profil et ajusté chaque semaine d'après vos séances et vos mesures."
 ICONE_COACH="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230F8F6B'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'><path d='M10 10v12M22 10v12M6 13v6M26 13v6M10 16h12'/></g></svg>"
 

@@ -1,4 +1,4 @@
-<title>Coach — remise en forme</title>
+<title>Coach de poche</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
 
@@ -11,13 +11,13 @@
 :root{
   --bg:#F3F5F8; --surface:#FFFFFF; --surface2:#EDF1F6; --sunk:#E4EAF2;
   --line:#DCE3ED; --line2:#C7D2E0;
-  --text:#0E141C; --text2:#33445A; --muted:#68788D;
-  --accent:#0F8F6B; --accent-soft:rgba(15,143,107,.10); --on-accent:#FFFFFF;
+  --text:#0E141C; --text2:#33445A; --muted:#5D6C80;
+  --accent:#0B7A5B; --accent-soft:rgba(11,122,91,.10); --on-accent:#FFFFFF;
   --force:#C1462B; --force-soft:rgba(193,70,43,.10);
   --cardio:#1F6FCC; --cardio-soft:rgba(31,111,204,.10);
   --recup:#7A4BC4; --recup-soft:rgba(122,75,196,.10);
   --warn:#B07206; --warn-soft:rgba(176,114,6,.12);
-  --ok:#0F8F6B; --bad:#C1462B;
+  --ok:#0B7A5B; --bad:#B23F26;
   --shadow:0 1px 2px rgba(14,20,28,.05),0 8px 24px -12px rgba(14,20,28,.18);
   --shadow-lg:0 2px 4px rgba(14,20,28,.06),0 24px 48px -20px rgba(14,20,28,.28);
   --r:14px; --r-lg:20px; --r-sm:9px;
@@ -101,6 +101,13 @@ a{color:var(--accent)}
 .tab.on{color:var(--accent)}
 .tab.on svg{stroke-width:2.1}
 .tab:active{transform:scale(.94)}
+/* Six onglets sur un écran de 320 points : on resserre plutôt que de
+   laisser « Réglages » sortir de l'écran. */
+@media (max-width:380px){
+  .tabbar{padding-left:4px;padding-right:4px}
+  .tab{font-size:9px;letter-spacing:-.015em;overflow:hidden;padding-left:0;padding-right:0}
+  .tab svg{width:19px;height:19px}
+}
 
 /* ── Blocs ────────────────────────────────────────────────── */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;
@@ -108,12 +115,12 @@ a{color:var(--accent)}
 .card.flat{box-shadow:none}
 .card.tight{padding:14px}
 .card-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.card-h h3{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:-.01em;flex:1;min-width:0}
+.card-h h3{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:-.01em;flex:1;min-width:0;text-wrap:balance}
 .card-h .sub{font-size:12px;color:var(--muted);font-weight:500}
 .sec-title{font-family:var(--display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;
   color:var(--muted);margin:26px 2px 10px}
 .sec-title:first-child{margin-top:14px}
-.hero-h{font-family:var(--display);font-size:clamp(1.5rem,6vw,2rem);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.hero-h{font-family:var(--display);font-size:clamp(1.5rem,6vw,2rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
 .lead{color:var(--text2);font-size:14px}
 .muted{color:var(--muted)}
 .tiny{font-size:12px;line-height:1.5}
@@ -1466,7 +1473,9 @@ function rendreJour(){
     </div>
   </div>` : `
   <button class="card" id="j-checkin" style="margin-top:16px;width:100%;text-align:left;display:flex;gap:13px;align-items:center;cursor:pointer">
-    <div class="oi" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:19px">☀</div>
+    <div class="oi" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)">
+      <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.2M12 19v2.2M4.7 4.7l1.6 1.6M17.7 17.7l1.6 1.6M2.8 12H5M19 12h2.2M4.7 19.3l1.6-1.6M17.7 6.3l1.6-1.6"/></svg></div>
     <div style="flex:1"><b style="font-size:14.5px;display:block">Le point du matin</b>
       <span class="tiny muted">Cinq curseurs, vingt secondes. C'est ce qui permet à la séance du jour de s'ajuster à votre état réel.</span></div>
   </button>`}
