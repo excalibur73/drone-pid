@@ -690,7 +690,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -704,7 +704,7 @@ const DEFAUTS = {
     lieux:['salle'], options:{sismo:false, visbody:false, water:false},
     contraintes:[], sommeilCible:7.5, debut:null, cree:null
   },
-  reglages:{ theme:'auto', reposDefaut:90, sonTimer:true, uniteCharge:'kg',
+  reglages:{ theme:'auto', reposDefaut:90, sonTimer:true, uniteCharge:'kg', freqScan:7,
     rappelPesee:true, arrondi:2.5, seriesEchauffement:true },
   seances:[], mesures:[], checkins:[], nutrition:[], prs:{},
   personnalises:{}   /* substitutions d'exercices choisies par l'utilisateur */
@@ -824,6 +824,20 @@ const CONTRAINTES = [
   {v:'epaule',  n:'Épaule sensible',   d:'Pas de barre au front ni de dips profonds'},
   {v:'poignet', n:'Poignet sensible',  d:'Prises neutres et haltères plutôt que barre droite'}
 ];
+
+/* Scans de composition, du plus récent au plus ancien. */
+const scans = () => [...S.mesures].filter(m => m.mg > 0).sort((a, b) => a.date < b.date ? 1 : -1);
+/* Moyenne des n derniers scans, et tendance contre les n précédents.
+   La précision d'un impédancemètre tourne autour du point de pourcentage :
+   comparer deux scans hebdomadaires, c'est comparer deux bruits.        */
+function mgLisse(n = 3, decalage = 0){
+  const f = scans().slice(decalage, decalage + n);
+  return f.length ? f.reduce((t, m) => t + m.mg, 0) / f.length : null;
+}
+function tendanceMG(n = 3){
+  const a = mgLisse(n), b = mgLisse(n, n);
+  return (a !== null && b !== null && scans().length >= n * 2) ? a - b : null;
+}
 
 /* Poids actuel : dernière pesée connue, sinon le poids de départ. */
 function poidsActuel(){
@@ -1562,12 +1576,13 @@ function serieAssiduite(){
    rappelle toutes les quatre semaines, calé sur les blocs.            */
 function rappelVisbody(){
   if (!S.profil.options.visbody && !S.profil.options.sismo) return '';
-  const dernier = [...S.mesures].filter(m => m.mg > 0).sort((a,b) => a.date < b.date ? 1 : -1)[0];
+  const dernier = scans()[0];
   const depuis = dernier ? joursEntre(dernier.date, aujourdhui()) : joursEntre(S.profil.debut, aujourdhui());
-  if (depuis < 26) return '';
+  const freq = S.reglages.freqScan || 7;
+  if (depuis < freq) return '';
   return `<div class="note warn" style="margin-top:14px"><b>Scan Visbody à refaire.</b>
-    ${dernier ? `Le dernier date d'il y a ${depuis} jours.` : 'Aucun scan enregistré pour l’instant.'}
-    Le poids seul ne dit pas si vous perdez du gras ou du muscle — le scan, si. Refaites-le dans les mêmes conditions : à jeun, le matin, avant de boire.</div>`;
+    ${dernier ? `Le dernier date d'il y a ${depuis} jour${depuis > 1 ? 's' : ''}.` : 'Aucun scan enregistré pour l’instant.'}
+    Le poids seul ne dit pas si vous perdez du gras ou du muscle — le scan, si. Toujours dans les mêmes conditions : le matin, à jeun, avant de boire.</div>`;
 }
 
 /* Point du matin. */
@@ -2107,7 +2122,11 @@ function suiviCorps(){
     <div class="stat"><div class="k">Tendance 7 jours</div><div class="v" style="font-size:22px">${t !== null ? (t>0?'+':'')+rnd(t,2) : '—'}<span class="u">kg</span></div>
       <div class="d">${t !== null ? rnd(t/actuel*100,2)+' % du poids' : 'deux pesées nécessaires'}</div></div>
     <div class="stat"><div class="k">Masse grasse</div><div class="v">${m.mg}<span class="u">%</span></div>
-      <div class="d">${m.mgMesuree ? 'mesurée au scan' : 'estimée (formule)'}</div></div>
+      <div class="d">${(() => {
+        const t = tendanceMG();
+        if (t !== null) return delta(t, ' pt', true) + ' sur 3 scans';
+        return m.mgMesuree ? 'mesurée au scan' : 'estimée (formule)';
+      })()}</div></div>
     <div class="stat"><div class="k">Masse maigre</div><div class="v">${m.masseMaigre}<span class="u">kg</span></div>
       <div class="d">le chiffre à préserver</div></div>
   </div>
@@ -2126,7 +2145,12 @@ function suiviCorps(){
     ${courbe([
       {n:'Masse grasse (kg)', d:mgs.map(x => ({x:joursEntre(mgs[0].date, x.date), y:rnd(x.poids*x.mg/100,1)})), c:'var(--force)'},
       {n:'Masse maigre (kg)', d:mgs.map(x => ({x:joursEntre(mgs[0].date, x.date), y:rnd(x.poids*(1-x.mg/100),1)})), c:'var(--accent)'}
-    ], {h:160})}</div>` : ''}
+    ], {h:160})}
+    ${scans().length >= 2 ? `<div class="note"><b>Ne comparez pas deux scans consécutifs.</b>
+      Un impédancemètre se trompe d'environ un point de masse grasse d'une fois sur l'autre — plus que ce que votre corps change en une semaine.
+      Un scan hebdomadaire est utile, mais c'est la pente sur un mois qui dit quelque chose, jamais l'écart de la semaine.
+      ${scans().length >= 6 ? `Moyenne des trois derniers scans : ${rnd(mgLisse(3), 1)} %, contre ${rnd(mgLisse(3, 3), 1)} % pour les trois précédents.` : 'À partir de six scans, l’application comparera deux moyennes de trois plutôt que deux points.'}</div>` : ''}
+    </div>` : ''}
   ${correctifsCarte()}
   <div class="btn-row" style="margin-top:6px">
     <button class="btn pri" id="su-mesure" style="flex:1">Ajouter une mesure</button>
@@ -2583,6 +2607,10 @@ function rendreReglages(){
       <select class="inp" id="rg-arrondi">${[0.5,1,1.25,2,2.5,5].map(v =>
         `<option value="${v}" ${S.reglages.arrondi===v?'selected':''}>${v} kg</option>`).join('')}</select>
       <div class="hint">Les charges proposées sont arrondies à ce pas. 2,5 kg correspond au plus petit disque courant en salle.</div></div>
+    ${S.profil.options.visbody || S.profil.options.sismo ? `<div class="field"><label>Rythme des scans corporels</label>
+      <select class="inp" id="rg-scan">${[[7,'Chaque semaine'],[14,'Toutes les deux semaines'],[28,'Toutes les quatre semaines']].map(([v, n]) =>
+        `<option value="${v}" ${S.reglages.freqScan === v ? 'selected' : ''}>${n}</option>`).join('')}</select>
+      <div class="hint">Décide seulement quand l'application vous relance. Quel que soit le rythme, elle lit la tendance sur trois scans — la précision de la machine ne permet pas de conclure d'une semaine sur l'autre.</div></div>` : ''}
     ${bascule('sonTimer','Signal de fin de repos','Deux bips et une vibration quand le minuteur arrive à zéro', S.reglages.sonTimer)}
     ${bascule('seriesEchauffement','Séries d’échauffement','Deux séries montantes ajoutées automatiquement sur les exercices principaux', S.reglages.seriesEchauffement)}
   </div>
@@ -2614,6 +2642,7 @@ function rendreReglages(){
   $('#rg-theme').addEventListener('change', e => { S.reglages.theme = e.target.value; appliquerTheme(); sauver(); });
   $('#rg-repos').addEventListener('change', e => { S.reglages.reposDefaut = +e.target.value; sauver(); });
   $('#rg-arrondi').addEventListener('change', e => { S.reglages.arrondi = +e.target.value; sauver(); });
+  $('#rg-scan')?.addEventListener('change', e => { S.reglages.freqScan = +e.target.value; sauver(); rendreJour(); });
   $$('#v-reglages [data-sw]').forEach(b => b.addEventListener('click', () => {
     S.reglages[b.dataset.sw] = !S.reglages[b.dataset.sw]; sauver(); rendreReglages();
   }));
