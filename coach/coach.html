@@ -2062,9 +2062,30 @@ function rendreSuivi(){
     <div id="suivi-corps">${({corps:suiviCorps, force:suiviForce, assiduite:suiviAssiduite})[ongletSuivi]()}</div>`;
   $$('#v-suivi [data-onglet]').forEach(b => b.addEventListener('click', () => { ongletSuivi = b.dataset.onglet; rendreSuivi(); }));
   $('#su-mesure')?.addEventListener('click', () => modalMesure());
+  $('#su-scan')?.addEventListener('click', () => modalScan());
+  $$('#v-suivi [data-corr]').forEach(b => b.addEventListener('click', () => ficheExercice(b.dataset.corr)));
   $$('#v-suivi [data-mes]').forEach(b => b.addEventListener('click', () => modalMesure(b.dataset.mes)));
   $$('#v-suivi [data-pr]').forEach(b => b.addEventListener('click', () => modalProgressionExo(b.dataset.pr)));
   $$('#v-suivi [data-seance]').forEach(b => b.addEventListener('click', () => modalHistorique(b.dataset.seance)));
+}
+function correctifsCarte(){
+  const s = dernierScan(); if (!s) return '';
+  const c = correctifs(); if (!c.length) return '';
+  const quoi = [...(s.posture || []).map(v => POSTURE.find(p => p.v === v)?.n),
+    s.mobEpaules && s.mobEpaules !== 'ok' ? 'mobilité d’épaules ' + MOBILITE_EP.find(m => m.v === s.mobEpaules).n.toLowerCase() : '']
+    .filter(Boolean);
+  return `<div class="card">
+    <div class="card-h"><h3>Ce que votre scan demande</h3><span class="sub">${dateCourte(s.date)}</span></div>
+    <p class="tiny" style="color:var(--text2);line-height:1.6">Le rapport signale : ${quoi.join(', ').toLowerCase()}.
+      Ajoutez ces exercices en fin de séance, deux à trois fois par semaine. Ils ne remplacent rien du programme — ils réparent ce que la position assise a installé.</p>
+    <div style="margin-top:12px">
+      ${c.map(e => `<button class="lib-i" data-corr="${e.i}" style="margin-bottom:6px">
+        <div class="lib-g" style="color:var(--${GROUPES[e.g].c})">${GROUPES[e.g].n[0]}</div>
+        <div class="lib-t"><b>${esc(e.n)}</b><span>${esc(e.c.split('.')[0])}.</span></div></button>`).join('')}
+    </div>
+    <div class="note warn" style="margin-bottom:0"><b>Une posture n’est pas un diagnostic.</b>
+      La Visbody photographie une position tenue trois secondes ; elle ne dit rien d’une douleur. Si quelque chose fait mal, c’est un kinésithérapeute qu’il faut voir, pas une machine.</div>
+  </div>`;
 }
 function suiviCorps(){
   const m = metriques(), mes = S.mesures.filter(x => x.poids > 0).sort((a,b) => a.date < b.date ? -1 : 1);
@@ -2102,7 +2123,11 @@ function suiviCorps(){
       {n:'Masse grasse (kg)', d:mgs.map(x => ({x:joursEntre(mgs[0].date, x.date), y:rnd(x.poids*x.mg/100,1)})), c:'var(--force)'},
       {n:'Masse maigre (kg)', d:mgs.map(x => ({x:joursEntre(mgs[0].date, x.date), y:rnd(x.poids*(1-x.mg/100),1)})), c:'var(--accent)'}
     ], {h:160})}</div>` : ''}
-  <button class="btn pri lg" id="su-mesure" style="margin-top:6px">Ajouter une mesure</button>
+  ${correctifsCarte()}
+  <div class="btn-row" style="margin-top:6px">
+    <button class="btn pri" id="su-mesure" style="flex:1">Ajouter une mesure</button>
+    ${S.profil.options.visbody || S.profil.options.sismo ? '<button class="btn" id="su-scan" style="flex:1">Scan Visbody</button>' : ''}
+  </div>
   <div class="sec-title">Historique des mesures</div>
   ${S.mesures.length ? [...S.mesures].sort((a,b) => a.date < b.date ? 1 : -1).slice(0, 25).map(x => `
     <button class="day" data-mes="${x.date}"><div class="day-k"></div>
@@ -2183,6 +2208,128 @@ function suiviAssiduite(){
 <script>
 "use strict";
 /* ─── 12. Fenêtres : mesures, historique, fiche exercice ─────────────── */
+/* ─── Scan Visbody ────────────────────────────────────────────────────
+   La machine ne rend pas deux chiffres mais quatre familles de résultats :
+   composition, circonférences, posture, mobilité des épaules. Les deux
+   dernières ne servent à rien si elles restent sur le ticket — elles
+   désignent ici les exercices à prioriser.                             */
+const POSTURE = [
+  {v:'tete-avant',    n:'Tête en avant',           d:'Le regard porte loin devant l’axe des épaules',
+   c:['face-pull','mobilite-dorsale','mobilite-epaules']},
+  {v:'dos-rond',      n:'Épaules enroulées',        d:'Dos haut arrondi, paumes tournées vers l’arrière au repos',
+   c:['face-pull','oiseau','mobilite-dorsale']},
+  {v:'epaules-asym',  n:'Épaules asymétriques',     d:'Une épaule plus haute que l’autre',
+   c:['rowing-halteres','planche-laterale','pallof']},
+  {v:'bassin-bascule',n:'Bassin en antéversion',    d:'Creux marqué dans le bas du dos',
+   c:['dead-bug','pont-fessier','mobilite-hanches']},
+  {v:'genoux-x',      n:'Genoux en X',              d:'Les genoux se rapprochent en charge',
+   c:['abduction','pont-fessier','fente-bulgare']}
+];
+const MOBILITE_EP = [
+  {v:'ok',      n:'Normale',            d:'Les bras montent à la verticale sans compenser'},
+  {v:'limitee', n:'Limitée',            d:'Il faut cambrer ou plier les coudes pour monter',
+   c:['mobilite-epaules','mobilite-dorsale','face-pull']},
+  {v:'asym',    n:'Asymétrique',        d:'Un côté monte nettement moins que l’autre',
+   c:['mobilite-epaules','rowing-halteres','pallof']}
+];
+const dernierScan = () => [...S.mesures].filter(m => m.scan).sort((a,b) => a.date < b.date ? 1 : -1)[0] || null;
+
+/* Les exercices que le dernier scan désigne, sans doublon. */
+function correctifs(){
+  const s = dernierScan(); if (!s) return [];
+  const ids = [];
+  (s.posture || []).forEach(v => (POSTURE.find(p => p.v === v)?.c || []).forEach(i => ids.includes(i) || ids.push(i)));
+  const mob = MOBILITE_EP.find(m => m.v === s.mobEpaules);
+  (mob?.c || []).forEach(i => ids.includes(i) || ids.push(i));
+  return ids.map(i => EXO_MAP[i]).filter(Boolean);
+}
+
+function modalScan(dateExistante){
+  const m = dateExistante ? S.mesures.find(x => x.date === dateExistante) : null;
+  const d = m || {date:aujourdhui(), posture:[], mobEpaules:''};
+  const sel = new Set(d.posture || []);
+  let mob = d.mobEpaules || '';
+  const ch = (k, l, u, ph) => `<div class="field"><label>${l}</label>
+    <input class="inp inp-num" id="sc-${k}" type="number" inputmode="decimal" step="0.1" value="${d[k] ?? ''}" placeholder="${ph}">
+    ${u ? `<div class="hint">${u}</div>` : ''}</div>`;
+  ouvrirModal(`
+    <div class="modal-h"><h3>Scan Visbody</h3><button class="icon-btn" data-fermer>✕</button></div>
+
+    <div class="note warn"><b>Contre-indications.</b> La Visbody fait passer un courant dans le corps :
+      elle est déconseillée en cas de stimulateur cardiaque, d’implant métallique ou électronique, et pendant la grossesse.
+      Dans le doute, demandez à l’accueil avant de monter dessus.</div>
+
+    <div class="sec-title" style="margin-top:16px">Avant de monter</div>
+    <p class="tiny" style="color:var(--text2);line-height:1.6">Pieds nus, sans collier ni bague, vêtements près du corps.
+      Et surtout : <b style="color:var(--text)">toujours dans les mêmes conditions</b> — même moment de la journée, à jeun,
+      avant de boire et avant la séance. Un scan pris après un repas ou un entraînement se compare à rien.</p>
+
+    <div class="sec-title">Composition corporelle</div>
+    <div class="grid g2">
+      ${ch('mg','Masse grasse','','%')}
+      ${ch('mm','Masse musculaire','','kg')}
+      ${ch('poids','Poids','','kg')}
+      ${ch('eau','Masse hydrique','Explique les écarts de balance d’un jour à l’autre','%')}
+    </div>
+
+    <div class="sec-title">Circonférences <span class="muted" style="text-transform:none;letter-spacing:0">— le plateau tournant les mesure toutes</span></div>
+    <div class="grid g2">
+      ${ch('poitrine','Poitrine','','cm')}
+      ${ch('tourTaille','Taille','','cm')}
+      ${ch('hanches','Hanches','','cm')}
+      ${ch('bras','Bras','','cm')}
+      ${ch('cuisse','Cuisse','','cm')}
+      ${ch('mollet','Mollet','','cm')}
+    </div>
+
+    <div class="sec-title">Analyse de posture <span class="muted" style="text-transform:none;letter-spacing:0">— cochez ce que le rapport signale</span></div>
+    <div class="grid">
+      ${POSTURE.map(p => `<button class="opt ${sel.has(p.v)?'on':''}" data-post="${p.v}">
+        <div class="oi">${sel.has(p.v)?'✓':'+'}</div>
+        <div style="flex:1"><b>${p.n}</b><span>${p.d}</span></div></button>`).join('')}
+    </div>
+
+    <div class="sec-title">Mobilité des épaules</div>
+    <div class="grid">
+      ${MOBILITE_EP.map(o => `<button class="opt ${mob===o.v?'on':''}" data-mob="${o.v}">
+        <div class="oi">${mob===o.v?'✓':'+'}</div>
+        <div style="flex:1"><b>${o.n}</b><span>${o.d}</span></div></button>`).join('')}
+    </div>
+
+    <div class="field" style="margin-top:18px"><label>Date du scan</label>
+      <input class="inp" id="sc-date" type="date" value="${d.date}"></div>
+    <div class="field"><label>Note</label>
+      <input class="inp" id="sc-note" value="${esc(d.note || '')}" placeholder="Ce que le rapport dit d’autre…"></div>
+    <button class="btn pri lg" id="sc-ok">Enregistrer le scan</button>`);
+
+  $$('#modal-c [data-post]').forEach(b => b.addEventListener('click', () => {
+    const v = b.dataset.post;
+    sel.has(v) ? sel.delete(v) : sel.add(v);
+    b.classList.toggle('on', sel.has(v));
+    b.querySelector('.oi').textContent = sel.has(v) ? '✓' : '+';
+  }));
+  $$('#modal-c [data-mob]').forEach(b => b.addEventListener('click', () => {
+    mob = mob === b.dataset.mob ? '' : b.dataset.mob;
+    $$('#modal-c [data-mob]').forEach(x => {
+      x.classList.toggle('on', x.dataset.mob === mob);
+      x.querySelector('.oi').textContent = x.dataset.mob === mob ? '✓' : '+';
+    });
+  }));
+  $('#sc-ok').addEventListener('click', () => {
+    const v = {date:$('#sc-date').value || aujourdhui(), note:$('#sc-note').value.trim(),
+      scan:true, posture:[...sel], mobEpaules:mob};
+    ['poids','mg','mm','eau','poitrine','tourTaille','hanches','bras','cuisse','mollet']
+      .forEach(k => { const n = num($('#sc-'+k).value); if (n > 0) v[k] = n; });
+    if (!v.mg && !v.poids && !v.tourTaille){ toast('Renseignez au moins le poids ou la masse grasse.'); return; }
+    const i = S.mesures.findIndex(x => x.date === (dateExistante || v.date));
+    if (i >= 0) S.mesures[i] = {...S.mesures[i], ...v}; else S.mesures.push(v);
+    S.mesures.sort((a,b) => a.date < b.date ? -1 : 1);
+    sauver(); fermerModal(); rendreSuivi(); rendreJour();
+    const c = correctifs();
+    toast(c.length ? `Scan enregistré. ${c.length} exercices correctifs à prioriser.` : 'Scan enregistré.', 4000);
+  });
+}
+
 function modalMesure(dateExistante){
   const m = dateExistante ? S.mesures.find(x => x.date === dateExistante) : null;
   const d = m || {date:aujourdhui()};
@@ -2199,11 +2346,13 @@ function modalMesure(dateExistante){
       ${ch('bras','Bras contracté','','0.5','cm')}
       ${ch('cuisse','Cuisse','','0.5','cm')}
     </div>
-    <div class="sec-title" style="margin-top:8px">Scan corporel${S.profil.options.visbody||S.profil.options.sismo ? ' (Visbody)' : ''}</div>
+    <div class="sec-title" style="margin-top:8px">Composition corporelle</div>
     <div class="grid g2">
       ${ch('mg','Masse grasse','','0.1','%')}
       ${ch('mm','Masse musculaire','','0.1','kg')}
     </div>
+    ${S.profil.options.visbody || S.profil.options.sismo ? `<div class="note"><b>Vous sortez d’un scan Visbody ?</b>
+      « Scan Visbody » enregistre en plus la posture, les circonférences et la mobilité des épaules — tout ce que la machine mesure et qu’un pourcentage ne dit pas.</div>` : ''}
     <div class="field"><label>Note</label><input class="inp" id="me-note" value="${esc(d.note || '')}" placeholder="Contexte, ressenti, conditions de mesure…"></div>
     <button class="btn pri lg" id="me-ok">Enregistrer</button>
     ${m ? '<button class="btn ghost danger lg" id="me-del" style="margin-top:8px">Supprimer</button>' : ''}`);
