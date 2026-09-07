@@ -362,6 +362,19 @@ textarea.inp{min-height:76px;resize:vertical;line-height:1.5}
   background:var(--text);color:var(--bg);padding:11px 18px;border-radius:13px;font-size:13.5px;font-weight:600;
   box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s cubic-bezier(.2,.8,.3,1);max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+/* ── Pantin ───────────────────────────────────────────────────── */
+.pantin{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:6px 6px 10px;margin-bottom:16px}
+.pantin svg{width:100%;height:180px;display:block}
+.pantin.mini{margin:12px 0;padding:2px}
+.pantin.mini svg{height:124px}
+.pantin-l{display:block;text-align:center;font-size:11px;color:var(--muted);margin-top:-2px}
+.pt-os{stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.pt-lo{stroke:color-mix(in srgb,var(--accent) 55%,var(--sunk));stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.pt-gh{stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:.20;fill:none}
+.pt-tt{fill:var(--accent)}
+.pt-ttg{fill:var(--accent);opacity:.20}
+.pt-mat{stroke:var(--force);stroke-width:5;stroke-linecap:round;fill:none}
+.pt-sol{stroke:var(--line2);stroke-width:2}
 hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .hide{display:none!important}
 .pill-nav{display:flex;gap:4px;padding:4px;background:var(--sunk);border-radius:13px;border:1px solid var(--line);margin-bottom:14px}
@@ -690,7 +703,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -771,7 +784,10 @@ function ouvrirModal(html){
   $('#modal').classList.add('on');
   $('#modal-c').scrollTop = 0;
 }
-function fermerModal(){ $('#modal').classList.remove('on'); }
+function fermerModal(){
+  $('#modal').classList.remove('on');
+  if (typeof arreterPantin === 'function') arreterPantin('fiche');
+}
 
 /* Anneau de progression, en SVG pur. */
 function anneau(pct, taille=104, ep=9, couleur='var(--accent)', centre=''){
@@ -1818,6 +1834,8 @@ function rendreExo(x, i, s){
     <div class="exo-b">
       <div class="exo-note"><b>${{pri:'Exercice principal',sec:'Exercice secondaire',iso:'Isolation',fin:'Finisher',cardio:'Cardio',recup:'Récupération'}[x.role] || 'Exercice'}.</b>
         ${motifs[x.motif] || ''} ${der ? `Dernière fois le ${dateCourte(der.date)} : ${der.series.map(y => `${y.charge}×${y.reps}`).join(', ')}.` : ''}</div>
+      ${ouvert && mouvementDe(EXO_MAP[x.ex]?.p) ? `<div class="pantin mini"><svg id="sx-pantin" viewBox="-96 -152 196 184" role="img"
+        aria-label="Schéma animé du mouvement : ${esc(ex.n)}"></svg></div>` : ''}
       ${x.attention ? `<div class="note warn" style="margin:0 0 12px"><b>Aucun repli sans contrainte pour ce créneau.</b>
         Cet exercice touche une articulation que vous avez signalée : réduisez d'abord l'amplitude et la charge, ou remplacez-le ci-dessous.</div>` : ''}
       <div class="serie-h"><span>Série</span><span>${x.temps?'Secondes':'Reps'}</span><span>${x.temps?'Résistance':'Charge (kg)'}</span><span>RPE</span><span></span></div>
@@ -1841,6 +1859,11 @@ function rendreExo(x, i, s){
   </div>`;
 }
 function brancherSeance(s){
+  /* Un seul schéma tourne : celui de l'exercice ouvert. */
+  arreterPantin('seance');
+  const ouvert = s.exercices[exoOuvert], svgS = $('#v-seance #sx-pantin');
+  const mvS = ouvert && mouvementDe(EXO_MAP[ouvert.ex]?.p);
+  if (mvS && svgS) animerPantin(svgS, mvS, 'seance');
   $$('#v-seance [data-toggle]').forEach(b => b.addEventListener('click', () => {
     const i = +b.dataset.toggle; exoOuvert = exoOuvert === i ? -1 : i; rendreSeance();
   }));
@@ -2235,6 +2258,165 @@ function suiviAssiduite(){
 
 <script>
 "use strict";
+/* ─── 11 bis. Pantin articulé ────────────────────────────────────────
+   Un dessin plutôt qu'une photo : pas de licence à respecter, pas de
+   fichier à charger, et surtout la trajectoire du mouvement plutôt
+   qu'une position figée. Le squelette se construit depuis le bassin,
+   puis la figure est translatée selon son point d'appui — c'est ce qui
+   permet à un même moteur de dessiner un squat, un développé couché,
+   une traction et une planche.
+   Angle 0 = vers le bas, 180 = vers le haut, positif = vers l'avant. */
+const SEG = {cuisse:34, tibia:34, torse:42, bras:26, avantBras:24, cou:7, tete:9, pied:11};
+const PT = (p, a, l) => [p[0] + l * Math.sin(a * Math.PI / 180), p[1] + l * Math.cos(a * Math.PI / 180)];
+const decal = (p, d) => [p[0] + d[0], p[1] + d[1]];
+
+function membrePantin(hanche, epaule, q, loin){
+  const s = loin ? 'L' : '', v = k => q[k + s] ?? q[k];
+  const genou    = PT(hanche, v('cuisse'), SEG.cuisse);
+  const cheville = PT(genou,  v('tibia'),  SEG.tibia);
+  const orteil   = PT(cheville, 90 - (v('pied') || 0), SEG.pied);
+  const coude    = PT(epaule, v('bras'),   SEG.bras);
+  const main     = PT(coude,  v('avantBras'), SEG.avantBras);
+  return {genou, cheville, orteil, coude, main};
+}
+function squelette(q){
+  const hanche = [0, 0];
+  const epaule = PT(hanche, 180 - q.torse, SEG.torse + (q.epaulePlus || 0));
+  const cou    = PT(epaule, 180 - q.torse, SEG.cou);
+  const tete   = PT(cou,    180 - (q.tete ?? q.torse), SEG.tete);
+  const pres = membrePantin(hanche, epaule, q, false);
+  const brut = membrePantin(hanche, epaule, q, true);
+  /* Le côté opposé est légèrement décalé : superposés au trait près,
+     deux membres symétriques aplatissent la figure.                  */
+  const loin = Object.fromEntries(Object.entries(brut).map(([k, p]) => [k, decal(p, [-8, 0])]));
+  let d = [0, 0];
+  const appui = q.appui || 'sol';
+  if (appui === 'sol'){
+    /* Le point le plus bas touche le sol, quel qu'il soit : un talon
+       debout, un avant-bras en planche, une hanche allongée.         */
+    const tous = [...Object.values(pres), ...Object.values(loin), hanche, epaule, tete];
+    d = [0, -Math.max(...tous.map(p => p[1]))];
+  }
+  if (appui === 'banc')  d = [0, -46];
+  if (appui === 'assis') d = [0, -50];
+  if (appui === 'barre') d = [0, -122 - pres.main[1]];
+  /* Recentrage horizontal : un corps allongé s'étale vers la tête et
+     sortait du cadre par la droite. On cale son milieu sur l'axe.    */
+  const pts = [...Object.values(pres), ...Object.values(loin), hanche, epaule, tete];
+  const xs = pts.map(p => p[0]);
+  d[0] -= (Math.min(...xs) + Math.max(...xs)) / 2;
+  const t = o => Object.fromEntries(Object.entries(o).map(([k, p]) => [k, decal(p, d)]));
+  return {...t({hanche, epaule, cou, tete}), pres:t(pres), loin:t(loin)};
+}
+const doucement = t => t < .5 ? 2*t*t : 1 - (-2*t + 2)**2 / 2;
+function melange(a, b, t){
+  const q = {}, e = doucement(t);
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)]))
+    q[k] = typeof (a[k] ?? b[k]) === 'string' ? (a[k] ?? b[k]) : (a[k] ?? 0) + ((b[k] ?? 0) - (a[k] ?? 0)) * e;
+  return q;
+}
+
+/* Une entrée par schéma moteur : les exercices d'un même schéma partagent
+   le dessin, puisque c'est la trajectoire qui s'apprend et non la marque
+   de la machine. Deux postures, un accessoire.                        */
+const MOUVEMENTS = {
+  squat:{nom:'Squat', prop:'barre-dos',
+    a:{appui:'sol', cuisse:2,  tibia:-2,  torse:6,  bras:-58, avantBras:-152, tete:4},
+    b:{appui:'sol', cuisse:70, tibia:-30, torse:42, bras:-58, avantBras:-152, tete:38}},
+
+  charniere:{nom:'Charnière de hanche', prop:'barre-mains',
+    a:{appui:'sol', cuisse:0,  tibia:0,   torse:4,  bras:4,  avantBras:2, tete:2},
+    b:{appui:'sol', cuisse:16, tibia:-12, torse:74, bras:2,  avantBras:0, tete:62}},
+
+  fente:{nom:'Fente', prop:'haltere',
+    a:{appui:'sol', cuisse:2,  tibia:-2,  torse:5, bras:2, avantBras:0, tete:3,
+       cuisseL:2,   tibiaL:-2},
+    b:{appui:'sol', cuisse:38, tibia:-36, torse:8, bras:2, avantBras:0, tete:6,
+       cuisseL:-28, tibiaL:-76, piedL:55}},
+
+  pousseeH:{nom:'Poussée horizontale', prop:'banc',
+    a:{appui:'banc', cuisse:58, tibia:-52, torse:90, bras:142, avantBras:214, tete:92},
+    b:{appui:'banc', cuisse:58, tibia:-52, torse:90, bras:172, avantBras:184, tete:92}},
+
+  pousseeV:{nom:'Poussée verticale', prop:'barre-mains',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:3, bras:34,  avantBras:166, tete:2},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:1, bras:162, avantBras:196, tete:0}},
+
+  tirageV:{nom:'Tirage vertical', prop:'barre-haut',
+    a:{appui:'barre', cuisse:-14, tibia:30, torse:-2, bras:178, avantBras:180, tete:-2,
+       cuisseL:-22, tibiaL:38},
+    b:{appui:'barre', cuisse:-14, tibia:30, torse:-6, bras:158, avantBras:-158, tete:-8,
+       cuisseL:-22, tibiaL:38}},
+
+  tirageH:{nom:'Tirage horizontal', prop:'poulie-avant',
+    a:{appui:'sol', cuisse:14, tibia:-12, torse:48, bras:6,   avantBras:4,   tete:40},
+    b:{appui:'sol', cuisse:14, tibia:-12, torse:48, bras:-34, avantBras:-58, tete:40}},
+
+  biceps:{nom:'Flexion de coude', prop:'haltere',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2,   tete:3},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:8, avantBras:128, tete:3}},
+
+  triceps:{nom:'Extension de coude', prop:'poulie-haut',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:16, avantBras:76, tete:5},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:16, avantBras:18, tete:5}},
+
+  epaulesLat:{nom:'Élévation d’épaule', prop:'haltere',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:5, bras:6,  avantBras:4,  tete:4},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:5, bras:84, avantBras:88, tete:4}},
+
+  pecIso:{nom:'Écarté', prop:'poulie-avant',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:106, avantBras:100, tete:6},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:52,  avantBras:56,  tete:6}},
+
+  dosIso:{nom:'Haussement d’épaules', prop:'haltere',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2, tete:3, epaulePlus:0},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2, tete:3, epaulePlus:8}},
+
+  quaIso:{nom:'Extension de genou', prop:'siege',
+    a:{appui:'assis', cuisse:86, tibia:4,  torse:10, bras:60, avantBras:20, tete:8,
+       cuisseL:86, tibiaL:4},
+    b:{appui:'assis', cuisse:86, tibia:82, torse:10, bras:60, avantBras:20, tete:8,
+       cuisseL:86, tibiaL:82}},
+
+  iscIso:{nom:'Flexion de genou', prop:'siege',
+    a:{appui:'assis', cuisse:86, tibia:62, torse:10, bras:60, avantBras:20, tete:8,
+       cuisseL:86, tibiaL:62},
+    b:{appui:'assis', cuisse:86, tibia:2,  torse:10, bras:60, avantBras:20, tete:8,
+       cuisseL:86, tibiaL:2}},
+
+  mollets:{nom:'Extension de cheville', prop:'',
+    a:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2, tete:3, pied:0,  piedL:0},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2, tete:3, pied:52, piedL:52}},
+
+  gainage:{nom:'Gainage', prop:'',
+    a:{appui:'sol', cuisse:-86, tibia:-92, torse:92,  bras:2, avantBras:96, tete:80, pied:-58, piedL:-58},
+    b:{appui:'sol', cuisse:-88, tibia:-92, torse:90,  bras:2, avantBras:96, tete:78, pied:-58, piedL:-58}},
+
+  abdo:{nom:'Abdominaux', prop:'',
+    a:{appui:'sol', cuisse:62, tibia:-58, torse:92, bras:120, avantBras:150, tete:96},
+    b:{appui:'sol', cuisse:62, tibia:-58, torse:62, bras:120, avantBras:150, tete:70}},
+
+  mobilite:{nom:'Mobilité', prop:'',
+    a:{appui:'sol', cuisse:34, tibia:-30, torse:8,  bras:2,   avantBras:0,   tete:5,
+       cuisseL:-30, tibiaL:-74, piedL:52},
+    b:{appui:'sol', cuisse:34, tibia:-30, torse:4,  bras:170, avantBras:186, tete:0,
+       cuisseL:-30, tibiaL:-74, piedL:52}},
+
+  cardio:{nom:'Cardio', prop:'velo',
+    a:{appui:'assis', cuisse:74, tibia:16, torse:26, bras:56, avantBras:52, tete:16,
+       cuisseL:52, tibiaL:74},
+    b:{appui:'assis', cuisse:52, tibia:74, torse:26, bras:56, avantBras:52, tete:16,
+       cuisseL:74, tibiaL:16}}
+};
+
+/* Un schéma moteur peut ne pas avoir de dessin propre : on le rattache
+   au plus proche plutôt que de laisser un blanc.                     */
+const PANTIN_DE = {aqua:'cardio', sismo:'mobilite'};
+const mouvementDe = p => MOUVEMENTS[p] || MOUVEMENTS[PANTIN_DE[p]] || null;
+</script>
+
+<script>
+"use strict";
 /* ─── 12. Fenêtres : mesures, historique, fiche exercice ─────────────── */
 /* ─── Scan Visbody ────────────────────────────────────────────────────
    La machine ne rend pas deux chiffres mais quatre familles de résultats :
@@ -2450,6 +2632,58 @@ function modalHistorique(id){
     S.seances = S.seances.filter(x => x.id !== id); sauver(); fermerModal(); rendreSuivi(); toast('Séance supprimée.');
   });
 }
+
+/* ─── Dessin du pantin dans une fiche ────────────────────────────── */
+function accessoirePantin(s, prop){
+  const m = s.pres.main, e = s.epaule, h = s.hanche, c = 'pt-mat';
+  const L = (x1,y1,x2,y2) => `<line class="${c}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
+  if (prop === 'barre-dos')    return L(s.cou[0]-38, s.cou[1]+5, s.cou[0]+38, s.cou[1]+5);
+  if (prop === 'barre-mains' || prop === 'barre-haut') return L(m[0]-32, m[1], m[0]+32, m[1]);
+  if (prop === 'haltere')      return L(m[0]-10, m[1], m[0]+10, m[1]);
+  if (prop === 'banc')         return L(e[0]+16, h[1]+10, h[0]-24, h[1]+10);
+  if (prop === 'siege')        return L(h[0]+14, h[1]+10, h[0]-22, h[1]+10) + L(h[0]-22, h[1]+10, h[0]-22, h[1]-26);
+  if (prop === 'poulie-avant') return L(m[0], m[1], m[0]+44, m[1]);
+  if (prop === 'poulie-haut')  return L(m[0]+2, m[1], m[0]+10, m[1]-62);
+  if (prop === 'velo')         return `<circle class="pt-mat" cx="${(h[0]+26).toFixed(1)}" cy="${(h[1]+44).toFixed(1)}" r="16" fill="none"/>`;
+  return '';
+}
+function tracePantin(q, prop, fantome){
+  const s = squelette(q);
+  const c = fantome ? 'pt-gh' : 'pt-os', cl = fantome ? 'pt-gh' : 'pt-lo';
+  const L = (k, a, b) => `<line class="${k}" x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>`;
+  const mb = (m, k) => L(k, s.hanche, m.genou) + L(k, m.genou, m.cheville)
+    + L(k, m.cheville, m.orteil) + L(k, s.epaule, m.coude) + L(k, m.coude, m.main);
+  return mb(s.loin, cl)
+    + (fantome ? '' : accessoirePantin(s, prop))
+    + L(c, s.hanche, s.epaule)
+    + `<circle class="${fantome ? 'pt-ttg' : 'pt-tt'}" cx="${s.tete[0].toFixed(1)}" cy="${s.tete[1].toFixed(1)}" r="9"/>`
+    + mb(s.pres, c);
+}
+const pantinAnim = {};
+function arreterPantin(ou){
+  for (const k of ou ? [ou] : Object.keys(pantinAnim)){
+    if (pantinAnim[k]) cancelAnimationFrame(pantinAnim[k]);
+    delete pantinAnim[k];
+  }
+}
+function animerPantin(svg, mv, ou = 'fiche'){
+  const A = mv.a, B = mv.b;
+  const sol = `<line class="pt-sol" x1="-88" y1="0" x2="92" y2="0"/>`;
+  const lent = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (lent){   /* Mouvement réduit demandé : deux positions, aucune animation. */
+    svg.innerHTML = sol + tracePantin(A, mv.prop, true) + tracePantin(B, mv.prop, false);
+    return;
+  }
+  const t0 = performance.now();
+  const image = now => {
+    const t = (Math.sin((now - t0) / 1100) + 1) / 2;
+    svg.innerHTML = sol + tracePantin(t < .5 ? B : A, mv.prop, true)
+      + tracePantin(melange(A, B, t), mv.prop, false);
+    pantinAnim[ou] = requestAnimationFrame(image);
+  };
+  pantinAnim[ou] = requestAnimationFrame(image);
+}
+
 function ficheExercice(id){
   const e = EXO_MAP[id]; if (!e) return;
   const pr = S.prs[id];
@@ -2460,6 +2694,9 @@ function ficheExercice(id){
       <span class="badge">${['','Accessible','Intermédiaire','Technique'][e.nv]}</span>
       ${e.m.map(k => `<span class="badge">${MAT[k]}</span>`).join('')}
     </div>
+    ${mouvementDe(e.p) ? `<div class="pantin"><svg id="fx-pantin" viewBox="-96 -152 196 184" role="img"
+      aria-label="Schéma animé du mouvement : ${esc(e.n)}"></svg>
+      <span class="pantin-l">Schéma du mouvement — le trait pâle montre l’autre extrémité</span></div>` : ''}
     <div class="sec-title" style="margin-top:0">Exécution</div>
     <p style="font-size:14px;line-height:1.6;color:var(--text2)">${esc(e.c)}</p>
     <div class="note force"><b>L’erreur la plus fréquente.</b> ${esc(e.e)}</div>
@@ -2468,7 +2705,15 @@ function ficheExercice(id){
     <div class="sec-title">Si l’exercice ne convient pas</div>
     ${(e.a||[]).map(a => EXO_MAP[a]).filter(Boolean).map(x => `
       <button class="lib-i" data-fiche2="${x.i}"><div class="lib-g" style="color:var(--${GROUPES[x.g].c})">${GROUPES[x.g].n[0]}</div>
-        <div class="lib-t"><b>${esc(x.n)}</b><span>${x.m.map(k => MAT[k]).join(' · ')}</span></div></button>`).join('')}`);
+        <div class="lib-t"><b>${esc(x.n)}</b><span>${x.m.map(k => MAT[k]).join(' · ')}</span></div></button>`).join('')}
+    <div class="sec-title">Voir le mouvement en vrai</div>
+    <a class="btn lg" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.n + ' technique exécution musculation')}"
+       target="_blank" rel="noopener noreferrer">Chercher des vidéos</a>
+    <p class="tiny muted" style="margin-top:8px">Ouvre une recherche vidéo dans votre navigateur. Le schéma ci-dessus, lui, fonctionne sans réseau — utile au sous-sol d’une salle.</p>`);
+  const mv = mouvementDe(e.p);
+  const svg = $('#fx-pantin');
+  arreterPantin('fiche');
+  if (mv && svg) animerPantin(svg, mv, 'fiche');
   $$('#modal-c [data-fiche2]').forEach(b => b.addEventListener('click', () => ficheExercice(b.dataset.fiche2)));
 }
 
