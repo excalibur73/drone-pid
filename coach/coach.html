@@ -368,11 +368,10 @@ textarea.inp{min-height:76px;resize:vertical;line-height:1.5}
 .pantin.mini{margin:12px 0;padding:2px}
 .pantin.mini svg{height:124px}
 .pantin-l{display:block;text-align:center;font-size:11px;color:var(--muted);margin-top:-2px}
-.pt-os{stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.pt-lo{stroke:color-mix(in srgb,var(--accent) 55%,var(--sunk));stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.pt-gh{stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:.20;fill:none}
-.pt-tt{fill:var(--accent)}
-.pt-ttg{fill:var(--accent);opacity:.20}
+.pt-corps,.pt-pres{fill:var(--accent);stroke:none}
+.pt-loin{fill:color-mix(in srgb,var(--accent) 46%,var(--sunk));stroke:none}
+.pt-art{fill:var(--sunk);stroke:none}
+.pt-traj{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:3 3.5;opacity:.42;stroke-linecap:round}
 .pt-mat{stroke:var(--force);stroke-width:5;stroke-linecap:round;fill:none}
 .pt-sol{stroke:var(--line2);stroke-width:2}
 hr{border:0;border-top:1px solid var(--line);margin:16px 0}
@@ -703,7 +702,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.3.0';
+const VERSION = '1.4.0';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -1834,7 +1833,7 @@ function rendreExo(x, i, s){
     <div class="exo-b">
       <div class="exo-note"><b>${{pri:'Exercice principal',sec:'Exercice secondaire',iso:'Isolation',fin:'Finisher',cardio:'Cardio',recup:'Récupération'}[x.role] || 'Exercice'}.</b>
         ${motifs[x.motif] || ''} ${der ? `Dernière fois le ${dateCourte(der.date)} : ${der.series.map(y => `${y.charge}×${y.reps}`).join(', ')}.` : ''}</div>
-      ${ouvert && mouvementDe(EXO_MAP[x.ex]?.p) ? `<div class="pantin mini"><svg id="sx-pantin" viewBox="-96 -152 196 184" role="img"
+      ${ouvert && mouvementDe(EXO_MAP[x.ex]?.p) ? `<div class="pantin mini"><svg id="sx-pantin" viewBox="-98 -172 200 204" role="img"
         aria-label="Schéma animé du mouvement : ${esc(ex.n)}"></svg></div>` : ''}
       ${x.attention ? `<div class="note warn" style="margin:0 0 12px"><b>Aucun repli sans contrainte pour ce créneau.</b>
         Cet exercice touche une articulation que vous avez signalée : réduisez d'abord l'amplitude et la charge, ou remplacez-le ci-dessous.</div>` : ''}
@@ -2266,7 +2265,7 @@ function suiviAssiduite(){
    permet à un même moteur de dessiner un squat, un développé couché,
    une traction et une planche.
    Angle 0 = vers le bas, 180 = vers le haut, positif = vers l'avant. */
-const SEG = {cuisse:34, tibia:34, torse:42, bras:26, avantBras:24, cou:7, tete:9, pied:11};
+const SEG = {cuisse:34, tibia:34, torse:42, bras:26, avantBras:24, cou:11, tete:9, pied:11};
 const PT = (p, a, l) => [p[0] + l * Math.sin(a * Math.PI / 180), p[1] + l * Math.cos(a * Math.PI / 180)];
 const decal = (p, d) => [p[0] + d[0], p[1] + d[1]];
 
@@ -2339,8 +2338,8 @@ const MOUVEMENTS = {
     b:{appui:'banc', cuisse:58, tibia:-52, torse:90, bras:172, avantBras:184, tete:92}},
 
   pousseeV:{nom:'Poussée verticale', prop:'barre-mains',
-    a:{appui:'sol', cuisse:0, tibia:0, torse:3, bras:34,  avantBras:166, tete:2},
-    b:{appui:'sol', cuisse:0, tibia:0, torse:1, bras:162, avantBras:196, tete:0}},
+    a:{appui:'sol', cuisse:0, tibia:0, torse:3, bras:44,  avantBras:158, tete:2},
+    b:{appui:'sol', cuisse:0, tibia:0, torse:1, bras:150, avantBras:206, tete:0}},
 
   tirageV:{nom:'Tirage vertical', prop:'barre-haut',
     a:{appui:'barre', cuisse:-14, tibia:30, torse:-2, bras:178, avantBras:180, tete:-2,
@@ -2647,17 +2646,67 @@ function accessoirePantin(s, prop){
   if (prop === 'velo')         return `<circle class="pt-mat" cx="${(h[0]+26).toFixed(1)}" cy="${(h[1]+44).toFixed(1)}" r="16" fill="none"/>`;
   return '';
 }
+/* Un corps, pas une allumette : chaque segment est un fuseau — large à
+   l'articulation portante, fin à l'extrémité — et chaque articulation est
+   un disque visible. Tout est en aplat plutôt qu'en trait, ce qui permet
+   de faire varier l'épaisseur le long du membre.                        */
+const RAYON = {hanche:7.5, genou:5.6, cheville:4, orteil:2.4,
+               epaule:6.6, coude:5, main:3.4, bassin:8, buste:11, cou:4.4, tete:8.2};
+
+function fuseau(a, b, ra, rb){
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+  const nx = -dy / L, ny = dx / L;
+  const f = (p, r, sg) => `${(p[0] + nx * r * sg).toFixed(1)} ${(p[1] + ny * r * sg).toFixed(1)}`;
+  return `M${f(a, ra, 1)}L${f(b, rb, 1)}L${f(b, rb, -1)}L${f(a, ra, -1)}Z`;
+}
+const rond = (p, r) => `M${(p[0]-r).toFixed(1)} ${p[1].toFixed(1)}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0Z`;
+
+/* Le contour d'un membre : les fuseaux et les disques d'articulation
+   fusionnent en une seule forme pleine.                                */
+function membreForme(s, m, k){
+  const R = n => RAYON[n] * k;
+  return fuseau(s.hanche, m.genou, R('hanche'), R('genou'))
+    + fuseau(m.genou, m.cheville, R('genou'), R('cheville'))
+    + fuseau(m.cheville, m.orteil, R('cheville'), R('orteil'))
+    + fuseau(s.epaule, m.coude, R('epaule'), R('coude'))
+    + fuseau(m.coude, m.main, R('coude'), R('main'))
+    + rond(m.genou, R('genou')) + rond(m.cheville, R('cheville'))
+    + rond(m.coude, R('coude')) + rond(m.main, R('main'));
+}
+function troncForme(s, k){
+  const R = n => RAYON[n] * k;
+  return fuseau(s.hanche, s.epaule, R('bassin'), R('buste'))
+    + fuseau(s.epaule, s.cou, R('cou') * 1.25, R('cou'))
+    + rond(s.hanche, R('bassin')) + rond(s.epaule, R('epaule') * 1.2)
+    + rond(s.tete, R('tete'));
+}
+/* Les articulations, marquées en creux : c'est ce qui donne au pantin
+   sa lisibilité de mécanisme plutôt que de silhouette.                 */
+function articulations(s){
+  const pts = [[s.pres.genou, 2.5], [s.pres.coude, 2.3], [s.epaule, 2.6],
+               [s.hanche, 2.8], [s.pres.cheville, 2], [s.pres.main, 1.7]];
+  return pts.map(([p, r]) => rond(p, r)).join('');
+}
+/* La trajectoire de la main sur tout le mouvement : c'est elle qu'on
+   vient chercher, plus que la position d'arrivée.                     */
+function trajectoire(A, B){
+  const pts = [];
+  for (let i = 0; i <= 16; i++){
+    const m = squelette(melange(A, B, i / 16));
+    pts.push(`${m.pres.main[0].toFixed(1)},${m.pres.main[1].toFixed(1)}`);
+  }
+  return `<polyline class="pt-traj" points="${pts.join(' ')}"/>`;
+}
 function tracePantin(q, prop, fantome){
   const s = squelette(q);
-  const c = fantome ? 'pt-gh' : 'pt-os', cl = fantome ? 'pt-gh' : 'pt-lo';
-  const L = (k, a, b) => `<line class="${k}" x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>`;
-  const mb = (m, k) => L(k, s.hanche, m.genou) + L(k, m.genou, m.cheville)
-    + L(k, m.cheville, m.orteil) + L(k, s.epaule, m.coude) + L(k, m.coude, m.main);
-  return mb(s.loin, cl)
+  const g = fantome ? ' opacity=".15"' : '';
+  return `<g${g}>`
+    + `<path class="pt-loin" d="${membreForme(s, s.loin, 0.86)}"/>`
     + (fantome ? '' : accessoirePantin(s, prop))
-    + L(c, s.hanche, s.epaule)
-    + `<circle class="${fantome ? 'pt-ttg' : 'pt-tt'}" cx="${s.tete[0].toFixed(1)}" cy="${s.tete[1].toFixed(1)}" r="9"/>`
-    + mb(s.pres, c);
+    + `<path class="pt-corps" d="${troncForme(s, 1)}"/>`
+    + `<path class="pt-pres" d="${membreForme(s, s.pres, 1)}"/>`
+    + (fantome ? '' : `<path class="pt-art" d="${articulations(s)}"/>`)
+    + `</g>`;
 }
 const pantinAnim = {};
 function arreterPantin(ou){
@@ -2668,7 +2717,7 @@ function arreterPantin(ou){
 }
 function animerPantin(svg, mv, ou = 'fiche'){
   const A = mv.a, B = mv.b;
-  const sol = `<line class="pt-sol" x1="-88" y1="0" x2="92" y2="0"/>`;
+  const sol = `<line class="pt-sol" x1="-88" y1="0" x2="92" y2="0"/>` + trajectoire(mv.a, mv.b);
   const lent = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (lent){   /* Mouvement réduit demandé : deux positions, aucune animation. */
     svg.innerHTML = sol + tracePantin(A, mv.prop, true) + tracePantin(B, mv.prop, false);
@@ -2694,7 +2743,7 @@ function ficheExercice(id){
       <span class="badge">${['','Accessible','Intermédiaire','Technique'][e.nv]}</span>
       ${e.m.map(k => `<span class="badge">${MAT[k]}</span>`).join('')}
     </div>
-    ${mouvementDe(e.p) ? `<div class="pantin"><svg id="fx-pantin" viewBox="-96 -152 196 184" role="img"
+    ${mouvementDe(e.p) ? `<div class="pantin"><svg id="fx-pantin" viewBox="-98 -172 200 204" role="img"
       aria-label="Schéma animé du mouvement : ${esc(e.n)}"></svg>
       <span class="pantin-l">Schéma du mouvement — le trait pâle montre l’autre extrémité</span></div>` : ''}
     <div class="sec-title" style="margin-top:0">Exécution</div>
