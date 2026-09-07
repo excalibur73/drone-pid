@@ -690,6 +690,10 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
+const VERSION = '1.1.0';
+/* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
+   Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
+const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
 const CLE = 'coach.v1';
 const DEFAUTS = {
   version: 1,
@@ -2597,6 +2601,11 @@ function rendreReglages(){
     <button class="btn lg" id="rg-donnees" style="margin-top:14px">Sauvegarder ou restaurer</button>
     <p class="tiny muted" style="margin-top:10px">Tout est enregistré sur cet appareil uniquement. Vider les données du site dans le navigateur effacerait l'historique — faites une sauvegarde de temps en temps.</p>
     <button class="btn ghost danger lg" id="rg-effacer" style="margin-top:12px">Tout effacer</button>
+  </div>
+  <div class="card flat tight" style="margin-top:14px">
+    <div class="split"><span class="sl">Version</span><span class="sv">${VERSION}</span></div>
+    ${BUILD ? `<div class="split"><span class="sl">Build</span><span class="sv" style="font-size:12px">${esc(BUILD)}</span></div>` : ''}
+    <p class="tiny muted" style="margin-top:10px">Citez ces deux valeurs si quelque chose ne va pas : la première dit ce que l'application sait faire, la seconde désigne exactement les octets servis par votre téléphone.</p>
   </div>
   <p class="tiny muted" style="text-align:center;padding:16px 0 4px">Coach — application personnelle, sans compte ni serveur.<br>
     Ce programme ne remplace pas un avis médical. En cas de douleur qui persiste, consultez.</p>`;
