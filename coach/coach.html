@@ -721,7 +721,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.8.1';
+const VERSION = '1.8.2';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -2032,7 +2032,7 @@ function brancherSeance(s){
   arreterPantin('seance');
   const ouvert = s.exercices[exoOuvert], svgS = $('#v-seance #sx-pantin');
   const mvS = ouvert && mouvementDe(ouvert.ex);
-  if (mvS && svgS) animerPantin(svgS, mvS, 'seance');
+  if (mvS && svgS) animerPantin(svgS, mvS, 'seance', accessoireDe(ouvert.ex, mvS));
   $$('#v-seance [data-toggle]').forEach(b => b.addEventListener('click', () => {
     const i = +b.dataset.toggle; exoOuvert = exoOuvert === i ? -1 : i; rendreSeance();
   }));
@@ -2098,7 +2098,13 @@ function modalRemplacer(s, i){
     const prop = chargeProposee(id, x.repsCible[1], x.rpe);
     x.series = x.series.map(y => y.fait ? y : {...y, charge:prop ? prop.kg : 0});
     sauver(); fermerModal(); rendreSeance();
-    toast('Exercice remplacé pour ce bloc.');
+    /* Un remplacement garde le plus souvent le schéma moteur : le dessin
+       ne bouge alors pas, et l'écran paraît n'avoir rien enregistré. On
+       le dit plutôt que de laisser deviner.                           */
+    const avant = mouvementDe(ex.i), apres = mouvementDe(id);
+    toast(avant && apres && avant === apres
+      ? `${EXO_MAP[id].n} — même schéma (${apres.nom.toLowerCase()})`
+      : `Remplacé par ${EXO_MAP[id].n}`);
   }));
 }
 function modalAjouterExo(s){
@@ -2587,6 +2593,20 @@ const MOUVEMENTS = {
     b:{appui:'sol', cuisse:-34, tibia:-118,  pied:40, torse:14, bras:34,  avantBras:124, tete:12,
        cuisseL:52,  tibiaL:-30,  piedL:18,   brasL:-38, avantBrasL:52}},
 
+  pompes:{nom:'Pompes', prop:'',
+    /* Mains et orteils au sol dans les deux poses : le buste descend
+       vers les mains, il ne décolle pas.                            */
+    a:{appui:'sol', cuisse:-71, tibia:-73, pied:90, torse:66, bras:2,   avantBras:6,  tete:74,
+       cuisseL:-71, tibiaL:-73, piedL:90},
+    b:{appui:'sol', cuisse:-71, tibia:-73, pied:90, torse:91, bras:-64, avantBras:30, tete:99,
+       cuisseL:-71, tibiaL:-73, piedL:90}},
+
+  presse:{nom:'Presse à cuisses', prop:'siege',
+    a:{appui:'assis', cuisse:120, tibia:56, torse:-16, bras:20, avantBras:30, tete:-12,
+       cuisseL:120, tibiaL:56},
+    b:{appui:'assis', cuisse:100, tibia:88, torse:-16, bras:20, avantBras:30, tete:-12,
+       cuisseL:100, tibiaL:88}},
+
   rameur:{nom:'Rameur', prop:'poulie-avant',
     a:{appui:'assis', cuisse:68, tibia:-50, torse:30,  bras:62,  avantBras:66,  tete:26,
        cuisseL:68, tibiaL:-50},
@@ -2607,7 +2627,42 @@ const PANTIN_DE = {aqua:'cardio', sismo:'mobilite'};
    tapis n'a rien d'un pédalage. Certains exercices méritent donc leur
    propre schéma, avant celui de leur schéma moteur.                    */
 const PANTIN_EXO = {'marche-rapide':'marche', 'fractionne':'course',
-  'elliptique':'marche', 'rameur':'rameur'};
+  'elliptique':'marche', 'rameur':'rameur',
+  'pompes':'pompes', 'pompes-genoux':'pompes', 'pompes-surelevees':'pompes',
+  'presse':'presse'};
+
+/* Un remplacement garde volontairement le schéma moteur : c'est tout
+   l'intérêt de la manœuvre. Le dessin ne changerait donc jamais, ce qui
+   se lit comme un écran figé. Ce qui change, lui, c'est ce qu'on a dans
+   les mains — barre derrière la nuque, haltère, poignée, ou rien. On
+   dessine donc l'accessoire de l'exercice, pas celui du schéma.      */
+const ACCESSOIRE = {
+  squat:     {barre:'barre-dos',   halteres:'haltere', kb:'haltere',      machine:'siege', pdc:''},
+  fente:     {barre:'barre-dos',   halteres:'haltere', banc:'banc',       pdc:''},
+  charniere: {barre:'barre-mains', halteres:'haltere', elastique:'elastique', banc:'banc', pdc:''},
+  pousseeH:  {barre:'banc barre-mains', halteres:'banc haltere', machine:'siege', pdc:''},
+  pousseeV:  {barre:'barre-mains', halteres:'haltere', machine:'siege'},
+  tirageV:   {pdc:'barre-haut',    machine:'barre-haut', poulie:'barre-haut', elastique:'barre-haut'},
+  tirageH:   {barre:'barre-mains', halteres:'haltere', poulie:'poulie-avant',
+              machine:'poulie-avant', elastique:'elastique'},
+  biceps:    {barre:'barre-mains', halteres:'haltere', poulie:'poulie-avant'},
+  triceps:   {poulie:'poulie-haut', barre:'barre-mains', halteres:'haltere', banc:'banc', pdc:''},
+  epaulesLat:{halteres:'haltere',  poulie:'poulie-avant', machine:'siege', elastique:'elastique'},
+  pecIso:    {poulie:'poulie-avant', halteres:'banc haltere', machine:'siege'},
+  dosIso:    {halteres:'haltere',  barre:'barre-mains'},
+  quaIso:    {machine:'siege'},   iscIso:{machine:'siege', elastique:'elastique'},
+  mollets:   {machine:'siege',    halteres:'haltere', pdc:''},
+  gainage:   {poulie:'poulie-avant', elastique:'elastique', pdc:''}
+};
+/* L'ordre compte : ce qu'on tient prime sur la machine qui le porte. */
+const MAT_ORDRE = ['barre','halteres','kb','elastique','poulie','machine','banc','pdc'];
+function accessoireDe(ref, mv){
+  const e = typeof ref === 'string' ? EXO_MAP[ref] : ref;
+  const t = e && ACCESSOIRE[e.p];
+  if (!t) return mv ? mv.prop : '';
+  for (const m of MAT_ORDRE) if (e.m.includes(m) && t[m] !== undefined) return t[m];
+  return mv ? mv.prop : '';
+}
 function mouvementDe(ref){
   const e = typeof ref === 'string' ? EXO_MAP[ref] : ref;
   const p = e ? e.p : ref;
@@ -2835,6 +2890,8 @@ function modalHistorique(id){
 
 /* ─── Dessin du pantin dans une fiche ────────────────────────────── */
 function accessoirePantin(s, prop){
+  if (!prop) return '';
+  if (prop.includes(' ')) return prop.split(' ').map(x => accessoirePantin(s, x)).join('');
   const m = s.pres.main, e = s.epaule, h = s.hanche, c = 'pt-mat';
   const L = (x1,y1,x2,y2) => `<line class="${c}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
   if (prop === 'barre-dos')    return L(s.cou[0]-38, s.cou[1]+5, s.cou[0]+38, s.cou[1]+5);
@@ -2845,6 +2902,7 @@ function accessoirePantin(s, prop){
   if (prop === 'poulie-avant') return L(m[0], m[1], m[0]+44, m[1]);
   if (prop === 'poulie-haut')  return L(m[0]+2, m[1], m[0]+10, m[1]-62);
   if (prop === 'velo')         return `<circle class="pt-mat" cx="${(h[0]+26).toFixed(1)}" cy="${(h[1]+44).toFixed(1)}" r="16" fill="none"/>`;
+  if (prop === 'elastique')    return L(m[0], m[1], h[0] - 8, 0);
   if (prop === 'pente')        return L(-30, 4, 54, -16);
   return '';
 }
@@ -2917,19 +2975,19 @@ function arreterPantin(ou){
     delete pantinAnim[k];
   }
 }
-function animerPantin(svg, mv, ou = 'fiche'){
+function animerPantin(svg, mv, ou = 'fiche', prop = mv.prop){
   const A = mv.a, B = mv.b;
   const sol = `<line class="pt-sol" x1="-88" y1="0" x2="92" y2="0"/>` + trajectoire(mv.a, mv.b);
   const lent = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (lent){   /* Mouvement réduit demandé : deux positions, aucune animation. */
-    svg.innerHTML = sol + tracePantin(A, mv.prop, true) + tracePantin(B, mv.prop, false);
+    svg.innerHTML = sol + tracePantin(A, prop, true) + tracePantin(B, prop, false);
     return;
   }
   const t0 = performance.now();
   const image = now => {
     const t = (Math.sin((now - t0) / 1100) + 1) / 2;
-    svg.innerHTML = sol + tracePantin(t < .5 ? B : A, mv.prop, true)
-      + tracePantin(melange(A, B, t), mv.prop, false);
+    svg.innerHTML = sol + tracePantin(t < .5 ? B : A, prop, true)
+      + tracePantin(melange(A, B, t), prop, false);
     pantinAnim[ou] = requestAnimationFrame(image);
   };
   pantinAnim[ou] = requestAnimationFrame(image);
@@ -2964,7 +3022,7 @@ function ficheExercice(id){
   const mv = mouvementDe(e.i);
   const svg = $('#fx-pantin');
   arreterPantin('fiche');
-  if (mv && svg) animerPantin(svg, mv, 'fiche');
+  if (mv && svg) animerPantin(svg, mv, 'fiche', accessoireDe(e, mv));
   $$('#modal-c [data-fiche2]').forEach(b => b.addEventListener('click', () => ficheExercice(b.dataset.fiche2)));
 }
 
