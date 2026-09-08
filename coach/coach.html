@@ -702,7 +702,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.4.0';
+const VERSION = '1.4.1';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -1285,8 +1285,9 @@ function ecrBienvenue(){
       color:var(--on-accent);font-family:var(--display);font-weight:800;font-size:31px">C</div>
     ${titreEtape('Votre coach', "Un programme de douze semaines calculé sur votre corps, vos jours disponibles et votre matériel — puis réajusté chaque semaine d'après ce que vous enregistrez.")}
   </div>
-  <div class="field" style="margin-top:26px"><label for="p-prenom">Comment vous appelle-t-on ?</label>
-    <input class="inp" id="p-prenom" value="${esc(T.prenom)}" placeholder="Votre prénom" autocomplete="given-name"></div>
+  <div class="field" style="margin-top:26px"><label for="p-prenom">Votre prénom</label>
+    <input class="inp" id="p-prenom" value="${esc(T.prenom)}" placeholder="Facultatif" autocomplete="given-name">
+    <div class="hint">Il ne sert qu'à vous saluer le matin. Laissez vide si vous préférez.</div></div>
   <div class="note"><b>Rien ne sort de votre téléphone.</b> Tout est enregistré localement, sans compte ni serveur. L'export dans les réglages produit un fichier que vous gardez.</div>`;
 }
 function ecrCorps(){
