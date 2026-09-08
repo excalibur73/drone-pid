@@ -362,6 +362,15 @@ textarea.inp{min-height:76px;resize:vertical;line-height:1.5}
   background:var(--text);color:var(--bg);padding:11px 18px;border-radius:13px;font-size:13.5px;font-weight:600;
   box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s cubic-bezier(.2,.8,.3,1);max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+/* ── Bandeau de consignes ─────────────────────────────────────── */
+.presc{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 4px}
+@media (max-width:400px){.presc{grid-template-columns:repeat(2,1fr)}}
+.pr-t{background:var(--sunk);border:1px solid var(--line);border-radius:11px;padding:8px 9px;text-align:center}
+.pr-t span{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pr-t b{display:block;font-family:var(--display);font-size:16px;font-weight:800;letter-spacing:-.02em;margin-top:3px;font-variant-numeric:tabular-nums}
+.pr-t i{display:block;font-style:normal;font-size:10px;color:var(--muted);margin-top:2px;line-height:1.3}
+.pr-d{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 2px 0}
+
 /* ── Pantin ───────────────────────────────────────────────────── */
 .pantin{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:6px 6px 10px;margin-bottom:16px}
 .pantin svg{width:100%;height:180px;display:block}
@@ -702,7 +711,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.5.0';
+const VERSION = '1.6.0';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -1715,7 +1724,7 @@ function apercuSeance(dateIso){
       return `<div class="lib-i" data-ex="${x.ex}">
         <div class="lib-g" style="color:var(--${GROUPES[ex.g].c});font-family:var(--display);font-weight:800">${i+1}</div>
         <div class="lib-t"><b>${esc(ex.n)}</b>
-          <span>${x.temps ? `${x.series} × ${x.reps[0]}-${x.reps[1]} s` : `${x.series} × ${x.reps[0]}-${x.reps[1]} reps`} · RPE ${x.rpe}${x.repos?` · repos ${x.repos}s`:''}${x.zone?` · ${x.zone}`:''}</span></div>
+          <span>${x.temps ? `${x.series} × ${x.reps[0]}-${x.reps[1]} s` : `${x.series} × ${x.reps[0]}-${x.reps[1]} reps`} · RPE ${x.rpe}${!x.temps && TEMPO[x.role] ? ` · tempo ${TEMPO[x.role].n}` : ''}${x.repos?` · repos ${fmtRepos(x.repos)}`:''}${x.zone?` · ${x.zone}`:''}</span></div>
       </div>`;
     }).join('')}
     ${fait ? `<div class="note"><b>Déjà faite.</b> ${Math.round(tonnage(e)).toLocaleString('fr-FR')} kg déplacés.</div>`
@@ -1727,6 +1736,52 @@ function apercuSeance(dateIso){
 
 <script>
 "use strict";
+
+/* ─── Consignes d'exécution ───────────────────────────────────────────
+   Deux prescriptions manquaient au carnet : le tempo — à quelle vitesse
+   la répétition se fait, donc combien de temps la série dure — et le
+   repos, jusqu'ici seulement déclenché à la validation sans jamais être
+   annoncé. Sans elles, « 3 × 10 » ne dit pas comment s'exécute la série. */
+const TEMPO = {
+  pri:{n:'2-0-1', exc:2, pause:0, con:1,
+       d:'Deux secondes pour descendre, aucune pause en bas, une seconde pour monter.'},
+  sec:{n:'2-0-1', exc:2, pause:0, con:1,
+       d:'Deux secondes pour descendre, aucune pause en bas, une seconde pour monter.'},
+  iso:{n:'2-1-1', exc:2, pause:1, con:1,
+       d:'Deux secondes pour revenir, une seconde de contraction en fin de course, une pour aller.'}
+};
+/* Ce que le chiffre de RPE veut dire concrètement, en répétitions. */
+const RESERVE = {5:'5 répétitions en réserve', 6:'4 en réserve', 6.5:'3 à 4 en réserve',
+  7:'3 en réserve', 7.5:'2 à 3 en réserve', 8:'2 en réserve', 8.5:'1 à 2 en réserve',
+  9:'1 en réserve', 9.5:'presque plus rien', 10:'plus rien du tout'};
+const reserveDe = r => RESERVE[r] || RESERVE[Math.round(r * 2) / 2] || '';
+
+/* Pourquoi ce repos-là : ce n'est pas la même contrainte selon le rôle. */
+const POURQUOI_REPOS = {
+  pri:'Sur un exercice lourd, ce sont les réserves d’énergie du muscle qui décident : il leur faut ce temps pour se reconstituer. Écourter, c’est perdre des répétitions à la série suivante.',
+  sec:'Assez pour retrouver de la force, assez court pour que la séance tienne dans le temps prévu.',
+  iso:'Sur une isolation, le muscle récupère vite : allonger n’apporterait rien.',
+  fin:'Un finisher se fait court : c’est la tension continue qui compte.'
+};
+const fmtRepos = s => s >= 60 ? `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}` : `${s} s`;
+
+/* Le bandeau affiché avant la première série. */
+function prescription(x){
+  const t = !x.temps && TEMPO[x.role];
+  const dureeSerie = t ? Math.round(x.repsCible[1] * (t.exc + t.pause + t.con)) : null;
+  const tuile = (k, v, i) => `<div class="pr-t"><span>${k}</span><b>${v}</b>${i ? `<i>${i}</i>` : ''}</div>`;
+  return `<div class="presc">
+    ${x.temps
+      ? tuile('Durée', `${x.repsCible[0]}-${x.repsCible[1]} s`, x.zone || 'par série')
+      : tuile('Répétitions', `${x.repsCible[0]}-${x.repsCible[1]}`, 'par série')}
+    ${tuile('Effort', 'RPE ' + x.rpe, reserveDe(x.rpe))}
+    ${t ? tuile('Tempo', t.n, `≈ ${dureeSerie} s`) : ''}
+    ${x.repos > 0 ? tuile('Repos', fmtRepos(x.repos), 'entre séries') : ''}
+  </div>
+  ${t ? `<p class="pr-d">${t.d}</p>` : ''}
+  ${x.repos > 0 && POURQUOI_REPOS[x.role] ? `<p class="pr-d">${POURQUOI_REPOS[x.role]}</p>` : ''}`;
+}
+
 /* ─── 9. Vue « Séance » : le carnet d'entraînement ────────────────────
    Le principe : proposer une charge argumentée pour chaque série, puis
    n'enregistrer que ce qui a réellement été fait.                      */
@@ -1841,6 +1896,7 @@ function rendreExo(x, i, s){
         aria-label="Schéma animé du mouvement : ${esc(ex.n)}"></svg></div>` : ''}
       ${x.attention ? `<div class="note warn" style="margin:0 0 12px"><b>Aucun repli sans contrainte pour ce créneau.</b>
         Cet exercice touche une articulation que vous avez signalée : réduisez d'abord l'amplitude et la charge, ou remplacez-le ci-dessous.</div>` : ''}
+      ${prescription(x)}
       <div class="serie-h"><span>Série</span><span>${x.temps?'Secondes':'Reps'}</span><span>${x.temps?'Résistance':'Charge (kg)'}</span><span>RPE</span><span></span></div>
       ${x.series.map((y, j) => `
         <div class="serie ${y.echauffement?'warmup':''}">
