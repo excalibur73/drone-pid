@@ -362,6 +362,16 @@ textarea.inp{min-height:76px;resize:vertical;line-height:1.5}
   background:var(--text);color:var(--bg);padding:11px 18px;border-radius:13px;font-size:13.5px;font-weight:600;
   box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s cubic-bezier(.2,.8,.3,1);max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+/* ── Mots expliqués et bulles ─────────────────────────────────── */
+.def{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:help;
+  border-bottom:1px dashed color-mix(in srgb,currentColor 55%,transparent);line-height:inherit}
+.def:hover{border-bottom-style:solid}
+.bulle{position:fixed;z-index:400;max-width:min(320px,calc(100vw - 20px));background:var(--surface);
+  border:1px solid var(--line2);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow-lg);
+  animation:rise .16s cubic-bezier(.2,.7,.3,1)}
+.bulle b{display:block;font-family:var(--display);font-size:13.5px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px}
+.bulle p{font-size:12.5px;line-height:1.55;color:var(--text2)}
+
 /* ── Bandeau de consignes ─────────────────────────────────────── */
 .presc{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 4px}
 @media (max-width:400px){.presc{grid-template-columns:repeat(2,1fr)}}
@@ -711,7 +721,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.6.0';
+const VERSION = '1.7.0';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -1527,7 +1537,7 @@ function rendreJour(){
 
   <div class="sec-title">En un coup d’œil</div>
   <div class="grid g2">
-    <div class="stat"><div class="k">Poids lissé</div>
+    <div class="stat"><div class="k">${def('lisse','Poids lissé')}</div>
       <div class="v">${pl !== null ? rnd(pl,1) : rnd(m.poids,1)}<span class="u">kg</span></div>
       <div class="d">${t !== null ? delta(t,' kg', S.profil.objectif !== 'muscle') + ' sur 7 jours' : 'moyenne sur 7 jours'}</div></div>
     <div class="stat accent"><div class="k">Séances / 7 jours</div>
@@ -1535,7 +1545,7 @@ function rendreJour(){
       <div class="d">${cetteSemaine >= S.profil.joursSemaine ? 'objectif atteint' : `encore ${S.profil.joursSemaine - cetteSemaine}`}</div></div>
     <div class="stat"><div class="k">Série en cours</div>
       <div class="v">${serieAssiduite()}<span class="u">sem.</span></div><div class="d">sans semaine blanche</div></div>
-    <div class="stat cardio"><div class="k">Tonnage 7 jours</div>
+    <div class="stat cardio"><div class="k">${def('tonnage','Tonnage 7 jours')}</div>
       <div class="v">${Math.round(S.seances.filter(s => s.termine && joursEntre(s.date,aujourdhui()) < 7).reduce((a,s)=>a+tonnage(s),0)/1000)}<span class="u">t</span></div>
       <div class="d">charge × répétitions</div></div>
   </div>
@@ -1674,8 +1684,8 @@ function rendreProgramme(){
     }).join('')}
   </div>
   <div class="card">
-    <div class="card-h"><h3>Bloc ${bloc} — ${presc.nom}</h3>
-      <span class="badge ${estDecharge(sem)?'warn':'accent'}">${estDecharge(sem)?'Décharge':'Semaine ' + ((sem-1)%4+1) + ' / 4'}</span></div>
+    <div class="card-h"><h3>${def('bloc','Bloc')} ${bloc} — ${presc.nom}</h3>
+      <span class="badge ${estDecharge(sem)?'warn':'accent'}">${estDecharge(sem)?def('decharge','Décharge'):'Semaine ' + ((sem-1)%4+1) + ' / 4'}</span></div>
     <p class="tiny" style="color:var(--text2)">${presc.d}</p>
     ${estDecharge(sem) ? `<div class="note warn" style="margin-bottom:0"><b>Semaine allégée.</b> Le volume tombe de 40 %, les charges restent. C'est la semaine où les articulations et le système nerveux rattrapent le muscle — la sauter est le meilleur moyen de stagner au bloc suivant.</div>`
       : `<div class="grid g3" style="margin-top:14px">
@@ -1737,6 +1747,96 @@ function apercuSeance(dateIso){
 <script>
 "use strict";
 
+/* ─── Lexique et bulles ───────────────────────────────────────────────
+   Le carnet emploie une vingtaine de mots qui supposent un vocabulaire
+   déjà acquis. Chacun devient cliquable et s'explique sur place, sans
+   quitter l'écran ni perdre le fil de la séance.                      */
+const LEXIQUE = {
+  rpe:{n:'RPE — difficulté ressentie',
+    d:'Une note de 1 à 10 que vous donnez à la série que vous venez de faire. Ce qui compte est le nombre de répétitions qu’il vous restait : RPE 7 signifie « j’aurais pu en faire 3 de plus », RPE 10 « plus une seule ». C’est plus fiable qu’un pourcentage figé, parce que votre force du jour varie selon le sommeil et la fatigue.'},
+  tempo:{n:'Tempo',
+    d:'La vitesse d’exécution, en secondes. « 2-0-1 » se lit : deux secondes pour la phase où le muscle s’allonge, aucune pause, une seconde pour la phase où il se raccourcit. Ralentir la descente augmente le travail sans ajouter de poids.'},
+  serie:{n:'Série et répétition',
+    d:'Une répétition, c’est un mouvement complet. Une série, c’est un groupe de répétitions enchaînées sans repos. « 3 × 10 » veut dire trois séries de dix répétitions, avec un repos entre chacune.'},
+  repos:{n:'Le repos entre séries',
+    d:'Le temps d’attente avant la série suivante. Il n’est pas décoratif : le muscle reconstitue pendant ce temps l’énergie qu’il vient de dépenser. Sur un exercice lourd il faut deux à trois minutes ; sur une isolation, une minute suffit.'},
+  rm1:{n:'1RM estimé',
+    d:'La charge que vous pourriez soulever une seule fois, calculée à partir d’une série ordinaire — vous n’avez jamais à la tenter. Elle sert à comparer des séries de longueurs différentes : 60 kg × 10 et 80 kg × 1 représentent le même niveau de force.'},
+  tonnage:{n:'Tonnage',
+    d:'La charge totale déplacée : chaque série compte son poids multiplié par son nombre de répétitions, et on additionne. Une séance de 8 tonnes n’a rien d’exceptionnel — c’est simplement une façon de mesurer le travail accompli.'},
+  bloc:{n:'Bloc',
+    d:'Un groupe de quatre semaines avec la même logique. Les trois premières montent en charge, la quatrième allège. Le programme en compte trois : d’abord la technique, puis le volume, enfin les charges lourdes.'},
+  decharge:{n:'Semaine de décharge',
+    d:'Une semaine allégée : le nombre de séries baisse de 40 %, les charges ne bougent pas. C’est là que les articulations et le système nerveux rattrapent le muscle. La sauter est le meilleur moyen de stagner ensuite.'},
+  volume:{n:'Volume — séries dures',
+    d:'Le nombre de séries réellement difficiles faites dans la semaine pour un groupe musculaire. Les séries d’échauffement ne comptent pas. En dessous d’une dizaine par groupe, on entretient sans progresser.'},
+  progression:{n:'Double progression',
+    d:'La règle qui décide de vos charges. On ajoute d’abord des répétitions jusqu’au haut de la fourchette prévue ; une fois atteinte sans forcer, on monte le poids et on repart en bas. Lent, et c’est précisément pour ça que ça tient sur douze semaines.'},
+  echauffement:{n:'Séries montantes',
+    d:'Deux séries légères avant la vraie série d’un exercice lourd : la moitié de la charge sur huit répétitions, puis les trois quarts sur quatre. Elles préparent le mouvement lui-même, ce qu’aucun échauffement général ne fait.'},
+  poly:{n:'Exercice polyarticulaire',
+    d:'Un mouvement qui fait travailler plusieurs articulations et beaucoup de muscles à la fois — squat, développé, tirage. C’est là que se construit l’essentiel de la force, d’où sa place en début de séance, quand vous êtes frais.'},
+  iso:{n:'Exercice d’isolation',
+    d:'Un mouvement qui ne fait travailler qu’une articulation et cible un muscle — curl, élévations latérales. Il complète, il ne remplace pas. On le place en fin de séance.'},
+  gainage:{n:'Gainage',
+    d:'Tenir une position sans bouger pour que le tronc apprenne à résister. Ce n’est pas de la force au sens habituel : c’est ce qui protège le bas du dos quand la charge monte sur les autres exercices.'},
+  fcmax:{n:'Fréquence cardiaque maximale',
+    d:'Le nombre de battements par minute que votre cœur peut atteindre au maximum. Elle s’estime avec votre âge et sert uniquement à découper les zones d’effort — vous n’avez pas à la vérifier sur le terrain.'},
+  zone2:{n:'Zone 2',
+    d:'Une allure de cardio facile, entre 60 et 70 % du maximum. Le repère sans montre : vous devez pouvoir dire une phrase entière sans reprendre votre souffle. C’est l’allure qui brûle sans entamer votre récupération pour la séance de force.'},
+  mb:{n:'Métabolisme de base',
+    d:'Ce que votre corps dépense au repos complet, rien qu’à fonctionner — cœur, cerveau, température. C’est le plancher : on ne mange jamais durablement en dessous, sous peine de perdre du muscle plutôt que du gras.'},
+  depense:{n:'Dépense quotidienne',
+    d:'Le métabolisme de base multiplié par votre niveau d’activité en dehors des séances. C’est le point d’équilibre : manger autant maintient le poids, moins le fait baisser, plus le fait monter.'},
+  macros:{n:'Protéines, lipides, glucides',
+    d:'Les trois familles d’aliments. Les protéines réparent le muscle et sont la priorité quand on veut maigrir sans fondre. Les lipides servent aux hormones. Les glucides sont le carburant de l’effort.'},
+  mg:{n:'Masse grasse',
+    d:'La part de votre poids qui est du gras, en pourcentage. C’est elle qu’on veut faire baisser — et non le poids lui-même, qui mélange gras, muscle, eau et contenu de l’estomac.'},
+  maigre:{n:'Masse maigre',
+    d:'Tout le reste : muscles, os, organes, eau. C’est le chiffre à préserver pendant une perte de poids. Une balance qui descend pendant que la masse maigre descend aussi, c’est un mauvais résultat déguisé en bon.'},
+  lisse:{n:'Poids lissé',
+    d:'La moyenne de vos pesées sur sept jours. La pesée d’un jour donné varie de plus d’un kilo selon le sel, l’eau et le transit : elle ne dit rien. La moyenne, si.'},
+  impedance:{n:'Impédancemètre',
+    d:'Un appareil qui fait passer un courant très faible dans le corps pour estimer la part de gras et de muscle. Il se trompe d’environ un point d’une fois sur l’autre : c’est la tendance sur plusieurs mesures qui compte, jamais l’écart entre deux.'},
+  whey:{n:'Whey',
+    d:'De la protéine de lait en poudre. Rien de magique : c’est un moyen commode d’atteindre votre quota de protéines quand les repas n’y suffisent pas. Des œufs ou du fromage blanc font le même travail.'}
+};
+
+let bulleOuverte = null;
+function fermerBulle(){ bulleOuverte?.remove(); bulleOuverte = null; }
+function ouvrirBulle(cle, ancre){
+  const t = LEXIQUE[cle];
+  if (!t) return;
+  const dejaLa = bulleOuverte && bulleOuverte.dataset.cle === cle;
+  fermerBulle();
+  if (dejaLa) return;                    /* second clic : on referme */
+  const el = document.createElement('div');
+  el.className = 'bulle'; el.dataset.cle = cle; el.setAttribute('role', 'tooltip');
+  el.innerHTML = `<b>${esc(t.n)}</b><p>${esc(t.d)}</p>`;
+  document.body.appendChild(el);
+  /* Position : sous le mot, rabattue au-dessus si le bas manque, et
+     toujours ramenée dans l'écran — un téléphone étroit déborde vite. */
+  const r = ancre.getBoundingClientRect(), b = el.getBoundingClientRect();
+  const marge = 10;
+  let x = r.left + r.width / 2 - b.width / 2;
+  x = Math.max(marge, Math.min(x, innerWidth - b.width - marge));
+  let y = r.bottom + 8;
+  if (y + b.height > innerHeight - marge) y = Math.max(marge, r.top - b.height - 8);
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  bulleOuverte = el;
+}
+/* Un mot cliquable. Le pointillé sous le texte signale qu'il s'explique. */
+const def = (cle, texte) => `<button class="def" data-def="${cle}" aria-label="Définition : ${esc(LEXIQUE[cle]?.n || cle)}">${esc(texte)}</button>`;
+
+function modalLexique(){
+  ouvrirModal(`
+    <div class="modal-h"><h3>Le vocabulaire</h3><button class="icon-btn" data-fermer>✕</button></div>
+    <p class="tiny muted" style="margin-bottom:16px">Tous ces mots sont aussi cliquables là où ils apparaissent dans l’application : un pointillé sous un mot signale qu’il s’explique.</p>
+    ${Object.entries(LEXIQUE).map(([k, t]) => `<div style="padding:12px 0;border-bottom:1px solid var(--line)">
+      <b style="font-size:13.5px;display:block">${esc(t.n)}</b>
+      <p class="tiny" style="color:var(--text2);line-height:1.55;margin-top:4px">${esc(t.d)}</p></div>`).join('')}`);
+}
+
 /* ─── Consignes d'exécution ───────────────────────────────────────────
    Deux prescriptions manquaient au carnet : le tempo — à quelle vitesse
    la répétition se fait, donc combien de temps la série dure — et le
@@ -1769,14 +1869,14 @@ const fmtRepos = s => s >= 60 ? `${Math.floor(s/60)}:${String(s%60).padStart(2,'
 function prescription(x){
   const t = !x.temps && TEMPO[x.role];
   const dureeSerie = t ? Math.round(x.repsCible[1] * (t.exc + t.pause + t.con)) : null;
-  const tuile = (k, v, i) => `<div class="pr-t"><span>${k}</span><b>${v}</b>${i ? `<i>${i}</i>` : ''}</div>`;
+  const tuile = (k, v, i, cle) => `<div class="pr-t"><span>${cle ? def(cle, k) : k}</span><b>${v}</b>${i ? `<i>${i}</i>` : ''}</div>`;
   return `<div class="presc">
     ${x.temps
-      ? tuile('Durée', `${x.repsCible[0]}-${x.repsCible[1]} s`, x.zone || 'par série')
-      : tuile('Répétitions', `${x.repsCible[0]}-${x.repsCible[1]}`, 'par série')}
-    ${tuile('Effort', 'RPE ' + x.rpe, reserveDe(x.rpe))}
-    ${t ? tuile('Tempo', t.n, `≈ ${dureeSerie} s`) : ''}
-    ${x.repos > 0 ? tuile('Repos', fmtRepos(x.repos), 'entre séries') : ''}
+      ? tuile('Durée', `${x.repsCible[0]}-${x.repsCible[1]} s`, x.zone || 'par série', 'serie')
+      : tuile('Répétitions', `${x.repsCible[0]}-${x.repsCible[1]}`, 'par série', 'serie')}
+    ${tuile('Effort', 'RPE ' + x.rpe, reserveDe(x.rpe), 'rpe')}
+    ${t ? tuile('Tempo', t.n, `≈ ${dureeSerie} s`, 'tempo') : ''}
+    ${x.repos > 0 ? tuile('Repos', fmtRepos(x.repos), 'entre séries', 'repos') : ''}
   </div>
   ${t ? `<p class="pr-d">${t.d}</p>` : ''}
   ${x.repos > 0 && POURQUOI_REPOS[x.role] ? `<p class="pr-d">${POURQUOI_REPOS[x.role]}</p>` : ''}`;
@@ -1890,7 +1990,7 @@ function rendreExo(x, i, s){
       <svg class="exo-c" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
     </div>
     <div class="exo-b">
-      <div class="exo-note"><b>${{pri:'Exercice principal',sec:'Exercice secondaire',iso:'Isolation',fin:'Finisher',cardio:'Cardio',recup:'Récupération'}[x.role] || 'Exercice'}.</b>
+      <div class="exo-note"><b>${{pri:def('poly','Exercice principal'),sec:def('poly','Exercice secondaire'),iso:def('iso','Isolation'),fin:'Finisher',cardio:'Cardio',recup:'Récupération'}[x.role] || 'Exercice'}.</b>
         ${motifs[x.motif] || ''} ${der ? `Dernière fois le ${dateCourte(der.date)} : ${der.series.map(y => `${y.charge}×${y.reps}`).join(', ')}.` : ''}</div>
       ${ouvert && mouvementDe(EXO_MAP[x.ex]?.p) ? `<div class="pantin mini"><svg id="sx-pantin" viewBox="-98 -172 200 204" role="img"
         aria-label="Schéma animé du mouvement : ${esc(ex.n)}"></svg></div>` : ''}
@@ -2203,13 +2303,13 @@ function suiviCorps(){
       <div class="d">${depart} → ${rnd(actuel,1)} kg</div></div>
     <div class="stat"><div class="k">Tendance 7 jours</div><div class="v" style="font-size:22px">${t !== null ? (t>0?'+':'')+rnd(t,2) : '—'}<span class="u">kg</span></div>
       <div class="d">${t !== null ? rnd(t/actuel*100,2)+' % du poids' : 'deux pesées nécessaires'}</div></div>
-    <div class="stat"><div class="k">Masse grasse</div><div class="v">${m.mg}<span class="u">%</span></div>
+    <div class="stat"><div class="k">${def('mg','Masse grasse')}</div><div class="v">${m.mg}<span class="u">%</span></div>
       <div class="d">${(() => {
         const t = tendanceMG();
         if (t !== null) return delta(t, ' pt', true) + ' sur 3 scans';
         return m.mgMesuree ? 'mesurée au scan' : 'estimée (formule)';
       })()}</div></div>
-    <div class="stat"><div class="k">Masse maigre</div><div class="v">${m.masseMaigre}<span class="u">kg</span></div>
+    <div class="stat"><div class="k">${def('maigre','Masse maigre')}</div><div class="v">${m.masseMaigre}<span class="u">kg</span></div>
       <div class="d">le chiffre à préserver</div></div>
   </div>
   <div class="card" style="margin-top:14px">
@@ -2259,7 +2359,7 @@ function suiviForce(){
   const tonnages = Object.entries(parSemaine).map(([k, val]) => ({x:+k, y:Math.round(val/1000*10)/10}));
   return `
   <div class="card">
-    <div class="card-h"><h3>Volume de la semaine</h3><span class="sub">séries dures par groupe</span></div>
+    <div class="card-h"><h3>Volume de la semaine</h3><span class="sub">${def('volume','séries dures')} par groupe</span></div>
     ${barres(data, {alt:'Séries par groupe musculaire'})}
     <p class="tiny muted" style="margin-top:8px">Le trait pointillé est le plancher utile : en dessous, le groupe entretient sans progresser. Le plafond raisonnable est environ le double.</p>
   </div>
@@ -2274,7 +2374,7 @@ function suiviForce(){
       <div class="lib-g" style="color:var(--${GROUPES[e.g].c})">${GROUPES[e.g].n[0]}</div>
       <div class="lib-t"><b>${esc(e.n)}</b><span>${pr.charge} kg × ${pr.reps} · le ${dateCourte(pr.date)}</span></div>
       <div style="text-align:right"><div class="num" style="font-weight:800;font-size:16px;color:var(--accent)">${rnd(pr.e1rm,1)}</div>
-        <div class="tiny muted" style="font-size:10px">1RM est.</div></div>
+        <div class="tiny muted" style="font-size:10px">${def('rm1','1RM est.')}</div></div>
     </button>`;
   }).join('') : '<div class="empty card"><div class="ei">▲</div><b>Aucun record</b><p>Ils apparaissent dès la première séance enregistrée, et se mettent à jour tout seuls.</p></div>'}
   <div class="note"><b>Le 1RM estimé (formule d’Epley)</b> convertit n’importe quelle série en charge maximale théorique : 60 kg × 10 répétitions valent 80 kg × 1. C’est ce qui permet de comparer une série de 12 à une série de 5.</div>`;
@@ -2973,11 +3073,12 @@ function rendreNutrition(){
   <div class="card">
     <div class="card-h"><h3>Vos cibles</h3><span class="sub">recalculées à chaque pesée</span></div>
     <div class="split"><span class="sl">Calories</span><span class="sv">${m.kcal} kcal</span></div>
+    <div class="split"><span class="sl">${def('macros','Répartition')}</span><span class="sv" style="font-family:var(--sans);font-weight:600;font-size:12.5px">protéines · lipides · glucides</span></div>
     <div class="split"><span class="sl">Protéines</span><span class="sv">${m.prot} g <span class="muted">· ${rnd(m.prot/m.poids,1)} g/kg</span></span></div>
     <div class="split"><span class="sl">Lipides</span><span class="sv">${m.lip} g</span></div>
     <div class="split"><span class="sl">Glucides</span><span class="sv">${m.glu} g</span></div>
     <div class="split"><span class="sl">Eau</span><span class="sv">${(m.eau/1000).toFixed(1)} L</span></div>
-    <div class="note"><b>D’où viennent ces chiffres.</b> Métabolisme de base par la formule de Mifflin-St Jeor (${m.mb} kcal), multiplié par votre niveau d'activité (${S.profil.activite}) pour une dépense de ${m.de} kcal, puis ${OBJECTIFS[S.profil.objectif].kcal === 0 ? 'maintenu' : (OBJECTIFS[S.profil.objectif].kcal < 0 ? 'réduit' : 'augmenté') + ' de ' + Math.abs(OBJECTIFS[S.profil.objectif].kcal*100) + ' %'} pour votre objectif.
+    <div class="note"><b>D’où viennent ces chiffres.</b> ${def('mb','Métabolisme de base')} par la formule de Mifflin-St Jeor (${m.mb} kcal), multiplié par votre niveau d'activité (${S.profil.activite}) pour une dépense de ${m.de} kcal, puis ${OBJECTIFS[S.profil.objectif].kcal === 0 ? 'maintenu' : (OBJECTIFS[S.profil.objectif].kcal < 0 ? 'réduit' : 'augmenté') + ' de ' + Math.abs(OBJECTIFS[S.profil.objectif].kcal*100) + ' %'} pour votre objectif.
       ${m.sousPlancher ? `Le déficit a été plafonné : on ne descend pas sous ${m.plancher} kcal, sinon la fonte touche le muscle.` : ''}</div>
   </div>
 
@@ -2996,7 +3097,7 @@ function rendreNutrition(){
   </div>
 
   <div class="card">
-    <div class="card-h"><h3>Zones cardiaques</h3><span class="sub">FC max estimée ${m.fcMax}</span></div>
+    <div class="card-h"><h3>Zones cardiaques</h3><span class="sub">${def('fcmax','FC max')} estimée ${m.fcMax}</span></div>
     ${m.zones.map(z => `<div class="split"><span class="sl"><b style="color:var(--text)">${z.z} ${z.n}</b><br><span class="tiny muted">${z.d}</span></span>
       <span class="sv">${z.min}–${z.max}</span></div>`).join('')}
     <p class="tiny muted" style="margin-top:10px">Formule de Tanaka (208 − 0,7 × âge), plus fiable que « 220 − âge » passé quarante ans. L'essentiel du cardio se fait en zone 2, où l'on brûle sans entamer la récupération de la séance de force.</p>
@@ -3079,6 +3180,8 @@ function rendreReglages(){
   <div class="sec-title">Comprendre et apprendre</div>
   <button class="lib-i" id="rg-biblio"><div class="lib-g" style="color:var(--accent)">B</div>
     <div class="lib-t"><b>Bibliothèque d’exercices</b><span>${EXOS.length} mouvements, exécution et erreurs fréquentes</span></div></button>
+  <button class="lib-i" id="rg-lexique"><div class="lib-g" style="color:var(--force)">V</div>
+    <div class="lib-t"><b>Le vocabulaire</b><span>${Object.keys(LEXIQUE).length} mots du carnet, expliqués simplement</span></div></button>
   <button class="lib-i" id="rg-methode"><div class="lib-g" style="color:var(--cardio)">M</div>
     <div class="lib-t"><b>La méthode</b><span>Toutes les formules employées, et pourquoi</span></div></button>
 
@@ -3116,6 +3219,7 @@ function rendreReglages(){
     S.personnalises = {}; sauver(); rendreReglages(); toast('Sélection d’exercices rétablie.');
   });
   $('#rg-biblio').addEventListener('click', modalBibliotheque);
+  $('#rg-lexique').addEventListener('click', modalLexique);
   $('#rg-methode').addEventListener('click', modalMethode);
   $('#rg-donnees').addEventListener('click', modalDonnees);
   $('#rg-effacer').addEventListener('click', () => {
@@ -3329,9 +3433,17 @@ function init(){
   $('#btn-theme').addEventListener('click', themeSuivant);
   $('#btn-aide').addEventListener('click', modalAide);
   $$('.tab').forEach(t => t.addEventListener('click', () => aller(t.dataset.go)));
+  /* Les mots expliqués : un seul écouteur, quel que soit l'écran. */
+  document.addEventListener('click', e => {
+    const mot = e.target.closest('[data-def]');
+    if (mot){ e.stopPropagation(); ouvrirBulle(mot.dataset.def, mot); return; }
+    if (!e.target.closest('.bulle')) fermerBulle();
+  });
+  addEventListener('scroll', fermerBulle, {passive:true, capture:true});
+  addEventListener('resize', fermerBulle);
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') fermerModal(); });
   document.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermerModal(); });
-  addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape'){ fermerBulle(); fermerModal(); } });
   $('#timer-stop').addEventListener('click', arreterTimer);
   $('#timer-plus').addEventListener('click', () => { timerFin += 30000; timerTotal += 30; tickTimer(); });
 
