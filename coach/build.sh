@@ -10,7 +10,7 @@ set -euo pipefail
 TITRE="Coach de poche"
 DESC="Programme de force et de cardio sur douze semaines, calculé sur votre profil et réajusté chaque semaine d'après vos séances, vos pesées et votre forme du jour."
 # Apostrophes à l'intérieur du SVG : l'attribut href est en guillemets doubles.
-ICONE="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230F8F6B'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'><path d='M10 10v12M22 10v12M6 13v6M26 13v6M10 16h12'/></g></svg>"
+ICONE="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23C8102E'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'><path d='M10 10v12M22 10v12M6 13v6M26 13v6M10 16h12'/></g></svg>"
 
 # Version du cache hors connexion : empreinte du contenu réellement publié.
 VERSION="$(sha1sum coach.html | cut -c1-12)"
@@ -52,8 +52,8 @@ cat > site/manifest.webmanifest <<MANIFEST
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#080A0E",
-  "theme_color": "#0F8F6B",
+  "background_color": "#0A0A0C",
+  "theme_color": "#C8102E",
   "lang": "fr",
   "orientation": "portrait",
   "icons": [
