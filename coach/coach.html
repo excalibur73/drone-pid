@@ -721,7 +721,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.8.2';
+const VERSION = '1.9.0';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -733,7 +733,7 @@ const DEFAUTS = {
     objectif:'recomposition', niveau:'debutant', activite:1.375,
     joursSemaine:3, jours:['lun','mer','ven'], duree:60,
     lieux:['salle'], options:{sismo:false, visbody:false, water:false},
-    contraintes:[], sommeilCible:7.5, debut:null, cree:null
+    contraintes:[], regime:['sansPorc', 'sansAlcool'], sommeilCible:7.5, debut:null, cree:null
   },
   reglages:{ theme:'auto', reposDefaut:90, sonTimer:true, uniteCharge:'kg', freqScan:7,
     rappelPesee:true, arrondi:2.5, seriesEchauffement:true },
@@ -1393,7 +1393,13 @@ function ecrLieu(){
     ${CONTRAINTES.map(c => `<button class="opt ${T.contraintes.includes(c.v)?'on':''}" data-ci="${c.v}">
       <div class="oi">${T.contraintes.includes(c.v)?'✓':'+'}</div><div style="flex:1"><b>${c.n}</b><span>${c.d}</span></div></button>`).join('')}
   </div>
-  <div class="note warn"><b>Une gêne n'est pas un diagnostic.</b> Ces cases adaptent la sélection d'exercices ; elles ne remplacent pas l'avis d'un médecin ou d'un kinésithérapeute en cas de douleur qui dure.</div>`;
+  <div class="note warn"><b>Une gêne n'est pas un diagnostic.</b> Ces cases adaptent la sélection d'exercices ; elles ne remplacent pas l'avis d'un médecin ou d'un kinésithérapeute en cas de douleur qui dure.</div>
+  <div class="sec-title">À table</div>
+  <div class="grid">
+    ${REGIMES.map(r => `<button class="opt ${(T.regime||[]).includes(r.v)?'on':''}" data-reg="${r.v}">
+      <div class="oi">${(T.regime||[]).includes(r.v)?'✓':'+'}</div><div style="flex:1"><b>${r.n}</b><span>${r.d}</span></div></button>`).join('')}
+  </div>
+  <p class="tiny muted" style="margin-top:8px">Ces choix filtrent les suggestions d'aliments et les conseils d'avant-séance. Ils ne changent ni vos calories ni vos macronutriments.</p>`;
 }
 function ecrRecap(){
   const sauve = structuredClone(S.profil);
@@ -1447,6 +1453,11 @@ function brancherOnboarding(){
   $$('[data-ci]').forEach(b => b.addEventListener('click', () => {
     const k = b.dataset.ci, i = T.contraintes.indexOf(k);
     if (i >= 0) T.contraintes.splice(i, 1); else T.contraintes.push(k);
+    rendreOnboarding();
+  }));
+  $$('#v-onboarding [data-reg]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.reg, l = T.regime || (T.regime = []), i = l.indexOf(k);
+    if (i >= 0) l.splice(i, 1); else l.push(k);
     rendreOnboarding();
   }));
   const d = $('#p-duree'); if (d) d.addEventListener('input', () => { T.duree = +d.value; $('#duree-v').textContent = d.value + ' min'; });
@@ -3053,7 +3064,13 @@ function optionsAvant(){
      ex:['Deux ou trois dattes en arrivant', 'De l’eau, surtout', 'Un café si l’heure le permet']}
   ];
 }
-const A_EVITER = ['fromage', 'charcuterie', 'friture', 'légumineuses', 'gros volume de crudités', 'boisson gazeuse'];
+/* Conseiller d'éviter la charcuterie à qui n'en mange pas est du
+   bruit : la liste se réduit à ce qui concerne la personne.        */
+function aEviter(){
+  const x = exclus();
+  return [x.has('lait') ? '' : 'fromage', x.has('porc') || x.has('chair') ? '' : 'charcuterie',
+    'friture', 'légumineuses', 'gros volume de crudités', 'boisson gazeuse'].filter(Boolean);
+}
 
 /* Cases à cocher : remises à zéro chaque jour, sans quoi elles ne
    veulent plus rien dire dès le lendemain.                           */
@@ -3092,7 +3109,7 @@ function modalAvantSeance(choix){
       <div class="card-h"><h3>${sel.t}</h3></div>
       <p class="tiny" style="color:var(--text2);line-height:1.6">${sel.d}</p>
       <div style="margin-top:12px">${sel.ex.map(e => `<div class="split"><span class="sl">${e}</span></div>`).join('')}</div>
-      ${sel.v !== '3h' ? `<div class="note force" style="margin-bottom:0"><b>À laisser de côté :</b> ${A_EVITER.join(', ')}.
+      ${sel.v !== '3h' ? `<div class="note force" style="margin-bottom:0"><b>À laisser de côté :</b> ${aEviter().join(', ')}.
         Le gras et les fibres ralentissent la vidange de l’estomac — sous une barre, ça devient lourdeur et remontées.</div>` : ''}
     </div>` : `<p class="tiny muted" style="margin-top:12px">Choisissez le délai ci-dessus : le reste en découle.</p>`}
 
@@ -3132,13 +3149,47 @@ function modalAvantSeance(choix){
 }
 
 /* ─── 13. Vue « Nutrition » ──────────────────────────────────────────── */
+/* Chaque aliment porte ce qui peut motiver son retrait :
+   porc · chair (viande, poisson, fruits de mer) · lait.
+   Un régime ne doit pas rétrécir la liste sans rien mettre à la
+   place : les sources retirées sont compensées, pas soustraites. */
 const ALIMENTS = [
-  ['Blanc de poulet', 100, 31], ['Steak haché 5 %', 100, 21], ['Œuf entier', 1, 6.5],
-  ['Blanc d’œuf', 100, 11], ['Thon au naturel', 100, 26], ['Saumon', 100, 20],
-  ['Fromage blanc 0 %', 100, 8], ['Skyr', 100, 11], ['Whey', 30, 24],
-  ['Lentilles cuites', 100, 9], ['Pois chiches cuits', 100, 9], ['Tofu ferme', 100, 15],
-  ['Jambon blanc', 1, 9], ['Emmental', 30, 8], ['Flocons d’avoine', 100, 13]
+  ['Blanc de poulet',      100, 31, ['chair']],
+  ['Escalope de dinde',    100, 29, ['chair']],
+  ['Steak haché 5 %',      100, 21, ['chair']],
+  ['Viande de bœuf séchée', 30, 10, ['chair']],
+  ['Œuf entier',             1, 6.5, []],
+  ['Blanc d’œuf',          100, 11, []],
+  ['Thon au naturel',      100, 26, ['chair']],
+  ['Saumon',               100, 20, ['chair']],
+  ['Sardines à l’huile',   100, 25, ['chair']],
+  ['Crevettes',            100, 24, ['chair']],
+  ['Jambon blanc',           1, 9,  ['porc', 'chair']],
+  ['Fromage blanc 0 %',    100, 8,  ['lait']],
+  ['Skyr',                 100, 11, ['lait']],
+  ['Emmental',              30, 8,  ['lait']],
+  ['Whey',                  30, 24, ['lait']],
+  ['Lentilles cuites',     100, 9,  []],
+  ['Pois chiches cuits',   100, 9,  []],
+  ['Tofu ferme',           100, 15, []],
+  ['Edamame',              100, 11, []],
+  ['Flocons d’avoine',     100, 13, []]
 ];
+const REGIMES = [
+  {v:'sansPorc',    n:'Sans porc',      sort:['porc'],  d:'Jambon et charcuterie retirés des listes'},
+  {v:'sansAlcool',  n:'Sans alcool',    sort:[],        d:'Aucun conseil ne mentionnera l’alcool'},
+  {v:'vegetarien',  n:'Végétarien',     sort:['chair'], d:'Ni viande ni poisson ; œufs et laitages conservés'},
+  {v:'sansLactose', n:'Sans lactose',   sort:['lait'],  d:'Laitages et whey retirés des listes'}
+];
+/* Ce que le régime écarte, une fois pour toutes. */
+function exclus(){
+  return new Set((S.profil.regime || []).flatMap(v => (REGIMES.find(r => r.v === v) || {sort:[]}).sort));
+}
+function alimentsRetenus(){
+  const x = exclus();
+  const l = ALIMENTS.filter(([, , , tags]) => !tags.some(t => x.has(t)));
+  return l.length ? l : ALIMENTS;   /* jamais une liste vide */
+}
 function journalDuJour(){
   return S.nutrition.find(x => x.date === aujourdhui()) || {date:aujourdhui(), prot:0, eau:0, kcal:0};
 }
@@ -3188,11 +3239,13 @@ function rendreNutrition(){
       <div class="split"><span class="sl"><b style="color:var(--text)">${n}</b> <span class="muted">— ${d}</span></span>
       <span class="sv">${m.proteinesParRepas} g</span></div>`).join('')}
     <p class="tiny muted" style="margin-top:10px">Quatre prises d'environ ${m.proteinesParRepas} g valent mieux qu'un seul gros repas protéiné : la synthèse musculaire se relance à chaque prise, elle ne se stocke pas.</p>
+    ${(S.profil.regime||[]).includes('sansAlcool') ? '' : `<div class="note warn" style="margin-bottom:0"><b>L'alcool, le soir d'une séance.</b>
+      Il freine la synthèse des protéines pendant plusieurs heures et hache la seconde moitié de la nuit, celle qui porte la récupération. Le lendemain d'une soirée arrosée, la séance se ressent avant même d'avoir commencé.</div>`}
   </div>
 
   <div class="card">
     <div class="card-h"><h3>Où trouver les protéines</h3></div>
-    ${ALIMENTS.map(([n, q, p]) => `<div class="split"><span class="sl">${n} <span class="muted">— ${q === 1 ? '1 unité' : q + ' g'}</span></span>
+    ${alimentsRetenus().map(([n, q, p]) => `<div class="split"><span class="sl">${n} <span class="muted">— ${q === 1 ? '1 unité' : q + ' g'}</span></span>
       <span class="sv">${p} g</span></div>`).join('')}
   </div>
 
@@ -3238,8 +3291,16 @@ function rendreReglages(){
       [...p.lieux.map(l => ({salle:'Salle',maison:'Maison',exterieur:'Dehors'})[l]),
        p.options.sismo?'Sismo/Visbody':'', p.options.water?'Water Sport':''].filter(Boolean).join(' · ')}</span></div>
     ${p.contraintes.length ? `<div class="split"><span class="sl">À ménager</span><span class="sv" style="font-family:var(--sans);font-weight:600">${p.contraintes.map(c => CONTRAINTES.find(x => x.v===c).n.replace(' sensible','')).join(' · ')}</span></div>` : ''}
+    ${(p.regime||[]).length ? `<div class="split"><span class="sl">Régime</span><span class="sv" style="font-family:var(--sans);font-weight:600">${p.regime.map(v => REGIMES.find(r => r.v===v).n).join(' · ')}</span></div>` : ''}
     <button class="btn lg" id="rg-profil" style="margin-top:14px">Modifier mes paramètres</button>
     <p class="tiny muted" style="margin-top:8px">Le programme se régénère aussitôt : les séances déjà enregistrées ne bougent pas, les suivantes tiennent compte des nouveaux réglages.</p>
+  </div>
+
+  <div class="sec-title">Alimentation</div>
+  <div class="card">
+    ${REGIMES.map(r => `<div class="sw ${(p.regime||[]).includes(r.v)?'on':''}" data-reg="${r.v}">
+      <div class="sw-t"><b>${r.n}</b><span>${r.d}</span></div><div class="sw-x"></div></div>`).join('')}
+    <p class="tiny muted" style="margin-top:10px">Ces choix filtrent les listes d'aliments et les conseils d'avant-séance. Ils ne touchent ni aux calories ni aux macronutriments : un gramme de protéine vaut le même gramme quelle qu'en soit la source.</p>
   </div>
 
   <div class="sec-title">Programme</div>
@@ -3309,6 +3370,11 @@ function rendreReglages(){
   $('#rg-scan')?.addEventListener('change', e => { S.reglages.freqScan = +e.target.value; sauver(); rendreJour(); });
   $$('#v-reglages [data-sw]').forEach(b => b.addEventListener('click', () => {
     S.reglages[b.dataset.sw] = !S.reglages[b.dataset.sw]; sauver(); rendreReglages();
+  }));
+  $$('#v-reglages [data-reg]').forEach(b => b.addEventListener('click', () => {
+    const v = b.dataset.reg, l = S.profil.regime || (S.profil.regime = []);
+    const i = l.indexOf(v); i < 0 ? l.push(v) : l.splice(i, 1);
+    sauver(); rendreReglages(); rendreNutrition();
   }));
   $('#rg-redemarrer').addEventListener('click', () => {
     if (!confirm('Repartir de la semaine 1 ? Vos séances et mesures sont conservées.')) return;
