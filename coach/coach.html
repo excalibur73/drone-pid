@@ -721,7 +721,7 @@ const EXO_MAP = Object.fromEntries(EXOS.map(e => [e.i, e]));
 /* ─── 2. État et stockage ─────────────────────────────────────────────
    Une seule clé localStorage, versionnée, avec fusion des valeurs par
    défaut : une mise à jour de l'application n'efface jamais l'historique. */
-const VERSION = '1.8.0';
+const VERSION = '1.8.1';
 /* Empreinte du fichier réellement publié, posée par build.sh dans l'en-tête.
    Absente hors de cet hébergement (Artifact, fichier ouvert localement).   */
 const BUILD = (document.querySelector('meta[name="version"]') || {}).content || '';
@@ -2002,7 +2002,8 @@ function rendreExo(x, i, s){
       <div class="exo-note"><b>${{pri:def('poly','Exercice principal'),sec:def('poly','Exercice secondaire'),iso:def('iso','Isolation'),fin:'Finisher',cardio:'Cardio',recup:'Récupération'}[x.role] || 'Exercice'}.</b>
         ${motif} ${der ? `Dernière fois le ${dateCourte(der.date)} : ${der.series.map(y => `${y.charge}×${y.reps}`).join(', ')}.` : ''}</div>
       ${ouvert && mouvementDe(x.ex) ? `<div class="pantin mini"><svg id="sx-pantin" viewBox="-98 -172 200 204" role="img"
-        aria-label="Schéma animé du mouvement : ${esc(ex.n)}"></svg></div>` : ''}
+        aria-label="Schéma animé du mouvement : ${esc(ex.n)}"></svg>
+        <span class="pantin-l">Schéma : ${esc(mouvementDe(x.ex).nom.toLowerCase())}</span></div>` : ''}
       ${x.attention ? `<div class="note warn" style="margin:0 0 12px"><b>Aucun repli sans contrainte pour ce créneau.</b>
         Cet exercice touche une articulation que vous avez signalée : réduisez d'abord l'amplitude et la charge, ou remplacez-le ci-dessous.</div>` : ''}
       ${prescription(x)}
@@ -2511,14 +2512,14 @@ const MOUVEMENTS = {
     b:{appui:'sol', cuisse:0, tibia:0, torse:1, bras:150, avantBras:206, tete:0}},
 
   tirageV:{nom:'Tirage vertical', prop:'barre-haut',
-    a:{appui:'barre', cuisse:-14, tibia:30, torse:-2, bras:178, avantBras:180, tete:-2,
-       cuisseL:-22, tibiaL:38},
-    b:{appui:'barre', cuisse:-14, tibia:30, torse:-6, bras:158, avantBras:-158, tete:-8,
-       cuisseL:-22, tibiaL:38}},
+    a:{appui:'barre', cuisse:-14, tibia:-48, pied:38, torse:-2, bras:178, avantBras:180, tete:-2,
+       cuisseL:-22, tibiaL:-58, piedL:38},
+    b:{appui:'barre', cuisse:-14, tibia:-48, pied:38, torse:-6, bras:158, avantBras:-158, tete:-8,
+       cuisseL:-22, tibiaL:-58, piedL:38}},
 
   tirageH:{nom:'Tirage horizontal', prop:'poulie-avant',
     a:{appui:'sol', cuisse:14, tibia:-12, torse:48, bras:6,   avantBras:4,   tete:40},
-    b:{appui:'sol', cuisse:14, tibia:-12, torse:48, bras:-34, avantBras:-58, tete:40}},
+    b:{appui:'sol', cuisse:14, tibia:-12, torse:48, bras:-40, avantBras:-6,  tete:40}},
 
   biceps:{nom:'Flexion de coude', prop:'haltere',
     a:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2,   tete:3},
@@ -2533,7 +2534,7 @@ const MOUVEMENTS = {
     b:{appui:'sol', cuisse:0, tibia:0, torse:5, bras:84, avantBras:88, tete:4}},
 
   pecIso:{nom:'Écarté', prop:'poulie-avant',
-    a:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:106, avantBras:100, tete:6},
+    a:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:106, avantBras:112, tete:6},
     b:{appui:'sol', cuisse:0, tibia:0, torse:8, bras:52,  avantBras:56,  tete:6}},
 
   dosIso:{nom:'Haussement d’épaules', prop:'haltere',
@@ -2541,15 +2542,15 @@ const MOUVEMENTS = {
     b:{appui:'sol', cuisse:0, tibia:0, torse:4, bras:4, avantBras:2, tete:3, epaulePlus:8}},
 
   quaIso:{nom:'Extension de genou', prop:'siege',
-    a:{appui:'assis', cuisse:86, tibia:4,  torse:10, bras:60, avantBras:20, tete:8,
+    a:{appui:'assis', cuisse:86, tibia:4,  torse:10, bras:6, avantBras:16, tete:8,
        cuisseL:86, tibiaL:4},
-    b:{appui:'assis', cuisse:86, tibia:82, torse:10, bras:60, avantBras:20, tete:8,
+    b:{appui:'assis', cuisse:86, tibia:82, torse:10, bras:6, avantBras:16, tete:8,
        cuisseL:86, tibiaL:82}},
 
   iscIso:{nom:'Flexion de genou', prop:'siege',
-    a:{appui:'assis', cuisse:86, tibia:62, torse:10, bras:60, avantBras:20, tete:8,
+    a:{appui:'assis', cuisse:86, tibia:62, torse:10, bras:6, avantBras:16, tete:8,
        cuisseL:86, tibiaL:62},
-    b:{appui:'assis', cuisse:86, tibia:2,  torse:10, bras:60, avantBras:20, tete:8,
+    b:{appui:'assis', cuisse:86, tibia:2,  torse:10, bras:6, avantBras:16, tete:8,
        cuisseL:86, tibiaL:2}},
 
   mollets:{nom:'Extension de cheville', prop:'',
@@ -2570,22 +2571,32 @@ const MOUVEMENTS = {
     b:{appui:'sol', cuisse:34, tibia:-30, torse:4,  bras:170, avantBras:186, tete:0,
        cuisseL:-30, tibiaL:-74, piedL:52}},
 
-  marche:{nom:'Marche et course', prop:'pente',
-    a:{appui:'sol', cuisse:26,  tibia:-20, pied:0,  torse:7, bras:-25, avantBras:-55, tete:6,
-       cuisseL:-22, tibiaL:30,  piedL:26, brasL:26,  avantBrasL:55},
-    b:{appui:'sol', cuisse:-22, tibia:30,  pied:26, torse:7, bras:26,  avantBras:55,  tete:6,
-       cuisseL:26,  tibiaL:-20, piedL:0,  brasL:-25, avantBrasL:-55}},
+  /* Genou et coude sont des charnières : le tibia part toujours en retrait
+     de la cuisse, l'avant-bras toujours en avant du bras. Un membre opposé
+     ne s'obtient donc pas en niant les angles — cela retourne la charnière
+     et casse la jambe. Chaque côté est posé à la main.                   */
+  marche:{nom:'Marche', prop:'pente',
+    a:{appui:'sol', cuisse:25,  tibia:8,    pied:-12, torse:7, bras:-25, avantBras:8,   tete:6,
+       cuisseL:-25, tibiaL:-45, piedL:45,   brasL:26, avantBrasL:58},
+    b:{appui:'sol', cuisse:-25, tibia:-45,  pied:45,  torse:7, bras:26,  avantBras:58,  tete:6,
+       cuisseL:25,  tibiaL:8,   piedL:-12,  brasL:-25, avantBrasL:8}},
+
+  course:{nom:'Course et fractionné', prop:'pente',
+    a:{appui:'sol', cuisse:52,  tibia:-30,   pied:18, torse:14, bras:-38, avantBras:52,  tete:12,
+       cuisseL:-34, tibiaL:-118, piedL:40,   brasL:34, avantBrasL:124},
+    b:{appui:'sol', cuisse:-34, tibia:-118,  pied:40, torse:14, bras:34,  avantBras:124, tete:12,
+       cuisseL:52,  tibiaL:-30,  piedL:18,   brasL:-38, avantBrasL:52}},
 
   rameur:{nom:'Rameur', prop:'poulie-avant',
     a:{appui:'assis', cuisse:68, tibia:-50, torse:30,  bras:62,  avantBras:66,  tete:26,
        cuisseL:68, tibiaL:-50},
-    b:{appui:'assis', cuisse:86, tibia:78,  torse:-14, bras:-18, avantBras:-70, tete:-10,
+    b:{appui:'assis', cuisse:86, tibia:78,  torse:-14, bras:-18, avantBras:102, tete:-10,
        cuisseL:86, tibiaL:78}},
 
-  cardio:{nom:'Cardio', prop:'velo',
-    a:{appui:'assis', cuisse:74, tibia:16, torse:26, bras:56, avantBras:52, tete:16,
-       cuisseL:52, tibiaL:74},
-    b:{appui:'assis', cuisse:52, tibia:74, torse:26, bras:56, avantBras:52, tete:16,
+  cardio:{nom:'Pédalage', prop:'velo',
+    a:{appui:'assis', cuisse:74, tibia:16, torse:26, bras:56, avantBras:64, tete:16,
+       cuisseL:52, tibiaL:30},
+    b:{appui:'assis', cuisse:52, tibia:30, torse:26, bras:56, avantBras:64, tete:16,
        cuisseL:74, tibiaL:16}}
 };
 
@@ -2595,7 +2606,7 @@ const PANTIN_DE = {aqua:'cardio', sismo:'mobilite'};
 /* Six exercices de cardio partageaient le dessin du vélo : une marche sur
    tapis n'a rien d'un pédalage. Certains exercices méritent donc leur
    propre schéma, avant celui de leur schéma moteur.                    */
-const PANTIN_EXO = {'marche-rapide':'marche', 'fractionne':'marche',
+const PANTIN_EXO = {'marche-rapide':'marche', 'fractionne':'course',
   'elliptique':'marche', 'rameur':'rameur'};
 function mouvementDe(ref){
   const e = typeof ref === 'string' ? EXO_MAP[ref] : ref;
@@ -2936,7 +2947,7 @@ function ficheExercice(id){
     </div>
     ${mouvementDe(e.i) ? `<div class="pantin"><svg id="fx-pantin" viewBox="-98 -172 200 204" role="img"
       aria-label="Schéma animé du mouvement : ${esc(e.n)}"></svg>
-      <span class="pantin-l">Schéma du mouvement — le trait pâle montre l’autre extrémité</span></div>` : ''}
+      <span class="pantin-l">Schéma : ${esc(mouvementDe(e.i).nom.toLowerCase())} — le trait pâle montre l’autre extrémité</span></div>` : ''}
     <div class="sec-title" style="margin-top:0">Exécution</div>
     <p style="font-size:14px;line-height:1.6;color:var(--text2)">${esc(e.c)}</p>
     <div class="note force"><b>L’erreur la plus fréquente.</b> ${esc(e.e)}</div>
